@@ -47,7 +47,7 @@
 	);
 
 	const styles = stylex.create({
-		disc: { backgroundColor: 'var(--background-raised)' },
+		disc: { backgroundColor: 'var(--interaction-strong)' },
 		account: {
 			color: 'var(--foreground-strong)',
 			fontSize: fontSize.body,
@@ -70,7 +70,7 @@
 			borderRadius: radius.md,
 			backgroundColor: {
 				default: 'transparent',
-				':hover': 'var(--interaction-selected)',
+				':hover': 'var(--interaction-default)',
 			},
 			transitionProperty: 'background-color',
 			transitionDuration: duration.base,

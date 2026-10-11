@@ -33,7 +33,6 @@ export function fitted(counts, width, bounds) {
 	return { of, slot, gap };
 }
 
-
 /**
  * Every row waiting in the grid just before the running script, drawn: the column measured once,
  * the count its width fits picked, then each row's slots written in from its letters. Past its

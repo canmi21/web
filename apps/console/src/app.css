@@ -14,12 +14,18 @@
    card is lifted, not outlined" and "Hover and choice are one wash at two strengths". */
 :root {
 	--color-ground: var(--background-base);
-	--color-sunken: var(--background-inset);
+	--color-sunken: var(--background-base);
 	--color-surface: var(--background-surface);
-	--color-raised: var(--background-raised);
-	--color-hover: var(--interaction-hover);
-	--color-selected: var(--interaction-selected);
-	--color-selected-solid: var(--interaction-selected-opaque);
+	--color-raised: var(--interaction-strong);
+	--color-hover: var(--interaction-subtle);
+	--color-selected: var(--interaction-default);
+	/* The default rank laid on a card as one opaque color, for what must match a chosen row and
+	   cannot be translucent itself. */
+	--color-selected-solid: color-mix(
+		in srgb,
+		var(--background-surface),
+		oklch(var(--interaction-tint) 0 0) calc(var(--interaction-strength) * 100%)
+	);
 	--color-line-faint: var(--border-subtle);
 	--color-line: var(--border-default);
 	--shadow-card: var(--shadow-surface);

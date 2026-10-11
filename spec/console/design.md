@@ -120,6 +120,14 @@ something chosen stands among what can be pointed at, as the sidebar's open page
 does the hover step down to `--color-hover`, so the two still read apart. Decided with the author
 on 2026-10-09; the one-state rule on 2026-10-10.
 
+**Since 2026-10-11 the wash is the contract's four ranks** -- lib's `spec/design/styles.md`, "Two
+grounds, and every other ground an interaction rank". `--color-selected` is `--interaction-default`,
+the full strength as above; `--color-hover` is `--interaction-subtle`, half of it in the light and
+seven tenths in the dark, where the two would otherwise read as one; the sidebar's open page, through
+the nav link, takes `muted` beside its `subtle` hover. `--color-raised`, once a gray of its own that
+in the light sat darker than the page, is `--interaction-strong`, and `--color-sunken` the base it
+always equaled.
+
 ## An error is the site's page, in the console's frame
 
 **A page that fails is drawn as the site draws one, inside the console's sidebar and bar**, so a

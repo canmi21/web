@@ -37,7 +37,7 @@
 			borderWidth: 0,
 			backgroundColor: {
 				default: 'var(--background-surface)',
-				':hover': 'var(--background-raised)',
+				':hover': 'var(--interaction-strong)',
 			},
 			boxShadow: `0 0 0 ${borderWidth.hairline} var(--border-default)`,
 			color: 'var(--foreground-muted)',
