@@ -256,14 +256,6 @@ description = "Type check what every part of canmi.app draws, which is Svelte co
 dir = "libs/space-ui"
 run = 'pnpm exec svelte-check --tsconfig ./tsconfig.json ${AUDIT:+--fail-on-warnings}'
 
-[tasks.check-rfc]
-description = "Check that every RFC under rfcs/ is named, filed and written in the format"
-run = "node apps/space/rfcs/scripts/check-rfc.ts"
-
-[tasks.new-rfc]
-description = "Start an RFC from its name in title case: `new-rfc <name> <scope> [--dry-run]`"
-run = "node apps/space/rfcs/scripts/new-rfc.ts"
-
 [tasks.check-social]
 description = "Type check the social links row, Svelte components in a library"
 dir = "libs/social"

@@ -1,10 +1,10 @@
 /**
  * Where an RFC is kept and what its file is called:
- * `rfcs/{scope}/{yyyy}-{mmdd}-{nn}-{slug}-{id}.md`, the day it was written, its place in that day,
+ * `{scope}/{yyyy}-{mmdd}-{nn}-{slug}-{id}.md`, the day it was written, its place in that day,
  * a slug for people and an id for machines. The format is RFC 2ut6h's.
  */
 
-/** A scope's folder, and a scope named in another's `also`. */
+/** A scope's folder, an area's name. */
 export const SCOPE = /^[a-z][a-z0-9-]*$/;
 /** Words in lowercase, joined by single hyphens. */
 export const SLUG = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;

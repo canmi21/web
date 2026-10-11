@@ -7,7 +7,7 @@
 import { mkdirSync, writeFileSync } from 'node:fs';
 import { dirname, join, relative } from 'node:path';
 import { formatName, newId, rfcPath, SCOPE, SLUG, slugOf, today } from '../src/lib/rfc/name.ts';
-import { RFCS, ROOT, rfcFiles, scopes } from './rfc-files.ts';
+import { RFCS, rfcFiles, scopes } from './rfc-files.ts';
 
 const args = process.argv.slice(2);
 const dryRun = args.includes('--dry-run');
@@ -24,7 +24,7 @@ if (!name || !scope || !SCOPE.test(scope) || !SLUG.test(slug) || name.trim().len
 
 const areas = scopes();
 if (!areas.has(scope)) {
-	console.error(`${scope} is not an area rfcs/scopes.yaml lists; it lists:`);
+	console.error(`${scope} is not an area scopes.yaml lists; it lists:`);
 	for (const [area, about] of areas) console.error(`  ${area.padEnd(10)} ${about}`);
 	console.error('  a new area is added there first');
 	process.exit(2);
@@ -49,10 +49,10 @@ references: []
 ## Question
 ${draft ? '' : '\n## Decision\n'}`;
 
-if (dryRun) console.log(`would write ${relative(ROOT, path)}`);
+if (dryRun) console.log(`would write ${relative(RFCS, path)}`);
 else {
 	mkdirSync(dirname(path), { recursive: true });
 	writeFileSync(path, TEMPLATE, { flag: 'wx' });
-	console.log(relative(ROOT, path));
+	console.log(relative(RFCS, path));
 }
 console.log(`id ${id}, read at ${rfcPath(scope, { slug, id })}`);

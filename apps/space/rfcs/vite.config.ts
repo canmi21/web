@@ -17,6 +17,7 @@ const BASE = '/rfcs';
 // The repository root, as the site and the console set it: StyleX hashes a class from the file's
 // path relative to this.
 const ROOT = fileURLToPath(new URL('../../../', import.meta.url));
+const RFCS = fileURLToPath(new URL('../../../../rfcs/', import.meta.url));
 
 // Sentry's plugin hands its browser half the `$app/state` tracing SvelteKit 3 needs, as the
 // console's does; maps upload only with a token. See spec/architecture/space.md, "Errors are the
@@ -34,7 +35,14 @@ export default defineConfig(({ mode }) => ({
 	// Its own pinned port, refused rather than moved when taken; see spec/toolchain.md, "Dev ports
 	// are pinned". Read through space's router at 26528, so the page's hot updates come straight
 	// here rather than through it.
-	server: { port: 26551, strictPort: true, hmr: { clientPort: 26551 } },
+	// The RFCs are read from the rfcs repository beside web's checkout, outside the workspace Vite
+	// would serve from otherwise; see RFC 7f4xx.
+	server: {
+		port: 26551,
+		strictPort: true,
+		hmr: { clientPort: 26551 },
+		fs: { allow: [ROOT, RFCS] },
+	},
 	plugins: [
 		{
 			// The font stylesheets in @canmi/fonts name their host by a placeholder, which mode

@@ -1,18 +1,18 @@
 /**
- * Every RFC under the repository's rfcs/, read at build: its place, its frontmatter, its body, and
- * the later RFC that superseded it, which is read off that one rather than written in this. A file
- * out of form fails the build; `check-rfc` says why first.
+ * Every RFC in the rfcs repository beside web's checkout, read at build: its place, its
+ * frontmatter, its body, and the later RFC that superseded it, read off that one rather than
+ * written in this. A file out of form fails the build; `check-rfc` says why first.
  */
 import { parse } from 'yaml';
 import { parseName, type Name } from './name.ts';
 import { readFront, split, type Front } from './record.ts';
 
-const FILES = import.meta.glob<string>('../../../../../../rfcs/*/*.md', {
+const FILES = import.meta.glob<string>('../../../../../../../rfcs/*/*.md', {
 	query: '?raw',
 	import: 'default',
 	eager: true,
 });
-const LISTS = import.meta.glob<string>('../../../../../../rfcs/scopes.yaml', {
+const LISTS = import.meta.glob<string>('../../../../../../../rfcs/scopes.yaml', {
 	query: '?raw',
 	import: 'default',
 	eager: true,
@@ -26,7 +26,7 @@ export type Rfc = Name & {
 	supersededBy?: string;
 };
 
-/** Each area by name, with what it is about, in the order rfcs/scopes.yaml lists them. */
+/** Each area by name, with what it is about, in the order its scopes.yaml lists them. */
 export const AREAS: ReadonlyMap<string, string> = new Map(
 	Object.entries((parse(Object.values(LISTS)[0] ?? '') ?? {}) as Record<string, string>),
 );

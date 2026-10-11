@@ -11,7 +11,7 @@ apps/space/          the router, Hono: Worker `space`, the apex's custom domain
 apps/space/design/   /design, the design system: Worker `space-design`
 apps/space/rfcs/     /rfcs, the RFCs: Worker `space-rfcs`
 libs/space-ui/       what both draw -- the frame, the prose, the specimens
-rfcs/                the RFCs themselves, read by apps/space/rfcs at build
+../rfcs/            the RFCs themselves, the rfcs repository, read by apps/space/rfcs at build
 ```
 
 **The router sends a path on by its first segment, through a service binding**, never by fetching
@@ -37,9 +37,9 @@ by `@canmi/space-ui`'s `rfc-ref.svelte`, is a link there and the id as words els
 reworked while it is still being decided, since each would wait on the other. Decided with the
 author on 2026-10-11.
 
-**`rfcs/` and its app are to leave for a repository of their own once the UI they draw settles**:
-a repository of its own reads its UI from npm, whose release and sync cost minutes a turn, while
-the UI is still drawn a turn at a time. `libs/space-ui` goes to npm then.
+**The RFCs are a repository of their own and their app stays here**, reading them from the
+sibling checkout and holding them to their format, so the UI it draws is still drawn a turn at a
+time beside the rest of space -- RFC 7f4xx, and the workspace's `spec/rfcs.md`.
 
 ## Everything here is public
 

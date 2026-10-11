@@ -1,9 +1,10 @@
 /**
- * `check-rfc`: every file under rfcs/ is an RFC named as the format says, its id is its own, what
- * it supersedes is an earlier decided RFC, its frontmatter and sections are the format's for its
- * status, and no host, mail address or IP address outside its references could be real.
+ * `check-rfc`: every file in the rfcs repository is an RFC named as the format says, its id is
+ * its own, what it supersedes is an earlier decided RFC, its frontmatter and sections are the
+ * format's for its status, and no host, mail address or IP address outside its references could
+ * be real.
  */
-import { readFileSync } from 'node:fs';
+import { existsSync, readFileSync } from 'node:fs';
 import { relative } from 'node:path';
 import { SCOPE } from '../src/lib/rfc/name.ts';
 import {
@@ -13,29 +14,36 @@ import {
 	readFront,
 	split,
 } from '../src/lib/rfc/record.ts';
-import { ROOT, rfcFiles, scopes } from './rfc-files.ts';
+import { RFCS, rfcFiles, scopes } from './rfc-files.ts';
 
+if (!existsSync(RFCS)) {
+	console.error(`check-rfc: no rfcs repository at ${RFCS}; clone it beside web`);
+	process.exit(1);
+}
 const { files, strays } = rfcFiles();
+if (process.argv.includes('--dry-run')) {
+	console.log(`would check ${files.length} RFCs and ${strays.length} other files in ${RFCS}`);
+	process.exit(0);
+}
 const problems: string[] = strays.map(
-	(path) => `${path}: not an RFC; the name is rfcs/{scope}/{yyyy}-{mmdd}-{nn}-{slug}-{id}.md`,
+	(path) => `${path}: not an RFC; the name is {scope}/{yyyy}-{mmdd}-{nn}-{slug}-{id}.md`,
 );
 
 const areas = scopes();
 for (const [name] of areas)
-	if (!SCOPE.test(name))
-		problems.push(`rfcs/scopes.yaml: ${name} is not lowercase words and hyphens`);
+	if (!SCOPE.test(name)) problems.push(`scopes.yaml: ${name} is not lowercase words and hyphens`);
 for (const folder of new Set(files.map((file) => file.scope)))
-	if (!areas.has(folder)) problems.push(`rfcs/${folder}/: not an area rfcs/scopes.yaml lists`);
+	if (!areas.has(folder)) problems.push(`${folder}/: not an area scopes.yaml lists`);
 
 const byId = new Map<string, (typeof files)[number]>();
 const byPlace = new Map<string, string>();
 const rank = (file: (typeof files)[number]) => `${file.day}-${String(file.order).padStart(2, '0')}`;
 
 for (const file of files) {
-	const where = relative(ROOT, file.path);
+	const where = relative(RFCS, file.path);
 	if (areas.has(file.id)) problems.push(`${where}: id ${file.id} is also an area's name`);
 	const holder = byId.get(file.id);
-	if (holder) problems.push(`${where}: id ${file.id} is also ${relative(ROOT, holder.path)}'s`);
+	if (holder) problems.push(`${where}: id ${file.id} is also ${relative(RFCS, holder.path)}'s`);
 	else byId.set(file.id, file);
 	const place = byPlace.get(rank(file));
 	if (place) problems.push(`${where}: ${rank(file)} is also ${place}'s place`);
@@ -47,7 +55,7 @@ const texts = new Map(files.map((file) => [file.id, readFileSync(file.path, 'utf
 const statusOf = new Map([...texts].map(([id, text]) => [id, readFront(text).front?.status]));
 
 for (const file of files) {
-	const where = relative(ROOT, file.path);
+	const where = relative(RFCS, file.path);
 	const text = texts.get(file.id)!;
 	const { front, problems: found } = readFront(text);
 	const body = split(text)?.body ?? text;
