@@ -152,8 +152,10 @@
 
 <!-- Three fixed regions, and only the page scrolls. See spec/architecture/console.md. -->
 <SkipLink />
-<Shell label="Console" density="compact" bind:main={scroller} onscroll={moved}>
-	{#snippet head()}<SearchField />{/snippet}
+<!-- Not named `head`: beside `<svelte:head>`, wrangler's bundle turns a snippet `head` into a `var`
+     that shadows Svelte's own `head` before it runs, a 500 on every page. -->
+{#snippet finding()}<SearchField />{/snippet}
+<Shell label="Console" density="compact" head={finding} bind:main={scroller} onscroll={moved}>
 	{#snippet nav()}<SidebarPages {level} />{/snippet}
 	{#snippet foot()}<Account {live} nearest={data.nearest} />{/snippet}
 	{#snippet start()}<Switcher {view} section={level.section} />{/snippet}
