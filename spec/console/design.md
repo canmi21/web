@@ -40,9 +40,8 @@ merge, a link to the commit the console was built from -- by lib's `spec/web/bui
 hash on the link's hover -- and a bell for notifications, which waits on a feed of them as the menu
 waits on accounts. Until the platform's accounts exist it shows the author, from `@canmi/me`'s
 identity and their GitHub avatar through the CDN, so the region has its final shape before it has
-anything to sign in to -- web's `spec/todo/milestones.md`, D3. The avatar sits on a neutral disc
-until the picture arrives; a placeholder of its own is platform's `spec/issues/services.md`, "An
-avatar has no placeholder a page can paint before it arrives".
+anything to sign in to -- RFC nzscl. The avatar sits on a neutral disc
+until the picture arrives; a placeholder of its own is RFC 7patr.
 
 **Whether the console is live is a dot on the avatar's corner and nothing else**: green while the
 socket is up, red while it is down and the page polls, and quiet for the moment before the socket
@@ -292,7 +291,7 @@ element, read in this order:
 
 Written in the markup, as Tailwind's `select-none` and `select-text`, since each is one element's
 one-off -- web's `spec/architecture/css/layers.md`. The site decides this component by component
-with no rule above it; its departures from these three are recorded in web's `spec/issues/site.md`,
+with no rule above it; its departures from these three are recorded in RFC q7u7y,
 and it moves to them later.
 
 ## A card's inside is even on every side

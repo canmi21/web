@@ -9,7 +9,7 @@
 	 *
 	 * Third of the license surface's directory pages, writing the same trail, heading and tabular
 	 * count as the two above it, name for name. Written out rather than shared -- where a module
-	 * for this should live is the question spec/issues/issues.md is already holding.
+	 * for this should live is the question RFC xrmcn is already holding.
 	 */
 	const styles = stylex.create({
 		backLink: {

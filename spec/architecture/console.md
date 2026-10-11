@@ -40,7 +40,7 @@ nobody, so a title is for a reader picking out a tab, and the shortest name does
 icons are the `console` scope's marks, the API's own; its `app.html` names them at `/favicon.svg` and
 `/favicon.ico`, which `src/routes/[mark=mark]` follows for the browser -- a redirect on every page,
 where platform's `spec/architecture/delivery.md` has a head name the objects the marks resolve to at
-render, as the site's and space's do. Moving it there is waiting in [../todo/todo.md](../todo/todo.md).
+render, as the site's and space's do. Moving it there is RFC r0imo.
 
 **Moving between pages never waits for a node.** A page's `load` returns at once: what it reads
 from the nodes it returns as promises SvelteKit streams, and the page awaits each where it is
@@ -65,8 +65,7 @@ counts as answering once its body is read whole**, not once its head arrives: a 
 sent half of 450 KB of runs when the time ran out was read as nothing, and the overview said no
 deploys, until 2026-10-10; now the next nearest is asked. The placeholders stay for a read that
 fails or comes late, rarely seen but never removed. The reads that still fan out across the nodes
-break this rule until they move, in [../todo/todo.md](../todo/todo.md), "The console's reads move to
-the backend". Decided with the author on 2026-10-09.
+break this rule until they move, in RFC mij2d. Decided with the author on 2026-10-09.
 
 **Its reads are kept a little while at the edge, each for as long as its own data takes to move --
 a smart cache, which leaves it as stateless as before.** It holds no fact of its own, assumes

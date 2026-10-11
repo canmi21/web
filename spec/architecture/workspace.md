@@ -62,7 +62,7 @@ sees before editing it.
 
 A generated file over the hard limit that nobody marked fails the line check, which is how this
 list found one of its own entries pointing at a path the file had left. One under the limit goes
-on being counted and nothing fails; see [../issues/tooling.md](../issues/tooling.md).
+on being counted and nothing fails; see RFC vvkgq.
 
 ## Layout
 
@@ -116,7 +116,7 @@ each one renders something that is merely wrong rather than something that error
 Copying is the right instinct here and not a shortcut, because the two are converging. The
 account system is what lets the editor stop being a second origin; after it, these become one
 router rather than two, and configuration that already agrees is configuration that does not
-have to be reconciled. See [../todo/milestones.md](../todo/milestones.md), D3 and D4.
+have to be reconciled. See RFC nzscl and RFC l4gr0.
 
 So: read the site's `vite.config.ts`, `app.html` and `styles/app.css`
 before deciding the editor needs something of its own. What genuinely differs is worth a

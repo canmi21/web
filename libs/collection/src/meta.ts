@@ -3,7 +3,7 @@
  *
  * This exists because of the rule A5 sets itself: metadata may not leave the text until there is
  * a way to edit it where it landed. The editor is that way for the fields it shows; this is the
- * way for the rest, and for a machine with no browser. See spec/todo/milestones.md.
+ * way for the rest, and for a machine with no browser. See RFC huanh.
  *
  * Every field here is one place. The layer holds what the article is, `path` holds where it
  * answers, and the two dates a reader is shown are the ends of the revision chain and are stored

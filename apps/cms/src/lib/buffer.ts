@@ -4,7 +4,8 @@
  * Keyed by rid, so two tabs on two articles do not share one buffer -- the failure that costs is
  * the one where saving the second overwrites the first with text it never contained. Every read
  * and write is guarded: storage throws in a private window and comes back empty after a clear,
- * and neither is a reason for the editor not to open. See spec/todo/milestones.md.
+ * and neither is a reason for the editor not to open. See spec/architecture/collection.md,
+ * "Settled alongside the milestones".
  */
 const key = (rid: string) => `draft:${rid}`;
 

@@ -41,7 +41,7 @@
 			// The whole of `transition.colors`, the three `--tw-gradient-*` variables included.
 			// Nothing here sets a gradient and they animate nothing, but the measure of sameness
 			// is the computed value and dropping them changes it. Whether the visual layer should
-			// be naming another framework's private variables is in spec/issues/issues.md.
+			// be naming another framework's private variables is RFC xrmcn.
 			transitionProperty: transition.colors,
 			transitionDuration: '150ms',
 			transitionTimingFunction: easing.inOut,
@@ -547,7 +547,7 @@
 	   because each member's other value is behind a class or an attribute on the button above,
 	   an ancestor the visual layer cannot see without a marker nobody owns yet. See
 	   spec/architecture/css/migration.md, "The test applies to a declaration, and stops applying
-	   to a member of a set", and spec/issues/issues.md. */
+	   to a member of a set", and RFC vol7u. */
 	.code-copy-content {
 		transform: translateX(1.25rem);
 	}

@@ -15,9 +15,7 @@
 	 * spec/architecture/css/authoring.md.
 	 *
 	 * The scoped block at the foot keeps its whole length: overlay and panel are portalled out
-	 * of reach (spec/issues/css.md, "A portalled surface is out of Svelte's reach and not out of the
-	 * visual layer's"), and so does `shadow-lg`'s own variables (spec/issues/css.md, "A shadow is one
-	 * utility, two declarations and four variables the visual layer cannot restate").
+	 * of reach (RFC q0fvt), and so does `shadow-lg`'s own variables (RFC fte6l).
 	 */
 	const styles = stylex.create({
 		/** The floating panel: its edge, its ground and the ink everything inside inherits. */
@@ -60,7 +58,7 @@
 			// The whole of `transition.colors`, the three `--tw-gradient-*` variables included.
 			// Nothing here sets a gradient and they animate nothing, but the measure of sameness
 			// is the computed value and dropping them changes it. Whether the visual layer should
-			// be naming another framework's private variables is in spec/issues/issues.md.
+			// be naming another framework's private variables is RFC xrmcn.
 			transitionProperty: transition.colors,
 			transitionDuration: '100ms',
 			transitionTimingFunction: easing.inOut,

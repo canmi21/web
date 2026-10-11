@@ -9,8 +9,7 @@
 	 *
 	 * The figure's geometry is the frame, written on the elements in the markup. What is left in
 	 * the block at the foot is the two axis arrowheads alone, which are pseudo-elements no class
-	 * reaches: spec/issues/css.md, "An arrowhead is a shape made of borders, and the test cannot cut
-	 * it in half".
+	 * reaches: RFC rec9u.
 	 */
 	const styles = stylex.create({
 		/** The plotting ground. The ink is set once here and inherits into everything below. */

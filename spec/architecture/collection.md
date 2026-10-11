@@ -1,11 +1,9 @@
-# The plan, in milestones
+# The collection: its boundaries, its model and its names
 
-This file is the agreed shape of the work, not a list of findings -- the rest of this directory is
-that. A milestone says what is being changed and what it cannot start before; it does not say when,
-and nothing here begins because it is written down. The steps are taken one at a time, each
-proposed and accepted before anything is written, which is the same rule the index states for a
-finding and holds harder here: a milestone is a decision already made, so the only thing left to
-get wrong is the order.
+The model the plan's milestones assume, and what the milestones taken so far settled. The milestones
+still to come are RFCs -- A2 RFC vfusa, A5 RFC huanh, A7 RFC qc4zi, A8 RFC 0ajul, B4 RFC vgo8c, B5
+RFC wv6wm, B6 RFC ga5oq, B7 RFC ck07m, B8 RFC lh0oh, C0 RFC 45uaw to C5 RFC yhu79, and D1 RFC uta8s
+to D4 RFC l4gr0 -- each saying what it changes and what it cannot start before.
 
 ## The two boundaries everything else hangs from
 
@@ -32,7 +30,7 @@ overwrite rows that cannot be recomputed. One restore must never be able to dest
 already served, so it reads them where they are; the reader state is dumped once and is
 disposable. It never has the collection, and it never needs a full copy of anything.
 
-## The model these milestones assume
+## The model the milestones assume
 
 ### Three things, and what each one is allowed to do
 
@@ -176,22 +174,9 @@ against that file would have bought all 42 descriptions a second time.
 key -- `readAssets` walks the map and indexes by the `resource` field inside each record -- and the
 file retires into the authored database anyway. Restyling a file on its way out buys nothing.
 
-## A. The data model
+## What the milestones taken so far settled
 
-Everything else waits on this group. Each row is a change to what is stored, not to what anybody
-sees.
-
-| id  | milestone                         | what it is                                                                                                           | after | horizon  |
-| --- | --------------------------------- | -------------------------------------------------------------------------------------------------------------------- | ----- | -------- |
-| A0  | The curated records are salvaged  | One trustworthy `media.yaml` and `tags.yaml` out of the two divergent copies, and the path bug closed                | --    | **done** |
-| A1  | The authored database exists      | Resources, contents, the two metadata layers and the reference table, under one Drizzle schema                       | --    | **done** |
-| A2  | The records are imported          | What the YAML and JSON records hold moves in; the files retire                                                       | A0 A1 | near     |
-| A3  | An article is a resource          | `document.article`, granted from the same space and the same register                                                | A1    | **done** |
-| A4  | Revisions and history             | Every save writes an immutable revision; a head per article; dates derived from them                                 | A1 A3 | **done** |
-| A5  | Article metadata leaves the text  | Path, description, publication, last-modified and its lock become rows; frontmatter empties                          | A3 A4 | near     |
-| A6  | Reference counting, and the sweep | The reference table decides reachability; 24 hours of grace; an explicit GC, by hand here and scheduled in the cloud | A2    | **done** |
-| A7  | One rid over every language       | The existing views and translations move under the article's own identity                                            | A3 A5 | mid      |
-| A8  | Reader state keyed by rid         | Counters, subscriptions and later comments re-keyed once, by the fold rule in engagement.md                          | A3    | mid      |
+A0, A1, A3, A4, A6, B1 to B3a and F are done, and each left a rule or a reading behind.
 
 **A6's table is rebuilt rather than maintained.** The argument against a counter was that it
 drifts by one on any path that forgets it; a table written incrementally has the same failure in
@@ -200,33 +185,10 @@ cannot disagree with it, and lives in the derived database because that is what 
 throw away is for. What is not recomputed is the clock: `unreferenced.since` is when something
 stopped being named, and a run that restarted it would mean nothing ever came due.
 
-**A2 is half taken, and this row was marked `done` before that was checked.** What the records
-hold did move in -- `import.ts` writes every resource, content, tag and paid description into the
-collection, and the schema tests hold it there. The files did not retire: `media.yaml`,
-`tags.yaml` and `metadata.json` are still on disk and still read, by around twenty modules
-including the publish pass, `local`'s own commands and the preview's compile. They are the source
-of truth and the collection is the copy, which is the wrong way round for a row that says they
-retire.
-
-Retiring them is a reader migration, not a deletion, and it does not wait on A5: those are the
-article's fields and these are the media and tag records, two sets of data with two sets of
-readers. What it waits on is stated below, and it is a decision rather than an amount of work.
-These three files are also C5's first row, so that milestone inherits whatever this one settles.
-
 **A0 is a salvage, not a repair.** The file it fixes is retiring at A2, so nothing here is worth
 maintaining afterwards -- what matters is that the import has one input that has lost nothing. The
 newer copy holds five days of categories and tags; the committed one holds the 42 descriptions.
 Importing either one alone loses the other, and this is the only moment the choice exists.
-
-**A5's rows exist, and the one revision each imported article has says `lastmod`.** A chain of
-one says both dates at once, and the text the collection holds is the one that was last edited --
-so that is the honest value, and the publication date is what a single revision cannot also
-carry. `at` is editable and lockable for exactly this: an article whose two dates should differ
-gets a second revision or a correction, per article rather than by rule.
-
-**A5 must not land before there is a surface that can edit what it moves.** The frontmatter is
-editable in any text editor; a row in SQLite is not. So A5 ships with B4, or with a stopgap command
-that sets a field. This is the one place in this plan where the obvious order blocks the author.
 
 **A4 came early for the same reason.** A text file under git has a history whether or not anybody
 designed one; a database file has none. Revisions are the undo, and they have to exist before the
@@ -244,42 +206,6 @@ them so that the failure a crash leaves behind is an uncollected object rather t
 That tree is not `data/bucket/objects`. The published one holds what compilation emitted and can
 emit again; this one holds authored input, and is the reason C0 exists.
 
-**A7 is surveyed and not taken.** The seven sidecars hold 2,912 translations over 364 segments
-and eight locales, and every one of them keys by the hash of the sentence rather than by the
-article -- which is why none is shared between two articles today and why that is still the right
-key: the money was spent per segment, and the same sentence written twice should be paid for
-once. Nothing collides with what the collection already holds, and no field in them has nowhere
-to go. So the import is a decision about the owner and not a migration with a risk: `segment`
-rather than a rid, with "one rid over every language" describing the article above them, which
-already has one.
-
-A8 is deliberately not near-term. [engagement.md](../engagement.md) records what a re-key already
-cost once -- six stranded rows in the fifty-four minutes between a migration and the code that
-wanted it -- and the rule it produced is that such a migration folds rather than skips and runs
-twice. That is a piece of work with its own rehearsal, and it does not belong inside a week that is
-also moving the corpus.
-
-## B. The surface
-
-**A row reads `done` when nothing in it is waiting on a decision.** This file is a plan and not a
-status board, so the column says which step the work is standing on rather than how far along
-anything is; a step that turned out to be wrong is rewritten rather than marked.
-
-This is the group that ends the pain. B3 is the point of the whole plan; everything above it is
-what B3 would otherwise have to invent.
-
-| id  | milestone                      | what it is                                                                                        | after    | horizon  |
-| --- | ------------------------------ | ------------------------------------------------------------------------------------------------- | -------- | -------- |
-| B1  | `local`, and its two halves    | The rename, an HTTP shell beside the CLI, and the TypeScript half that owns the authored database | --       | **done** |
-| B2  | The desktop client is archived | Source moved to a repository of its own, out of the workspace and out of `check`                  | B1       | **done** |
-| B3  | The editor                     | A web client against `local`: write, preview in the site's own components, create gets a rid      | A3 A4 B1 | **done** |
-| B3a | Preview moves into the CMS     | A route that reads a draft the way the site would; the draft root retires with it                 | B3       | **done** |
-| B4  | Metadata has a surface         | Path, description, publication, the lock -- editable where the article is                         | A5 B3    | near     |
-| B5  | Images are managed             | Upload and replace: new bytes, a new content, the rid repointed, derivation triggered             | A6 B3    | near     |
-| B6  | Publishing from the CMS        | Publication stops being only a mise task; see [../issues/cms.md](../issues/cms.md)                | B3       | mid      |
-| B7  | Albums                         | The surface photography needs before any of it is worth importing                                 | B4 B5    | mid      |
-| B8  | Reader data has a surface      | Comment moderation and counter repair, over the public API with a local token                     | A8       | mid      |
-
 **B3a was marked done once while half taken**, and the half that was missing was the one that
 deletes things. Both are taken now: the preview draws a draft on the page an article is read on,
 and the five places the draft root lived are gone with the tree itself.
@@ -296,7 +222,7 @@ and every difference found so far was the site already knowing something: how St
 arrives in development, that the renderer has to be aliased to its source, that a Tailwind
 utility written beside StyleX needs the consumer to run Tailwind. D3 and D4 make the two one
 router, so configuration that already agrees is configuration nobody has to reconcile then. See
-[../architecture/workspace.md](../architecture/workspace.md).
+[workspace.md](workspace.md).
 
 **The draft root was five things and none of them stored anything.** `publish.ts` built a second
 root naming all nine articles where the public one named six; the API's development environment
@@ -313,90 +239,15 @@ online, is a change of host and an added credential rather than a rewrite. It is
 operations stay below both shells: a second implementation behind a GUI is what would make moving
 it a rewrite.
 
-## C. Storage and the boundary between roles
-
-This group is what makes "nothing I do while developing can damage what I have written" true by
-construction rather than by care.
-
-| id  | milestone                              | what it is                                                                                | after | horizon |
-| --- | -------------------------------------- | ----------------------------------------------------------------------------------------- | ----- | ------- |
-| C1  | The collection leaves the repository   | It lives on its own, and `local` is the only process that may write it                    | B1    | mid     |
-| C0  | What cannot be recomputed is backed up | A real backup of the authored database, the id register and the paid outputs              | A1    | mid     |
-| C2  | Development gets copies                | Published objects read from the live CDN, reader state dumped once; no full copy, ever    | C1    | mid     |
-| C3  | The corpus leaves git                  | History and backup become the CMS's; cannot start before C0                               | A4 C0 | mid     |
-| C4  | A measuring step at publication        | A controlled headless browser answers what only a browser knows, and the answer is stored | B6    | mid     |
-| C5  | The data directory retires             | Nothing under `data/` is tracked, because nothing there is git's to keep                  | C3    | mid     |
-
-**C0 waits on nothing but the database existing.** It was ordered after C1 while C1 was assumed to
-come first; a backup does not need the collection to have moved, and the things it protects are
-already written. C1 is the one deferred, so C0 stops waiting on it.
-
-**C0 is ordered before C3 and the order is the point.** Git is what currently backs up the things
-no run can reproduce: the id register, whose entries are identities other records point at, and the
-paid descriptions. Losing them is not a rebuild, it is a re-purchase or a permanent loss of
-identity. So the backup exists before the corpus stops being committed, not after. A0 is the
-evidence that this is not hypothetical -- five days of curation are already outside git today.
-
-**C5 is the end of this group and the measure of whether the rest worked.** `data/` was tracked in
-30 files, measured on 2026-10-05, and each one is tracked for a reason that some milestone above
-removes:
-
-| what                                                                             | files | what has to happen first                                       |
-| -------------------------------------------------------------------------------- | ----- | -------------------------------------------------------------- |
-| `record/media.yaml`, `record/tags.yaml`, `record/metadata.json`                  | 3     | imported already; the readers move to the collection           |
-| `record/diagram.json`, `fonts.json`, `indexnow.json`, `licenses.yaml`, `tn.yaml` | 5     | each is decided: a row in the collection, or a file that stays |
-| `build/*.json`                                                                   | 4     | derived, but fetched over a network; they become derived rows  |
-| `record/symlinks.json`                                                           | 1     | done for the bytes: they are objects, the record names them    |
-| `source/favicon/*`                                                               | 15    | bytes, refetchable, and cheaper to back up than to refetch     |
-| `bucket/*/.gitkeep`                                                              | 2     | the skeleton, which goes when the tree it marks does           |
-
-The site's own marks were the row that decided the order: losing them is not a rebuild. They left
-git before C0 by the author's decision, as objects named by a record -- the bucket and its mirror
-hold the bytes, and C0 is still what makes that more than two copies. See
-platform's `spec/architecture/delivery.md`, "Every fixed name is a record".
-
-C2 is why the collection growing to a terabyte is not a problem that has to be solved later.
-Published objects are immutable and already served, so development reads them where they are; the
-only thing that must be copied is the reader state, which is a few megabytes of relational data.
-Nothing about this arrangement changes as the photography lands.
-
-C4 is where [../issues/site.md](../issues/site.md)'s wrap-policy entry is answered, and it generalizes: a paragraph's
-line breaking, a diagram's layout and anything else whose answer exists only inside a real browser
-is decided once, under a fixed column and a known font, and written into the published object. A
-measurement taken in whatever browser happens to be editing would record that device instead.
-
-## D. Long term
-
-| id  | milestone                                  | what it is                                                                                  | after | horizon |
-| --- | ------------------------------------------ | ------------------------------------------------------------------------------------------- | ----- | ------- |
-| D1  | The model quota becomes an API             | A machine that is always on, wrapping the local CLI as an OpenAI-shaped API behind a tunnel | --    | long    |
-| D2  | The collection and the pipeline move there | Storage growth and the locality of model calls stop being two problems                      | C1 D1 | long    |
-| D3  | Accounts                                   | The one requirement that cannot be avoided by staying on one machine                        | --    | long    |
-| D4  | The CMS goes online                        | A host change, a D1 binding and a credential; by B1's shape, the editor does not change     | D2 D3 | long    |
-
-D1 depends on nothing and may be taken at any point. It is filed as long-term because nothing is
-blocked on it today, and that changes the moment B3 through B7 make publishing cheap enough that
-the volume goes up.
-
-The machine D1 and D2 assume is made deployable first, so that what moves there arrives by a push
-rather than by hand. See infra's `spec/architecture/host.md`.
-
-## E. The gateway
-
-The gateway's milestones are the platform's, in platform's `spec/todo/milestones.md`, E. The
-site's part of them -- its declaration, and its callers moving in E8 -- went with them.
-
-## F. The layers
-
-**Done.** The three layers and the library under them were laid out in this repository as the
+F: **Done.** The three layers and the library under them were laid out in this repository as the
 repositories they became, then split: `canmi21/lattice` is this repository, `canmi21/web`, and
 `monoflake/infra` and `monoflake/platform` continue from the same commit. The arrangement is
 the workspace's `spec/architecture/layers.md`.
 
-## Settled alongside the plan
+## Settled alongside the milestones
 
 Decided while the milestones were being shaped, and kept here because the milestone each shapes has
-not been taken yet. What is still open about the plan is [../issues/plan.md](../issues/plan.md).
+not been taken yet. What is still open about the plan is filed as RFCs under `content`.
 
 **The editor holds unsaved keystrokes in `localStorage`, and that is decided.** A save writes the
 draft row; everything before it is the browser's, keyed by rid so two tabs on two articles do not

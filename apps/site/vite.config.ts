@@ -174,7 +174,7 @@ export default defineConfig(({ mode }) => {
 			// TODO: this record and the surface it feeds are both going. It is held out of the
 			// move of generated records into R2 on purpose, so the eight license addresses can
 			// be collapsed first and the record follow whatever they become.
-			// See spec/issues/site.md, "The license surface is eight addresses and one baked record".
+			// See RFC 5rj5q.
 			{
 				// The dependency license record, baked in. Only the metadata travels: the texts
 				// themselves are published objects the CDN serves, so the Worker carries a few

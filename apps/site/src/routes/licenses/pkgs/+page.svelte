@@ -10,7 +10,7 @@
 	 * The page writes the same trail, the same heading and the same directory row as the license
 	 * directory one level up, and those styles say what its styles say, name for name. They are
 	 * written out rather than shared: where a visual constant with two consumers lives is the
-	 * question spec/issues/issues.md is already holding.
+	 * question RFC xrmcn is already holding.
 	 */
 	const styles = stylex.create({
 		backLink: {

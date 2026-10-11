@@ -183,7 +183,7 @@ run = "cargo run -q -p local -- serve"
 
 # The collection's two SQLite files, created where a fresh clone has neither. Migrating is the
 # only way either is changed: a hand-altered database cannot be migrated afterwards, and neither
-# file is in git. See spec/todo/milestones.md.
+# file is in git. See spec/architecture/collection.md.
 [tasks.collection]
 description = "Bring the collection's databases up to the schema in libs/collection"
 run = "node libs/collection/src/migrate.ts"
@@ -195,13 +195,14 @@ description = "Read or set an article's metadata in the collection"
 run = "node libs/collection/src/meta.ts"
 
 # What the translation sidecars hold and where it would land. Read-only: the shape it reports is
-# the thing to agree on before anything is written. See spec/todo/milestones.md, A7.
+# the thing to agree on before anything is written. See RFC qc4zi.
 [tasks.translations]
 description = "Survey the translation sidecars against the collection, writing nothing"
 run = "node libs/collection/src/translations.ts"
 
 # What still names a run of bytes, and what has stopped. Reporting is the default; `--collect`
-# takes what the grace period released, and cannot be undone. See spec/todo/milestones.md, A6.
+# takes what the grace period released, and cannot be undone. See
+# spec/architecture/collection.md.
 [tasks.sweep]
 description = "Report what the collection no longer references; --collect takes it"
 run = "node libs/collection/src/sweep.ts"

@@ -180,9 +180,9 @@ Until this rewrite the three layers were divided by what kind of declaration eac
 the markup, visual in TypeScript, the selector in the block. Layout and visual are adjectives, and
 an adjective cannot be looked up. Every property nobody had thought of needed a fresh ruling, and
 the rulings piled up here -- `cursor`, `pointer-events`, `user-select`, `visibility` and
-`transform`, five properties settled one at a time in a file that was supposed to have settled
-them all with one sentence. The rest of the arguing moved to the deferred list, whose CSS file,
-[issues/css.md](../../issues/css.md), is the largest in `spec/` and is largely made of it.
+`transform`, five properties settled one at a time in a file that was supposed to have settled them
+all with one sentence. The rest of the arguing moved to the deferred list, now the drafts filed
+under `css`, the largest area of RFCs and largely made of it.
 
 The clearest evidence that the adjective does not decide is in the tree, where one property has
 already been ruled both ways by two people applying the same test in good faith. `white-space:

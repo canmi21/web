@@ -5,9 +5,8 @@
 
 	/**
 	 * The `#` beside anything a reader can be pointed at -- a heading or a block -- revealed when
-	 * its holder is hovered. The holder carries `stylex.defaultMarker()`; see spec/issues/css.md,
-	 * "Ancestor state reaches the visual layer only through a marker nobody owns", for why both the
-	 * resting and hovered opacity have to sit here and why the default marker rather than a named
+	 * its holder is hovered. The holder carries `stylex.defaultMarker()`; see RFC vol7u for why both
+	 * the resting and hovered opacity have to sit here and why the default marker rather than a named
 	 * one. See spec/architecture/anchors.md.
 	 */
 	const styles = stylex.create({

@@ -6,7 +6,7 @@
  * sentence written twice is translated once. That is worth keeping -- the money was spent per
  * segment -- and it is why these rows are owned by a segment rather than by a rid. "One rid over
  * every language" is about the article having one identity across its nine views, which it
- * already does; the segments underneath are shared on purpose. See spec/todo/milestones.md, A7.
+ * already does; the segments underneath are shared on purpose. See RFC qc4zi.
  */
 import { readFileSync, readdirSync, statSync } from 'node:fs';
 import { join, relative } from 'node:path';

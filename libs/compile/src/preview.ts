@@ -5,7 +5,7 @@
  * it. A preview is the source view alone: no translations, no sidecars, no second pass. So the
  * reference map here is built from source frontmatter and covers one locale, where the build
  * covers nine. Nothing about the markdown rules is restated; this module assembles a context and
- * calls the one implementation. See spec/todo/milestones.md, B3a.
+ * calls the one implementation. See spec/architecture/collection.md.
  */
 import { readFile, readdir } from 'node:fs/promises';
 import { join } from 'node:path';

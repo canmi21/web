@@ -2,7 +2,7 @@
 
 `local` is the service that owns the collection: one implementation of every content operation,
 with a command line over it and an HTTP surface beside that. It is the only writer of the authored
-data -- see [../todo/milestones.md](../todo/milestones.md) for the boundary that makes that a rule
+data -- see [collection.md](collection.md) for the boundary that makes that a rule
 rather than a habit.
 
 **The desktop window this file was written around is gone from here.** It ran as a Tauri shell with
@@ -383,7 +383,7 @@ function of the text and the caret alone:
   corners, its markers hidden unless the caret is in it, and a line holding only `>` is the 12px
   between its paragraphs whether its marker shows or not; a rule is the page's `<hr>` over its
   dashes. A list is drawn as its source, because the page draws none -- see
-  [../issues/site.md](../issues/site.md).
+  RFC ve5iq.
 - **A block the site draws with a component is drawn with it, and edited in its own place.** A
   leaf or container directive, a fence and a table are replaced by the site's rendering of their
   source, compiled by `local`, and carry the room above them themselves because the lines they

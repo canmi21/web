@@ -7,7 +7,8 @@
  * stored twice. `composed` is what each reconstruction must hash to, so a chain that has drifted
  * says so instead of handing back a text that is nearly right.
  *
- * See spec/todo/milestones.md, "An article is `document.article`, and its state is counted".
+ * See spec/architecture/collection.md, "An article is `document.article`, and its state is
+ * counted".
  */
 import { applyPatches, makePatches, parsePatch, stringifyPatches } from '@sanity/diff-match-patch';
 import { and, desc, eq, isNull, ne } from 'drizzle-orm';

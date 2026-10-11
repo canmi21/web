@@ -4,9 +4,9 @@
  * Only that. An article with a revision has been published, and taking it back is taking it off
  * the site, which is a different act with its own consequences and is not this one -- so it is
  * refused, and says so. Deleting removes one thing and never what it pointed at
- * (spec/todo/milestones.md, "Deleting removes one thing, and never what it pointed at"): the draft
- * row and the resource row go, and if anything else still names the rid, the database's own
- * foreign keys refuse the whole of it and nothing is removed.
+ * (spec/architecture/collection.md, "Deleting removes one thing, and never what it pointed at"):
+ * the draft row and the resource row go, and if anything else still names the rid, the database's
+ * own foreign keys refuse the whole of it and nothing is removed.
  *
  * The collection is not in version control and not yet backed up, so this cannot be undone; the
  * surface that calls it asks twice.

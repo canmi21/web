@@ -1,8 +1,8 @@
 /**
  * What still names a run of bytes, and what has stopped.
  *
- * A reference table rather than a counter, for the reason spec/todo/milestones.md gives: a count
- * drifts by one on any path that forgets it, permanently and in silence, and in the direction
+ * A reference table rather than a counter, for the reason spec/architecture/collection.md gives: a
+ * count drifts by one on any path that forgets it, permanently and in silence, and in the direction
  * that deletes something a page still shows. A table answers "what is holding this alive" with
  * the names of the things holding it, which is what makes a dry run readable.
  *
@@ -192,7 +192,8 @@ if (import.meta.url === `file://${process.argv[1]}`) {
 	const derived = openDerived(join(repository, DERIVED_FILE));
 
 	// Reporting is the default and deleting is not. A sweep is the one operation here that cannot
-	// be undone, so it is spelled out rather than defaulted into -- see spec/todo/milestones.md.
+	// be undone, so it is spelled out rather than defaulted into -- see
+	// spec/architecture/collection.md.
 	const swept = await reconcile(source, derived);
 	console.log(
 		`${swept.references.length} references, ${swept.waiting.length} waiting, ` +

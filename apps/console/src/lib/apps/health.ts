@@ -157,7 +157,7 @@ export const primaries = (healths: [Node, Health][]): Node[] =>
 		health.kind === 'keeper' && health.keeper.role === 'primary' ? [node] : [],
 	);
 
-/** Whether backing up has stopped, said by the primary: platform's spec/issues/scheduling.md. */
+/** Whether backing up has stopped, said by the primary: RFC np65b. */
 export const stopped = (keeper: Keeper): boolean => keeper.backup?.state === 'stopped';
 
 /** The words a keeper uses for its backup, archiving and standbys, each in its tone. */

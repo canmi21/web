@@ -8,9 +8,8 @@
 	 * can change one. See spec/architecture/css/authoring.md.
 	 *
 	 * The block below keeps what a class cannot reach: the fold's mask and its two phase rules, the
-	 * `:global` marker rules, and the note-link's hovered color -- see spec/issues/css.md, "Ancestor
-	 * state reaches the visual layer only through a marker nobody owns". This comment may not
-	 * write a tag in angle brackets; see the same file.
+	 * `:global` marker rules, and the note-link's hovered color -- see RFC vol7u. This comment may
+	 * not write a tag in angle brackets; see the same file.
 	 */
 	const styles = stylex.create({
 		/**
@@ -104,9 +103,8 @@
 		 * brightens whole under the pointer, so hovering anywhere on those words says so.
 		 *
 		 * Only the resting color and the motion toward the other one are here. The brightened
-		 * value is reached through the note, which is an ancestor -- see spec/issues/css.md, "Ancestor
-		 * state reaches the visual layer only through a marker nobody owns" -- so it stays in the
-		 * block, which outranks this layer and still wins.
+		 * value is reached through the note, which is an ancestor -- see RFC vol7u -- so it stays in
+		 * the block, which outranks this layer and still wins.
 		 */
 		link: {
 			color: 'inherit',

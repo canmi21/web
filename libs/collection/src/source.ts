@@ -1,8 +1,8 @@
 /**
  * The authored database: what a person wrote, and what was bought for it.
  *
- * One of the two halves the boundary in spec/todo/milestones.md draws -- the other is the reader
- * state in the cloud, and the two never share a database, so that restoring one can never
+ * One of the two halves the boundary in spec/architecture/collection.md draws -- the other is the
+ * reader state in the cloud, and the two never share a database, so that restoring one can never
  * overwrite the other. Nothing here is recomputable, which is why the file it lives in is the
  * thing a backup is for.
  *

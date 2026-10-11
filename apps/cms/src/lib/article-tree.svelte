@@ -60,7 +60,7 @@
 		/**
 		 * Every article, draft or published: the draft row outlives publication and is the working
 		 * copy from then on, so the draft rows are the whole set. Loaded with the page, and again
-		 * whenever something that writes them says so. See spec/todo/milestones.md.
+		 * whenever something that writes them says so. See spec/architecture/collection.md.
 		 */
 		articles: Draft[];
 		/** Open the sidebar's menu at the event, built from these items when it opens. */

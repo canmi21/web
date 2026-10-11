@@ -365,4 +365,4 @@ carries an excerpt and no source.
 
 ## What is still open
 
-What this pipeline has not settled is [../../issues/video.md](../../issues/video.md).
+What this pipeline has not settled is filed as RFCs under `video`.

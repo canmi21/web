@@ -90,7 +90,7 @@ a component the rest of the console uses is not the system's until that part is 
 
 **A component space needs and nothing has is made in space first**, used there as it is, and only
 then split into its layers and moved into the system, which space then reads it back from. The site and the CMS each keep a style of their own until there is time to
-move them -- [../issues/site.md](../issues/site.md) and [../issues/cms.md](../issues/cms.md).
+move them -- RFC 4fnln and RFC ei71f.
 
 ## The shell is the console's
 
@@ -165,4 +165,4 @@ console's does.
 The docs and the specs are to be written where the work is -- a repository's `spec/` -- and read
 from there at build time into pages, so one file is both the rule an agent follows and the page a
 reader reads. Neither has a route yet; the design system comes first. What is open about it is
-[../issues/space.md](../issues/space.md).
+RFC 67m5c.

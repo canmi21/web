@@ -7,10 +7,8 @@
 	 * The visual half of the Tokei figure. Every interface color is a `@canmi/kit/tokens` variable.
 	 * See spec/architecture/css/authoring.md.
 	 *
-	 * Two exceptions stay put: the whites over a tile's own color (spec/issues/css.md, "Tokei draws
-	 * from a palette of its own, and it is the third one") and `shadow-sm` on the tooltip
-	 * (spec/issues/css.md, "A shadow is one utility, two declarations and four variables the visual
-	 * layer cannot restate").
+	 * Two exceptions stay put: the whites over a tile's own color (RFC kjry9) and `shadow-sm` on the
+	 * tooltip (RFC fte6l).
 	 */
 	const styles = stylex.create({
 		/** A treemap tile's language name, over the tile's own color. */
@@ -54,8 +52,7 @@
 		 *
 		 * One property transitions, so the four lists are single-item and `transition-behavior` is
 		 * left to the initial value the shorthand also set. The reduced-motion branch is
-		 * `transition: none` written out. See spec/issues/css.md, "A `transition` shorthand sets five
-		 * lists and the migrated form writes three".
+		 * `transition: none` written out. See RFC bvj9z.
 		 */
 		summaryLink: {
 			color: {
@@ -633,7 +630,7 @@
 
 <style>
 	/* The chart's own palette rather than the site's, so it stays out of the visual layer. See
-	   spec/issues/issues.md. */
+	   RFC kjry9. */
 	.tile-name {
 		fill: white;
 	}

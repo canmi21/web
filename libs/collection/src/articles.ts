@@ -87,8 +87,8 @@ function metaOf(frontmatter: Frontmatter, path: string): DraftMeta {
  *
  * Its shape is a different one from an article's rather than a smaller one, and designing it is
  * deliberately deferred -- so the page declares `document` and carries no layer, which stops the
- * chain there and leaves the record valid. See spec/issues/plan.md, "How a fixed page is edited,
- * if at all", and platform's spec/architecture/resource.md, "The catalog".
+ * chain there and leaves the record valid. See RFC bh72e, and platform's
+ * spec/architecture/resource.md, "The catalog".
  */
 function layersFor(type: string, frontmatter: Frontmatter, path: string) {
 	if (type !== ARTICLE_TYPE) return {};
@@ -170,8 +170,8 @@ export async function importArticles(
 			.run();
 		// `lastmod` rather than `published`: there is one revision and one text, and the text is the
 		// one that was last edited. A chain of one says both dates at once, so the honest value is
-		// the later -- and `at` is editable afterwards for exactly this, per spec/todo/milestones.md,
-		// "A revision's moment may be corrected, once and then never".
+		// the later -- and `at` is editable afterwards for exactly this, per
+		// spec/architecture/collection.md, "A revision's moment may be corrected, once and then never".
 		database
 			.insert(revisions)
 			.values({

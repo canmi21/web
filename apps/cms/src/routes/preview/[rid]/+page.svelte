@@ -17,7 +17,8 @@
 	import type { PageProps } from '././$types';
 
 	// Compiled where the compiler is, then rendered with the components the site renders with --
-	// so what is shown here is the article and not an approximation of it. See milestones.md B3a.
+	// so what is shown here is the article and not an approximation of it. See
+	// spec/architecture/collection.md.
 	let { data }: PageProps = $props();
 	const rid = $derived(data.rid);
 

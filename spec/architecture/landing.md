@@ -3,7 +3,7 @@
 The platform's service domains are its hosts -- `ixc.one`, `symlink.si`, `ill.li`, `monoflake.com`
 and `monoflake.net` -- and each apex is to answer a page saying what it is. The pages are this
 layer's; the hosts, their records and their routes are the platform's -- see platform's
-`spec/architecture/gateway.md`. What is still to be built is [../issues/issues.md](../issues/issues.md).
+`spec/architecture/gateway.md`. What is still to be built is RFC p2fhz.
 
 ## `ixc.one` and `il.lli.lil.ill.li` share one app, on Netlify
 

@@ -107,5 +107,4 @@ OpenPanel on the site still counts the hash: its views compare the full address.
 
 ## What is still open
 
-See [issues/site.md](issues/site.md), "OpenPanel reports an anchor followed on the site as a view of
-its own".
+See RFC j659w.

@@ -4,7 +4,7 @@
  * It listens on a unix socket and has no address: the path arrives in the environment, the parent
  * process made it, and the parent kills this one on the way out. Nothing off this machine can
  * reach it, which is why there is no credential here -- see spec/architecture/local.md, and
- * spec/todo/milestones.md for what changes when this surface goes online.
+ * RFC l4gr0 for what changes when this surface goes online.
  *
  * Handlers are the only thing here. The schema and its queries are `@canmi/collection`, because
  * the same declarations run over D1 later and a second copy would be the thing that drifts.
@@ -33,7 +33,7 @@ const database = openSource(join(repository, SOURCE_FILE));
 const store = fileStore(join(repository, OBJECTS_DIR));
 
 // What a preview compiles against, which is the same corpus the publish pass reads. The records
-// under `data/` are on their way out -- see spec/todo/milestones.md, C5 -- and this reads them
+// under `data/` are on their way out -- see RFC yhu79 -- and this reads them
 // where they are until they move, rather than holding a second copy of where they might be.
 const inputs = {
 	contents: join(repository, 'contents'),
@@ -77,7 +77,7 @@ async function answer(method: string, path: string, body: string): Promise<Answe
 	}
 
 	// Creating a draft is reserving an identity: a row in `resource` with no type, because nobody
-	// has said what this will be, and an empty draft against it. See spec/todo/milestones.md.
+	// has said what this will be, and an empty draft against it. See spec/architecture/collection.md.
 	if (method === 'POST' && path === '/collection/drafts') {
 		const id = await allocate(database);
 		const at = now();
@@ -126,7 +126,7 @@ async function answer(method: string, path: string, body: string): Promise<Answe
 
 	// The draft as the site would render it. Compiled here rather than in the browser: the pass
 	// resolves rids against the record files and highlights code, both of which are this half's.
-	// See spec/todo/milestones.md, B3a.
+	// See spec/architecture/collection.md.
 	if (method === 'POST' && /^\/collection\/drafts\/[0-9a-z]{5}\/preview$/.test(path)) {
 		const id = path.slice('/collection/drafts/'.length, -'/preview'.length);
 		const [held] = await database.select().from(draftRows).where(eq(draftRows.resource, id));

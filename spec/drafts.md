@@ -37,7 +37,8 @@ needed a symlink to reach the published records, a second compile pass, a branch
 keeping the bodies only it named, and a guard in `sync` refusing a source that contained it --
 five places, for one capability. **The CMS renders a draft from its draft row now**, which is
 where the writing already is and needs no published bytes at all, so all five are gone. See
-[todo/milestones.md](todo/milestones.md), B3a.
+[architecture/collection.md](architecture/collection.md), "What the milestones taken so far
+settled".
 
 **Objects are not what is withheld, and were never what was withheld.**
 [refs.rs](../apps/local/src/refs.rs) has never read the draft flag, so a draft's pictures and clips
