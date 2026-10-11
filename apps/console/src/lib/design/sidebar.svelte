@@ -26,7 +26,7 @@
 	import Badge from '../ui/badge.svelte';
 	import Find from './find.svelte';
 	import Icon from '@canmi/design/components/icon.svelte';
-	import IconButton from './icon-button.svelte';
+	import IconButton from '@canmi/design/components/icon-button.svelte';
 	import { pass } from './motion.ts';
 	import { CONTRACT } from '../wire.ts';
 

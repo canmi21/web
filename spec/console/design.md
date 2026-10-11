@@ -198,14 +198,10 @@ of the thing, the time range -- stays, as the page's first row.
 
 ## Icons
 
-**A button that is only an icon is one component, `src/lib/design/icon-button.svelte`, in one of two
-kinds, square or round.** `ghost` has no ground of its own and rises on hover -- a bar's own
-controls, the top bar's light-and-dark switch. `framed` is filled with the surface and ruled by a
-one-pixel shadow rather than a border, as Geist's secondary button is, so the rule takes no room and
-the button is exactly its size; its hover lifts the fill and leaves the rule -- a control set apart
-from what is around it, the sidebar foot's commit and notifications, round at 1.75rem around an 18
-px icon. A kind is added to it rather than drawn again where it is wanted, so every icon on the
-console answers a hover the same way; its name is its label and its hover both.
+The console's icons and its icon buttons are `@canmi/design`'s -- lib's
+`spec/design/components.md`, "An icon button": `ghost` for a bar's own controls, the top bar's
+light-and-dark switch; `framed`, round at 1.75rem around an 18 px icon, for the sidebar foot's
+commit and notifications.
 
 ### An icon is drawn in layers
 

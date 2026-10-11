@@ -8,7 +8,7 @@
 	import { duration, figures, text } from '@canmi/kit/tokens/vocabulary.stylex';
 	import BrightnessIcon from '@tabler/icons-svelte-runes/icons/brightness-filled';
 	import type { Snippet } from 'svelte';
-	import IconButton from './icon-button.svelte';
+	import IconButton from '@canmi/design/components/icon-button.svelte';
 	import Switcher from './switcher.svelte';
 	import type { Crumb } from '../levels.ts';
 	import type { View } from '../scope/scope.ts';
