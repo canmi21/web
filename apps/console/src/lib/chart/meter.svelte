@@ -31,7 +31,7 @@
 	const share = $derived(limit > 0 ? value / limit : 0);
 	const level = $derived(share >= danger ? 'bad' : share >= warn ? 'warn' : 'calm');
 	const FILL = {
-		calm: 'var(--color-accent)',
+		calm: 'var(--color-primary)',
 		warn: 'var(--color-warn)',
 		bad: 'var(--color-danger)',
 	};

@@ -253,10 +253,11 @@ declared at rest so it never fades in from the text, the placements for a ring o
 frame, and the browser's own replaced rather than removed -- and the kit's `focus-source` tracker
 records what the last input was, so a press positively known to be a pointer draws none. Why each of
 those is so is web's `spec/styling/focus.md`; the console takes them whole rather than writing a
-ring of its own. **The ring and a selection are the site's blue**, concrete's accent, `oklch(0.623
-0.214 259.815)`, in light and dark alike, set over mono's in `src/app.css`. A selection is that blue
-solid with white on it, written outside every layer, since mono's own selection is unlayered and
-would otherwise win.
+ring of its own. **The ring is `--interaction-focus` and a selection information's blue**, since
+2026-10-11 two blues of one hue, the ring stepped toward the text off the other -- lib's
+`spec/design/styles.md`. A chart's series reads information's blue too, never the ring's. A
+selection is that blue solid with white on it, written outside every layer, since mono's own
+selection is unlayered and would otherwise win.
 
 **The shell is landmarks a reader can jump between, and the keyboard's first stop skips it.** The
 sidebar is an `aside` labeled `Console`, its links a `nav` labeled `Sections`, the trail a `nav`

@@ -14,7 +14,7 @@
 		values,
 		height = 32,
 		color = 'var(--color-text-faint)',
-		accent = 'var(--color-accent)',
+		accent = 'var(--color-primary)',
 		label,
 	}: {
 		values: number[];

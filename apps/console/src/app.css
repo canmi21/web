@@ -33,7 +33,7 @@
 	--color-text-faint: var(--foreground-subtle);
 	--color-text-muted: var(--foreground-muted);
 	--color-text: var(--foreground-default);
-	--color-primary: var(--accent);
+	--color-primary: var(--status-info);
 	--color-good: var(--status-success);
 	--color-warn: var(--status-warning);
 	--color-danger: var(--status-critical);
@@ -42,12 +42,11 @@
 	/* What the keyboard's ring is drawn in, by the kit's interaction.css, and a selection's ground.
 	   See spec/console/design.md, "Accessibility". */
 	--color-accent: var(--interaction-focus);
-	--color-selection: var(--color-accent);
+	--color-selection: var(--color-primary);
 }
 
-/* Over mono's own selection, which is unlayered and so outranks the base layer: the site's blue,
-   with white on it in light and dark alike, since the blue is the same in both. See
-   spec/console/design.md, "Accessibility". */
+/* Over mono's own selection, which is unlayered and so outranks the base layer: information's
+   blue, with white on it in light and dark alike. See spec/console/design.md, "Accessibility". */
 ::selection {
 	background-color: var(--color-selection);
 	color: oklch(1 0 0);

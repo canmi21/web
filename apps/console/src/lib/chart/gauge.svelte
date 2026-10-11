@@ -11,7 +11,7 @@
 		figure,
 		shape = 'ring',
 		size = 16,
-		color = 'var(--color-accent)',
+		color = 'var(--color-primary)',
 	}: {
 		/** From 0 to 1, drawn full past 1; unknown draws the track alone. */
 		share: number | undefined;

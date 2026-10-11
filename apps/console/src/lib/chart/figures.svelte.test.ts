@@ -54,7 +54,7 @@ describe('sparkline on the server', () => {
 		expect(body).toContain('preserveAspectRatio="none"');
 		expect(body).toContain('vector-effect="non-scaling-stroke"');
 		expect(body).toContain('left: 100%');
-		expect(body).toContain('background-color: var(--color-accent)');
+		expect(body).toContain('background-color: var(--color-primary)');
 	});
 
 	it('draws no line for a single value', () => {
@@ -64,11 +64,11 @@ describe('sparkline on the server', () => {
 });
 
 describe('meter on the server', () => {
-	it('fills its share in the accent over a dimmer step of the same hue', () => {
+	it("fills its share in information's blue over a dimmer step of the same hue", () => {
 		const { body } = render(Meter, { props: { label: 'Disk', value: 40, limit: 100 } });
 		expect(body).toContain('role="meter"');
 		expect(body).toContain('width: 40%');
-		expect(body).toContain('color-mix(in oklab, var(--color-accent) 22%, var(--color-surface))');
+		expect(body).toContain('color-mix(in oklab, var(--color-primary) 22%, var(--color-surface))');
 		expect(body).not.toContain('<svg');
 	});
 
