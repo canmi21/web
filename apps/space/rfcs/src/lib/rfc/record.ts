@@ -152,7 +152,7 @@ const RESERVED = /^(?:[a-z0-9-]+\.)*(?:test|example|invalid|localhost|example\.(
 const DOCUMENTATION = /^(?:192\.0\.2|198\.51\.100|203\.0\.113)\.\d{1,3}$/;
 /** A file's extension, which ends a name as a top-level domain would and is not one here. */
 const EXTENSION = new Set(
-	'md mdx ts js mjs cjs json jsonc yaml yml toml svelte css html rs py sh txt lock png svg avif webp jpg ico woff2 stylex'.split(
+	'md mdx ts js mjs cjs json jsonc yaml yml toml svelte css html rs py sh txt lock png svg avif webp jpg ico woff2 stylex env sql go mp4 webm vtt'.split(
 		' ',
 	),
 );
