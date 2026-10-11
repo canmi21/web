@@ -42,7 +42,7 @@ What space's `/design` shows, drawn from the code itself and never a picture of 
   a narrow screen. A component may be put anywhere; a layout holds the viewport and is put inside
   nothing -- lib's `spec/design/layouts.md`.
 - **An interface** is what an app puts in a layout's places: its own pages, its sidebar's links,
-  its top bar's trail. It is the app's own.
+  its top bar's links. It is the app's own.
 
 **A style is two things, kept apart.** Its colors are values given to one contract of semantic
 names -- lib's `spec/design/styles.md` holds the names and how one is made -- and light and dark are
@@ -63,10 +63,26 @@ move them -- [../issues/site.md](../issues/site.md) and [../issues/cms.md](../is
 ## The shell is the console's
 
 Both are framed by `@canmi/design`'s shell -- lib's `spec/design/layouts.md`, "The shell" -- so
-every width, inset and scrolling region is the same in each and neither sets one. Space fills its
-places with finding's stand-in at the sidebar's head, its pages under their group headings, the
-trail to the page at the top bar's left and the switch between light and dark at its right. Every
-page is listed once, in `src/lib/pages.ts`, which the pages and the trail both read.
+every width, inset and scrolling region is the same in each and neither sets one. Space's sidebar
+has no head, only its pages under their group headings; the top bar holds the system's layers after
+Design at its left, and finding's stand-in and the switch between light and dark at its right, the
+field 15rem wide and as tall as the switch. Every page is listed once, in `src/lib/pages.ts`, which
+the sidebar and the top bar both read.
+
+**The top bar names the layers, not the page.** Foundations, Primitives, Components and Layouts
+follow Design as plain links, left-aligned, in the order each stands on the one before, the layer
+holding the page being read in the strong tone; a layer with no page yet is named and not linked.
+Where a page is is the sidebar's to show, so the top bar carries no trail.
+
+**A group's heading is half a link tall**, so the sidebar's list keeps its rhythm in half steps,
+and its words sit at the bottom of that half, against the links it names below. `nav-heading.svelte`
+takes `align`, `bottom` unless `top` is given.
+
+**Every ground past the page and a card is an interaction rank** -- lib's
+`spec/design/styles.md`, "Two grounds, and every other ground an interaction rank". Space's sidebar
+takes the nav link's `muted` and `subtle`, and finding's hover in the bar takes `strong`, so it
+leaves the white field toward the text rather than sinking toward the page. Worked out on space's
+sidebar and bar with the author on 2026-10-11, then made the contract's.
 
 ## Specimens are laid on paper
 

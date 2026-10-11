@@ -1,8 +1,8 @@
 <script lang="ts">
 	/**
-	 * A stand-in for finding, at the sidebar's head, until finding is drawn again: drawn as a field,
-	 * made live in place by a press, and answering nothing typed into it. Escape, or leaving it
-	 * empty, puts the field back. The same file stands in the console's sidebar.
+	 * A stand-in for finding, in the top bar beside the theme switch, until finding is drawn again:
+	 * drawn as a field, made live in place by a press or ⌘K, and answering nothing typed into it.
+	 * Escape, or leaving it empty, puts the field back.
 	 */
 	import * as stylex from '@stylexjs/stylex';
 	import { tick } from 'svelte';
@@ -25,26 +25,35 @@
 		query = '';
 	}
 
+	function shortcut(event: KeyboardEvent) {
+		if (event.key.toLowerCase() === 'k' && (event.metaKey || event.ctrlKey)) {
+			event.preventDefault();
+			void open();
+		}
+	}
+
 	const styles = stylex.create({
+		/** As tall as the icon button beside it; the keys inset as far from the side as the edges. */
 		field: {
 			display: 'flex',
 			width: '100%',
 			height: '2rem',
 			alignItems: 'center',
 			gap: '0.5rem',
-			paddingInline: '0.75rem',
+			paddingLeft: '0.625rem',
+			paddingRight: '0.3125rem',
 			borderRadius: radius.md,
 			borderWidth: 0,
 			backgroundColor: {
 				default: 'var(--background-surface)',
-				':hover': 'var(--background-raised)',
+				':hover': 'var(--interaction-strong)',
 			},
 			boxShadow: `0 0 0 ${borderWidth.hairline} var(--border-default)`,
-			color: 'var(--foreground-muted)',
-			fontSize: fontSize.label,
+			color: { default: 'var(--foreground-muted)', ':hover': 'var(--foreground-strong)' },
+			fontSize: fontSize.body,
 			textAlign: 'left',
 			cursor: 'pointer',
-			transitionProperty: 'background-color',
+			transitionProperty: 'background-color, color',
 			transitionDuration: duration.base,
 		},
 		/** The field made live, standing where it stood, as it looked. */
@@ -53,6 +62,7 @@
 				default: 'var(--background-surface)',
 				':hover': 'var(--background-surface)',
 			},
+			color: 'var(--foreground-muted)',
 			cursor: 'text',
 		},
 		input: {
@@ -69,8 +79,27 @@
 			'::-webkit-search-cancel-button': { appearance: 'none' },
 		},
 		word: { minWidth: 0, flexGrow: 1, overflow: 'hidden', textOverflow: 'ellipsis' },
+		keys: { display: 'flex', flexShrink: 0, gap: '0.125rem' },
+		key: {
+			display: 'flex',
+			minWidth: '1.375rem',
+			height: '1.375rem',
+			alignItems: 'center',
+			justifyContent: 'center',
+			paddingInline: '0.25rem',
+			borderWidth: borderWidth.hairline,
+			borderStyle: 'solid',
+			borderColor: 'var(--border-default)',
+			borderRadius: radius.sm,
+			backgroundColor: 'var(--background-base)',
+			color: 'var(--foreground-muted)',
+			fontFamily: 'var(--font-mono)',
+			fontSize: fontSize.caption,
+		},
 	});
 </script>
+
+<svelte:window onkeydown={shortcut} />
 
 {#if live}
 	<label class={stylex.attrs(styles.field, styles.live).class}>
@@ -79,8 +108,8 @@
 			bind:this={input}
 			bind:value={query}
 			type="search"
-			aria-label="Find"
-			placeholder="Find…"
+			aria-label="Search"
+			placeholder="Search…"
 			autocomplete="off"
 			spellcheck="false"
 			class={stylex.attrs(styles.input).class}
@@ -89,8 +118,12 @@
 		/>
 	</label>
 {:else}
-	<button type="button" aria-label="Find" class={stylex.attrs(styles.field).class} onclick={open}>
+	<button type="button" aria-label="Search" class={stylex.attrs(styles.field).class} onclick={open}>
 		<Icon icon={SearchIcon} size={16} />
-		<span class={stylex.attrs(styles.word).class}>Find…</span>
+		<span class={stylex.attrs(styles.word).class}>Search…</span>
+		<span aria-hidden="true" class={stylex.attrs(styles.keys).class}>
+			<kbd class={stylex.attrs(styles.key).class}>⌘</kbd>
+			<kbd class={stylex.attrs(styles.key).class}>K</kbd>
+		</span>
 	</button>
 {/if}

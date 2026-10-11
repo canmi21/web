@@ -1,10 +1,5 @@
 <script lang="ts">
-	/**
-	 * The console's map card, its container alone -- the surface, a hairline border, its corners and
-	 * its shadow, as `surfaces.card` in the console's src/lib/style.ts draws it -- with a title and a
-	 * sentence as its head, and a specimen box inside it: the card again, on the page's own ground,
-	 * to see the two nested.
-	 */
+	/** A card with a title and a sentence, holding a specimen box: the card on the page's ground. */
 	import * as stylex from '@stylexjs/stylex';
 	import { borderWidth, fontWeight, lineHeight, radius } from '@canmi/design/scale.stylex';
 
@@ -20,7 +15,6 @@
 			backgroundColor: 'var(--background-surface)',
 			boxShadow: 'var(--shadow-surface)',
 		},
-		/** The console's card head: its inset and its title's type. */
 		head: {
 			display: 'flex',
 			flexDirection: 'column',
@@ -29,7 +23,7 @@
 			paddingTop: '1rem',
 		},
 		title: {
-			fontSize: '1.5rem', // unnamed: as the console's title
+			fontSize: '1.5rem', // unnamed: a page title
 			fontWeight: fontWeight.semibold,
 			letterSpacing: '-0.02em',
 			color: 'var(--foreground-strong)',
@@ -39,7 +33,6 @@
 			lineHeight: lineHeight.relaxed,
 			color: 'var(--foreground-muted)',
 		},
-		/** The console's card body inset. */
 		body: {
 			display: 'flex',
 			flexGrow: 1,

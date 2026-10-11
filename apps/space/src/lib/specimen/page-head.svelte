@@ -12,7 +12,7 @@
 	const styles = stylex.create({
 		head: { display: 'flex', flexDirection: 'column', gap: '0.5rem', maxWidth: '40rem' },
 		title: {
-			fontSize: '1.5rem', // unnamed: a page's one large thing, as the console's title is
+			fontSize: '1.5rem', // unnamed: a page's one large thing
 			fontWeight: fontWeight.semibold,
 			letterSpacing: '-0.02em',
 			color: 'var(--foreground-strong)',

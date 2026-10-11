@@ -5,8 +5,8 @@
 	import Shell from '@canmi/design/layouts/shell.svelte';
 	import PagesNav from '#lib/pages-nav.svelte';
 	import SearchField from '#lib/search-field.svelte';
+	import Sections from '#lib/sections.svelte';
 	import ThemeSwitch from '#lib/theme-switch.svelte';
-	import Trail from '#lib/trail.svelte';
 	import '@canmi/fonts/mono.css';
 	import '../app.css';
 	import type { LayoutData } from './$types';
@@ -14,9 +14,9 @@
 	let { children, data }: { children: Snippet; data: LayoutData } = $props();
 
 	/**
-	 * The visual layer in development, linked as the console links it: the layer order first, then
-	 * the sheet. See spec/architecture/css/layers.md, "In development the visual layer arrives with
-	 * its runtime, and must not be linked".
+	 * The visual layer in development: the layer order first, then the sheet. See
+	 * spec/architecture/css/layers.md, "In development the visual layer arrives with its runtime,
+	 * and must not be linked".
 	 */
 	const DEV_STYLEX =
 		'<style>@layer properties, theme, base, components, utilities;</style>' +
@@ -47,15 +47,16 @@
 	{/if}
 </svelte:head>
 
-<!-- The console's frame, from @canmi/design; see spec/architecture/space.md, "The shell is the
-     console's". -->
+<!-- See spec/architecture/space.md, "The shell is the console's". -->
 <Shell label="Space" density="compact" span="bar">
 	{#snippet corner()}
 		<a href="/design" class="text-base font-bold text-(--foreground-strong)">Design</a>
 	{/snippet}
-	{#snippet head()}<SearchField />{/snippet}
 	{#snippet nav()}<PagesNav />{/snippet}
-	{#snippet start()}<Trail />{/snippet}
-	{#snippet end()}<ThemeSwitch />{/snippet}
+	{#snippet start()}<Sections />{/snippet}
+	{#snippet end()}
+		<div class="w-60"><SearchField /></div>
+		<ThemeSwitch />
+	{/snippet}
 	{@render children()}
 </Shell>

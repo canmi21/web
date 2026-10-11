@@ -1,9 +1,7 @@
 <script lang="ts">
 	/**
-	 * The sheet a design page is laid out on: a card as the console's overview draws its own -- the
-	 * surface, a hairline, its corners and its shadow -- as wide as the page's column and as tall as
-	 * the page's region, so everything on the page is on it. See spec/architecture/space.md,
-	 * "Specimens are laid on paper".
+	 * The sheet a design page is laid out on: a card as wide as the page's column and as tall as its
+	 * region. See spec/architecture/space.md, "Specimens are laid on paper".
 	 */
 	import * as stylex from '@stylexjs/stylex';
 	import type { Snippet } from 'svelte';

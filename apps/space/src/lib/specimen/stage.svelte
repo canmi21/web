@@ -1,8 +1,7 @@
 <script lang="ts">
 	/**
 	 * A box on the paper that holds specimens: the page's own ground inside a hairline, not the
-	 * paper's, since what it holds may be a card, and a card is drawn to stand on the ground. Its
-	 * inset is a frame around what it holds, as oklch.fyi frames a palette. See
+	 * paper's, since what it holds may be a card, and a card is drawn to stand on the ground. See
 	 * spec/architecture/space.md, "Specimens are laid on paper".
 	 */
 	import * as stylex from '@stylexjs/stylex';
