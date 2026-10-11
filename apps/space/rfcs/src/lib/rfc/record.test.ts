@@ -1,5 +1,12 @@
 import { describe, expect, it } from 'vitest';
-import { checkPrivate, checkSections, checkStatus, readFront, type Status } from './record.ts';
+import {
+	checkPlain,
+	checkPrivate,
+	checkSections,
+	checkStatus,
+	readFront,
+	type Status,
+} from './record.ts';
 
 const file = (front: string, body = '## Question\n\n## Decision\n') =>
 	`---\n${front}\n---\n\n${body}`;
@@ -117,6 +124,16 @@ describe('checkPrivate', () => {
 		const url = ['https:', '', 'cdn.monoflake.com', 'x'].join('/');
 		expect(checkPrivate(`${url}, canmi.app, api.ffoni.com, me@canmi.net`)).toEqual([
 			'mail domain canmi.net could be real; write a reserved one, as in example.com',
+		]);
+	});
+});
+
+describe('checkPlain', () => {
+	it('takes Markdown and GFM, and refuses HTML and a directive', () => {
+		expect(checkPlain('| a | b |\n| - | - |\n| 1 | 2 |\n\nText: with a colon.')).toEqual([]);
+		expect(checkPlain('<div style="x">a</div>\n\n::swatch{a=1}')).toEqual([
+			'raw HTML "<div style=\\"x\\">a</div>"; an RFC is plain Markdown',
+			'directive "::swatch{a=1}"; an RFC calls no component',
 		]);
 	});
 });

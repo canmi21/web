@@ -19,7 +19,6 @@
 		"deploy": "vite build && wrangler deploy"
 	},
 	"devDependencies": {
-		"@canmi/compile": "workspace:*",
 		"@canmi/design": "^2026.1011.7",
 		"@canmi/fonts": "workspace:*",
 		"@canmi/kit": "^2026.1010.0",
@@ -37,10 +36,13 @@
 		"@tabler/icons-svelte-runes": "^3.49.0",
 		"@tailwindcss/vite": "^4.3.3",
 		"@types/mdast": "^4.0.4",
+		"remark-gfm": "^4.0.1",
+		"remark-parse": "^11.0.0",
 		"svelte": "^5.57.1",
 		"svelte-check": "^4.7.6",
 		"tailwindcss": "^4.3.3",
 		"typescript": "^6.0.3",
+		"unified": "^11.0.5",
 		"valibot": "^1.5.0",
 		"vite": "^8.3.2",
 		"wrangler": "^4.147.0",

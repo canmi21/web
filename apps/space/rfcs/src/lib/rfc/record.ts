@@ -4,7 +4,9 @@
  */
 import * as v from 'valibot';
 import { parse } from 'yaml';
+import type { Nodes } from 'mdast';
 import { ID } from './name.ts';
+import { syntaxTree } from './parser.ts';
 
 const Text = v.pipe(v.string('is empty'), v.trim(), v.nonEmpty('is empty'));
 const Https = v.pipe(
@@ -123,6 +125,22 @@ export function checkStatus(front: Front): string[] {
 		return front.commits.length > 0 ? [] : ['a landed RFC names at least one commit'];
 	if (front.commits.length === 0) return [];
 	return [`a ${front.status} RFC landed nothing, so \`commits\` is empty`];
+}
+
+/** Every place a body leaves plain Markdown: raw HTML, or a line written as a directive. */
+export function checkPlain(body: string): string[] {
+	const problems: string[] = [];
+	const walk = (node: Nodes) => {
+		if (node.type === 'html')
+			problems.push(
+				`raw HTML ${JSON.stringify(node.value.slice(0, 40))}; an RFC is plain Markdown`,
+			);
+		if ('children' in node) for (const child of node.children) walk(child);
+	};
+	walk(syntaxTree(body));
+	for (const [line] of body.matchAll(/^ {0,3}:{2,}[a-z][^\n]*/gm))
+		problems.push(`directive ${JSON.stringify(line.trim())}; an RFC calls no component`);
+	return problems;
 }
 
 /**

@@ -1,8 +1,8 @@
 import { error, redirect } from '@sveltejs/kit';
-import { syntaxTree } from '@canmi/compile/parser';
 import { anchorOf, textOf } from '@canmi/space-ui/prose/text';
 import type { Root } from 'mdast';
 import { rfcPath } from '#lib/rfc/name.ts';
+import { syntaxTree } from '#lib/rfc/parser.ts';
 import { RFCS, rfcOf } from '#lib/rfc/store.ts';
 import type { EntryGenerator, PageServerLoad } from './$types';
 

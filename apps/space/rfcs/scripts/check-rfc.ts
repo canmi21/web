@@ -10,6 +10,7 @@ import { join, relative } from 'node:path';
 import { checkBlockers, cycles, type Graph } from '../src/lib/rfc/graph.ts';
 import { SCOPE } from '../src/lib/rfc/name.ts';
 import {
+	checkPlain,
 	checkPrivate,
 	checkSections,
 	checkStatus,
@@ -87,6 +88,7 @@ for (const file of files) {
 	const own = [
 		...found,
 		...checkSections(body, front?.status),
+		...checkPlain(body),
 		...(front ? checkStatus(front) : []),
 		...checkPrivate(`${front?.title ?? ''}\n${body}`),
 	];
