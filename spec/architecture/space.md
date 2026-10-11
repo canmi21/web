@@ -84,6 +84,12 @@ takes `align`, `bottom` unless `top` is given.
 bar's surface in either theme, its keys back on the surface and its hover `strong`. Worked out on
 space's sidebar and bar with the author on 2026-10-11, then made the contract's.
 
+**A specimen may hold both themes at once.** The color page draws each hue as two capsules, the
+light's value then the dark's; the wells follow the page's theme and only each hue is a `ThemeScope`
+of its own theme, so a reader in either theme sees both and nothing is written twice -- lib's
+`spec/design/components.md`, "A theme scope". What a specimen is called stands outside its scopes,
+in the page's theme.
+
 ## Specimens are laid on paper
 
 **A design page is laid out on a card as the console's overview draws its own** -- the surface, a
@@ -96,19 +102,19 @@ size are still being settled on the color page, which holds one example of each.
 
 The pieces that draw specimens are space's own, in `src/lib/specimen/`.
 
-## Its mark is a circle in the focus blue
+## Its mark is a circle in information's blue
 
-Space's favicon is one circle in the blue that was the focus ring's until 2026-10-11, when the ring
-stepped deeper off information's blue; the mark keeps it, as the console's marks do: an SVG -- the
-circle written as its hex, `#2b7fff`, and as the oklch it is where a browser draws that, since a
-favicon reads no stylesheet of the page's -- and an ICO derived from it, drawn by the browser at 16,
-32 and 48 pixels. Both are objects under their content ids, registered under `space` in
+Space's favicon is one circle in `--status-info`'s light value: an SVG -- the circle written as its
+hex, `#0070f7`, and as the oklch it is where a browser draws that, `oklch(0.576 0.219 258.6)`, since
+a favicon reads no stylesheet of the page's -- and an ICO derived from it, drawn by the browser at
+16, 32 and 48 pixels. Both are objects under their content ids, registered under `space` in
 `data/record/symlinks.json`. As the site's head does, the root layout's server asks the alias layer
 what each resolves to at render and the head names those objects, so a browser fetches the bytes
 with no redirect; `src/routes/[mark=mark]` follows the names a browser asks for on its own,
 `/favicon.ico` above all -- platform's `spec/architecture/delivery.md`, "A head names its marks by
-the objects they resolve to at render", which also says how this went wrong twice first. Decided
-with the author on 2026-10-11.
+the objects they resolve to at render", which also says how this went wrong twice first. Drawn in
+the focus ring's blue on 2026-10-11, and in information's the same day, when the ring stepped off
+it.
 
 ## Errors are the console's
 

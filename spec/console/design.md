@@ -10,16 +10,17 @@ rules written beside this file, as it is taken up -- the overview first,
 
 ## Color and icons
 
-**It is black and white, drawn with semantic names** -- ground, surface, line, text, good, warn,
-danger and the series -- that a palette fills. The kit's `mono.css` paints the interface in light or
-dark; the icon at the top bar's right edge, Tabler's filled brightness mark, switches the two,
-mirrored in the dark so its filled half changes side, and keeps the choice in the kit's `theme`
-cookie. Nord supplies the chart series alone, so data keeps its distinctions while the interface
-remains monochrome. **Tabler is the console's icon family**, with 18 px navigation and theme icons,
-16 px inline controls and 14 px compact state marks. Navigation has a lighter stroke; small state
-marks have a heavier one. Its charts are drawn as SVG by the app itself with d3's scales and shapes,
-so the server renders them whole: a chart library drawing on a canvas would paint nothing until the
-browser ran it.
+**It is black and white, drawn with the design system's contract** -- `@canmi/design`'s mono paints
+the interface in light or dark, the theme a `data-theme` mark on the root set by
+`@canmi/design/theme` -- lib's `spec/design/styles.md`, "A theme is a mark, and any element may
+carry one". The icon at the top bar's right edge, Tabler's filled brightness mark, switches the two,
+mirrored in the dark so its filled half changes side, and keeps the choice in the `theme` cookie.
+The chart series are the console's own eight hues, so data keeps its distinctions while the
+interface remains monochrome. **Tabler is the console's icon family**, with 18 px navigation and
+theme icons, 16 px inline controls and 14 px compact state marks. Navigation has a lighter stroke;
+small state marks have a heavier one. Its charts are drawn as SVG by the app itself with d3's scales
+and shapes, so the server renders them whole: a chart library drawing on a canvas would paint
+nothing until the browser ran it.
 
 ## The shell
 
@@ -257,11 +258,10 @@ declared at rest so it never fades in from the text, the placements for a ring o
 frame, and the browser's own replaced rather than removed -- and the kit's `focus-source` tracker
 records what the last input was, so a press positively known to be a pointer draws none. Why each of
 those is so is web's `spec/styling/focus.md`; the console takes them whole rather than writing a
-ring of its own. **The ring is `--interaction-focus` and a selection information's blue**, since
-2026-10-11 two blues of one hue, the ring stepped toward the text off the other -- lib's
-`spec/design/styles.md`. A chart's series reads information's blue too, never the ring's. A
-selection is that blue solid with white on it, written outside every layer, since mono's own
-selection is unlayered and would otherwise win.
+ring of its own. **The ring and a selection are `--interaction-focus`**, a shade off information's
+blue, a selection that blue solid with white on it: a selection is the reader's own choice, drawn as
+focus is. Both are the system's, from `@canmi/design`'s mono, and the console sets neither -- lib's
+`spec/design/styles.md`. A chart's series reads information's blue, never the ring's.
 
 **The shell is landmarks a reader can jump between, and the keyboard's first stop skips it.** The
 sidebar is an `aside` labeled `Console`, its links a `nav` labeled `Sections`, the trail a `nav`

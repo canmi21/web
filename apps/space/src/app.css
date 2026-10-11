@@ -6,7 +6,7 @@
 @import '@canmi/kit/tokens/interaction.css';
 @source '.';
 
-@custom-variant dark (&:where(.dark, .dark *, [data-theme='dark'], [data-theme='dark'] *));
+@custom-variant dark (&:where([data-theme='dark'], [data-theme='dark'] *));
 
 /* Over mono's own `html` rule, so the document's ground is the contract's. */
 html {

@@ -1,6 +1,6 @@
 <script lang="ts">
 	/** Light or dark, the reader's choice kept in the cookie the theme script reads first. */
-	import { applyTheme, currentTheme, themeCookie } from '@canmi/kit/theme';
+	import { applyTheme, currentTheme, themeCookie } from '@canmi/design/theme';
 	import IconButton from '@canmi/design/components/icon-button.svelte';
 	import BrightnessIcon from '@tabler/icons-svelte-runes/icons/brightness-filled';
 

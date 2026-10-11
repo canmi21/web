@@ -2,7 +2,7 @@
 	/** The top bar's right: the page's own actions, the zone every moment is written in, and the
 	 * switch between light and dark. */
 	import * as stylex from '@stylexjs/stylex';
-	import { applyTheme, currentTheme, themeCookie } from '@canmi/kit/theme';
+	import { applyTheme, currentTheme, themeCookie } from '@canmi/design/theme';
 	import { figures, text } from '@canmi/kit/tokens/vocabulary.stylex';
 	import BrightnessIcon from '@tabler/icons-svelte-runes/icons/brightness-filled';
 	import type { Snippet } from 'svelte';

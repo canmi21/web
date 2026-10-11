@@ -6,7 +6,7 @@
 @import '@canmi/kit/tokens/interaction.css';
 @source '.';
 
-@custom-variant dark (&:where(.dark, .dark *, [data-theme='dark'], [data-theme='dark'] *));
+@custom-variant dark (&:where([data-theme='dark'], [data-theme='dark'] *));
 
 /* The kit's interaction.css draws the keyboard's ring in this name, so it stays until the console
    takes its ring from @canmi/design. A chart's series, eight hues in a fixed order where no meaning
@@ -21,13 +21,6 @@
 	--series-6: oklch(0.66 0.21 19);
 	--series-7: oklch(0.66 0.115 212);
 	--series-8: oklch(0.629 0.18 45);
-}
-
-/* Over mono's own selection, which is unlayered and so outranks the base layer: information's
-   blue, with white on it in light and dark alike. See spec/console/design.md, "Accessibility". */
-::selection {
-	background-color: var(--status-info);
-	color: oklch(1 0 0);
 }
 
 /* Over mono's own `html` rule: every region is fixed, so the document shows only its ground. */

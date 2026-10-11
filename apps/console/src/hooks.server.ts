@@ -1,6 +1,6 @@
 import { env, waitUntil } from 'cloudflare:workers';
 import { dev } from '$app/env';
-import { fillTheme } from '@canmi/kit/theme';
+import { fillTheme } from '@canmi/design/theme';
 import { EXTERNAL } from '@canmi/me/urls';
 import { serverHandles } from '@canmi/web/sentry/server';
 import { stamp } from '@canmi/web/error';
