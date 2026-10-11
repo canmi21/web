@@ -33,6 +33,13 @@ export function formatName({ day, order, slug, id }: Name): string {
 	return `${day}-${pad(order)}-${slug}-${id}.md`;
 }
 
+/** A name's words in lowercase, joined by hyphens: `RFC Format` is `rfc-format`. */
+export const slugOf = (name: string) =>
+	name
+		.toLowerCase()
+		.replace(/[^a-z0-9]+/g, '-')
+		.replace(/^-|-$/g, '');
+
 /** The day in the writer's own time zone, as a file names it. */
 export function today(now = new Date()): string {
 	return `${now.getFullYear()}-${pad(now.getMonth() + 1)}${pad(now.getDate())}`;

@@ -29,6 +29,12 @@ rather than its mark, so the parts' names stand under the corner's -- spec/conso
 menu opens out of its title". Both are `@canmi/space-ui`'s, `part-switch.svelte` and the menu it is
 drawn with; decided with the author on 2026-10-11.
 
+**The RFCs' pages are slop until the design system settles**: a consumer of the system and never a
+voice in deciding it, drawn however serves for now -- a page that looks wrong is no defect -- and
+not published. What they are made of is migrated onto the system once it stands, rather than
+reworked while it is still being decided, since each would wait on the other. Decided with the
+author on 2026-10-11.
+
 **`rfcs/` and its app are to leave for a repository of their own once the UI they draw settles**:
 a repository of its own reads its UI from npm, whose release and sync cost minutes a turn, while
 the UI is still drawn a turn at a time. `libs/space-ui` goes to npm then.

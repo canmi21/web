@@ -10,6 +10,7 @@
 	// oxlint-disable-next-line import/no-self-import -- a node's children are nodes, drawn by this
 	import Self from './node.svelte';
 	import { styles } from './styles.ts';
+	import { anchorOf } from './text.ts';
 
 	let { node, directives }: { node: Nodes; directives: Directives } = $props();
 </script>
@@ -26,9 +27,9 @@
 	<p>{@render children(node)}</p>
 {:else if node.type === 'heading'}
 	{#if node.depth <= 2}
-		<h2 class={stylex.attrs(styles.h2).class}>{@render children(node)}</h2>
+		<h2 id={anchorOf(node)} class={stylex.attrs(styles.h2).class}>{@render children(node)}</h2>
 	{:else}
-		<h3 class={stylex.attrs(styles.h3).class}>{@render children(node)}</h3>
+		<h3 id={anchorOf(node)} class={stylex.attrs(styles.h3).class}>{@render children(node)}</h3>
 	{/if}
 {:else if node.type === 'text'}
 	{node.value}

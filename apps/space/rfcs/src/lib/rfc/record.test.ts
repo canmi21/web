@@ -8,7 +8,7 @@ describe('readFront', () => {
 	it('takes a filled frontmatter as it is', () => {
 		const { front, problems } = readFront(
 			file(
-				'title: A decision\nsupersedes: [abcde]\nreferences:\n  - url: https://origin.example/\n    took: a shape',
+				'name: A Decision\ntitle: A decision\nsupersedes: [abcde]\nreferences:\n  - url: https://origin.example/\n    took: a shape',
 			),
 		);
 		expect(problems).toEqual([]);
@@ -17,6 +17,7 @@ describe('readFront', () => {
 
 	it('wants a title and references, even an empty list of them', () => {
 		expect(readFront(file('title:')).problems).toEqual([
+			'`name` is missing',
 			'`title` is empty',
 			'`references` is missing; write [] for our own idea',
 		]);
@@ -25,7 +26,7 @@ describe('readFront', () => {
 	it('names every key and value out of form', () => {
 		const { problems } = readFront(
 			file(
-				'title: t\nstatus: accepted\ncommits: [web]\nreferences:\n  - url: http://origin.example/\n    took: ""',
+				'name: t\ntitle: t\nstatus: accepted\ncommits: [web]\nreferences:\n  - url: http://origin.example/\n    took: ""',
 			),
 		);
 		expect(problems).toEqual([

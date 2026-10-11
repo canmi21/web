@@ -9,16 +9,18 @@ export const styles = stylex.create({
 	root: {
 		display: 'flex',
 		flexDirection: 'column',
-		gap: '0.75rem',
+		gap: '1rem',
 		fontSize: '1rem', // unnamed: the reader's own size, for prose to read
 		lineHeight: lineHeight.relaxed,
 		color: 'var(--foreground-default)',
 	},
 	h2: {
-		marginTop: '1.25rem',
-		fontSize: '1.125rem', // unnamed: a section's title, a step over the prose
+		marginTop: '1.5rem',
+		fontSize: '1.25rem', // unnamed: a section's title, a step over the prose
 		fontWeight: fontWeight.semibold,
+		letterSpacing: '-0.01em',
 		color: 'var(--foreground-strong)',
+		scrollMarginTop: '1.5rem',
 	},
 	h3: {
 		marginTop: '0.75rem',
@@ -69,18 +71,31 @@ export const styles = stylex.create({
 		borderTopStyle: 'solid',
 		borderTopColor: 'var(--border-default)',
 	},
-	tableBox: { overflowX: 'auto' },
-	table: { width: '100%', borderCollapse: 'collapse', fontSize: fontSize.body },
+	/** A table in a frame of its own, its head on the faintest rank, its rows ruled between. */
+	tableBox: {
+		overflowX: 'auto',
+		borderWidth: borderWidth.hairline,
+		borderStyle: 'solid',
+		borderColor: 'var(--border-default)',
+		borderRadius: radius.lg,
+	},
+	table: { width: '100%', borderCollapse: 'collapse', fontSize: fontSize.body, lineHeight: 1.5 },
 	cell: {
-		paddingBlock: '0.5rem',
-		paddingInline: '0.75rem',
+		paddingBlock: '0.625rem',
+		paddingInline: '0.875rem',
 		textAlign: 'left',
 		verticalAlign: 'top',
-		borderBottomWidth: borderWidth.hairline,
-		borderBottomStyle: 'solid',
-		borderBottomColor: 'var(--border-default)',
+		borderTopWidth: borderWidth.hairline,
+		borderTopStyle: 'solid',
+		borderTopColor: 'var(--border-subtle)',
 	},
-	head: { fontWeight: fontWeight.medium, color: 'var(--foreground-strong)' },
+	head: {
+		borderTopWidth: 0,
+		backgroundColor: 'var(--interaction-subtle)',
+		fontSize: fontSize.label,
+		fontWeight: fontWeight.medium,
+		color: 'var(--foreground-muted)',
+	},
 	unknown: {
 		color: 'var(--status-critical)',
 		fontFamily: 'var(--font-mono)',

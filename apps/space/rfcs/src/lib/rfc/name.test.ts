@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { formatName, newId, parseName, rfcPath, today } from './name.ts';
+import { formatName, newId, parseName, rfcPath, slugOf, today } from './name.ts';
 
 describe('parseName', () => {
 	it('reads the day, the place, the slug and the id', () => {
@@ -48,5 +48,12 @@ describe('rfcPath', () => {
 		expect(rfcPath('design', { slug: 'hue-pairs', id: 'k3x9q' })).toBe(
 			'/rfcs/design/hue-pairs-k3x9q',
 		);
+	});
+});
+
+describe('slugOf', () => {
+	it('is the name in lowercase words joined by hyphens', () => {
+		expect(slugOf('RFC Format')).toBe('rfc-format');
+		expect(slugOf("  Hue Pairs, Dark's First ")).toBe('hue-pairs-dark-s-first');
 	});
 });

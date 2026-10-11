@@ -1,5 +1,6 @@
 import { error, redirect } from '@sveltejs/kit';
 import { syntaxTree } from '@canmi/compile/parser';
+import { anchorOf, textOf } from '@canmi/space-ui/prose/text';
 import type { Root } from 'mdast';
 import { rfcPath } from '#lib/rfc/name.ts';
 import { RFCS, rfcOf } from '#lib/rfc/store.ts';
@@ -23,6 +24,7 @@ export const load: PageServerLoad = ({ params }) => {
 	if (!rfc || params.name.at(-6) !== '-') error(404, 'Not Found');
 	const path = rfcPath(rfc.scope, rfc);
 	if (params.scope !== rfc.scope || params.name !== `${rfc.slug}-${rfc.id}`) redirect(301, path);
+	const tree = bare(syntaxTree(rfc.body));
 	return {
 		scope: rfc.scope,
 		day: rfc.day,
@@ -30,6 +32,10 @@ export const load: PageServerLoad = ({ params }) => {
 		front: rfc.front,
 		supersededBy: rfc.supersededBy,
 		paths: Object.fromEntries(RFCS.map((one) => [one.id, rfcPath(one.scope, one)])),
-		tree: bare(syntaxTree(rfc.body)),
+		tree,
+		/** The body's sections, for the rail beside it. */
+		sections: tree.children
+			.filter((node) => node.type === 'heading' && node.depth === 2)
+			.map((node) => ({ anchor: anchorOf(node), title: textOf(node) })),
 	};
 };

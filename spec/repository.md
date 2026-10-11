@@ -40,5 +40,6 @@ The platform and infra continue the same history from the commit the three split
 under `rfcs/{scope}/`, published at canmi.app/rfcs. The format, and why there is one, is the first
 of them, RFC 2ut6h. An RFC is cited by its id alone, and found by it, `rfcs/*/*-2ut6h.md`,
 whatever its area and slug became. An RFC is started with
-`mise run new-rfc <scope> <slug>`, which picks its id and its place in the day, and `check-rfc`,
+`mise run new-rfc <name> <scope>`, which makes its slug of its name and picks its id and its place
+in the day, and `check-rfc`,
 which `verify` runs on every change, holds every file to the format.

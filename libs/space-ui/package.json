@@ -10,6 +10,7 @@
 		"./parts": "./src/parts.ts",
 		"./prose.svelte": "./src/prose/prose.svelte",
 		"./prose/directives": "./src/prose/directives.ts",
+		"./prose/text": "./src/prose/text.ts",
 		"./vite": "./src/vite.ts"
 	},
 	"dependencies": {

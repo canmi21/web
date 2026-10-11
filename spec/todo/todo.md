@@ -56,6 +56,9 @@ What [../architecture/space.md](../architecture/space.md) decides and is not bui
   sidebar's head is the way in to finding".
 - **The console and space move onto the design system**: the token contract, then the
   primitives, then each component, the console looking as it did after every step.
+- **The RFCs' pages move onto the design system** once it settles: their list, their page and
+  the prose they are drawn with, all slop until then and unpublished -- spec/architecture/space.md,
+  "The RFCs' pages are slop until the design system settles".
 - **The specs are dried to what holds now**, once there are RFCs enough to take the rest: each
   rule keeps its current value, and why it is so, what was tried and when it was settled move into
   an RFC -- spec/repository.md, "`rfcs/` keeps why, `spec/` keeps what". Not begun before then,

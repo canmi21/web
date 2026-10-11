@@ -261,7 +261,7 @@ description = "Check that every RFC under rfcs/ is named, filed and written in t
 run = "node apps/space/rfcs/scripts/check-rfc.ts"
 
 [tasks.new-rfc]
-description = "Start an RFC with a fresh id and today's next place: `new-rfc <scope> <slug> [--dry-run]`"
+description = "Start an RFC from its name in title case: `new-rfc <name> <scope> [--dry-run]`"
 run = "node apps/space/rfcs/scripts/new-rfc.ts"
 
 [tasks.check-social]

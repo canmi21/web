@@ -18,6 +18,8 @@ const Reference = v.strictObject({ url: Https, took: Text, via: v.optional(Https
 
 /** The frontmatter as the format writes it; see RFC 2ut6h. */
 const FrontSchema = v.strictObject({
+	/** A few words in title case, where a sentence will not fit: a sidebar's entry. */
+	name: v.pipe(Text, v.maxLength(32, 'is longer than 32 characters')),
 	/** The decision itself, as a sentence. */
 	title: Text,
 	/** Earlier RFCs this one replaces, by id; who replaced an RFC is read off the later one. */
