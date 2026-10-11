@@ -31,6 +31,8 @@
 	--shadow-card: var(--shadow-surface);
 	--color-line-strong: var(--border-strong);
 	--color-text-faint: var(--foreground-subtle);
+	--color-text-muted: var(--foreground-muted);
+	--color-text: var(--foreground-default);
 	--color-primary: var(--accent);
 	--color-good: var(--status-success);
 	--color-warn: var(--status-warning);

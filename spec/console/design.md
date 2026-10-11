@@ -127,10 +127,12 @@ on 2026-10-09; the one-state rule on 2026-10-10.
 **Since 2026-10-11 the wash is the contract's four ranks** -- lib's `spec/design/styles.md`, "Two
 grounds, and every other ground an interaction rank". `--color-selected` is `--interaction-default`,
 the full strength as above; `--color-hover` is `--interaction-subtle`, half of it in the light and
-seven tenths in the dark, where the two would otherwise read as one; the sidebar's open page, through
-the nav link, takes `muted` beside its `subtle` hover. `--color-raised`, once a gray of its own that
-in the light sat darker than the page, is `--interaction-strong`, and `--color-sunken` the base it
-always equaled.
+seven tenths in the dark, where the two would otherwise read as one; the sidebar's open page,
+through the nav link, takes `muted` beside its `subtle` hover. `--color-raised`, once a gray of its
+own that in the light sat darker than the page, is `--interaction-strong`, and `--color-sunken` the
+base it always equaled. `--color-text` and `--color-text-muted`, read in some fifty places, are the
+contract's `default` and `muted` too, so the console's text takes its APCA tiers -- lib's
+`spec/design/styles.md`.
 
 ## An error is the site's page, in the console's frame
 
