@@ -56,6 +56,15 @@ a component the rest of the console uses is not the system's until that part is 
 then split into its layers and moved into the system, which space then reads it back from. The site and the CMS each keep a style of their own until there is time to
 move them -- [../issues/site.md](../issues/site.md) and [../issues/cms.md](../issues/cms.md).
 
+## The shell is the console's
+
+Three fixed regions where there is room -- the sidebar down the left, the top bar across, and the
+page between them, which alone scrolls -- with the console's widths and insets, so the two are drawn
+from one set of parts; where there is not, one column that scrolls whole. The sidebar's head holds
+finding's stand-in, as the console's does; the top bar holds the trail to the page and the switch
+between light and dark. Every page is listed once, in `src/lib/pages.ts`, which the sidebar and the
+trail both read.
+
 ## Defined once, rendered here, later
 
 The docs and the specs are to be written where the work is -- a repository's `spec/` -- and read

@@ -1,33 +1,17 @@
 <script lang="ts">
-	import { onMount, untrack } from 'svelte';
-	import {
-		applyTheme,
-		currentTheme,
-		observeTheme,
-		themeCookie,
-		type Theme,
-	} from '@canmi/kit/theme';
-
-	let { initial }: { initial: Theme } = $props();
-
-	/** The theme on screen: the server's reading of the cookie, then the document's own class. */
-	let theme = $state<Theme>(untrack(() => initial));
-	onMount(() => {
-		theme = currentTheme();
-		return observeTheme((next) => (theme = next));
-	});
+	/** Light or dark, the reader's choice kept in the cookie the theme script reads first. */
+	import { applyTheme, currentTheme, themeCookie } from '@canmi/kit/theme';
+	import IconButton from '@canmi/design/components/icon-button.svelte';
+	import BrightnessIcon from '@tabler/icons-svelte-runes/icons/brightness-filled';
 
 	function flip() {
-		const next = theme === 'dark' ? 'light' : 'dark';
+		const next = currentTheme() === 'dark' ? 'light' : 'dark';
 		applyTheme(next);
 		document.cookie = themeCookie(next);
 	}
 </script>
 
-<button
-	type="button"
-	class="rounded-md px-2 py-1 text-(--foreground-muted) hover:bg-(--interaction-hover) hover:text-(--foreground-strong)"
-	onclick={flip}
->
-	{theme === 'dark' ? 'Light' : 'Dark'}
-</button>
+<IconButton label="Switch between light and dark" onclick={flip}>
+	<!-- One mark for both, mirrored in the dark so its filled half changes side. -->
+	<BrightnessIcon size={18} aria-hidden="true" class="dark:-scale-x-100" />
+</IconButton>

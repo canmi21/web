@@ -48,6 +48,9 @@ What [../architecture/space.md](../architecture/space.md) decides and is not bui
 - **What every host carries**: robots.txt and security.txt from `@canmi/me/robots`, the favicon
   through `aka` as the console's is, and Sentry with its own DSN, `EXTERNAL.sentry.space`, once
   `@canmi/me` is released with it.
+- **Finding is drawn again**, in the console's sidebar and space's, taking the place of the
+  stand-in at each head and reading the console's `finding.ts` -- spec/console/design.md, "The
+  sidebar's head is the way in to finding".
 - **The console and space move onto the design system**: the token contract, then the
   primitives, then each component, the console looking as it did after every step.
 

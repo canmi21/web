@@ -14,6 +14,16 @@ html {
 }
 
 @layer base {
+	/* Where the regions are fixed, the document itself never scrolls: only the page's main region
+	   does. */
+	@media (width >= 48rem) {
+		html,
+		body {
+			overflow: hidden;
+			overscroll-behavior: none;
+		}
+	}
+
 	body {
 		background-color: var(--background-base);
 		color: var(--foreground-default);

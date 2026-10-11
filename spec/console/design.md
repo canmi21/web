@@ -58,6 +58,12 @@ socket has gone through one and names it.
 written as its offset from UTC with a sign -- `UTC-4`, `UTC+5:30`, and UTC itself `UTC+0` -- so
 every zone reads one way, never as a city's name or Intl's `GMT`; its name is on its hover.
 
+**Finding is withdrawn until it is drawn again**, in the console and space alike: the sidebar's
+head holds a stand-in, `src/lib/design/search-field.svelte`, drawn as the field was, made live in
+place by a press and answering nothing typed into it. What it found and how -- `finding.ts` and its
+test -- is kept for the drawing that replaces it; the rest of this paragraph is the drawing that was
+withdrawn, on 2026-10-10.
+
 **The sidebar's head is the way in to finding.** It is as tall as the top bar, so the two heads read
 as one band without a rule between them, and it holds one control: `Find…` drawn as a field, with
 its shortcut, `⌘K`, beside the word. The view being read stays at the top bar's left, beside the

@@ -2,12 +2,12 @@
 	import type { Snippet } from 'svelte';
 	import { dev } from '$app/env';
 	import { discloseGlobals, disclosureHead } from '@canmi/web/disclose';
-	import ThemeSwitch from '#lib/theme-switch.svelte';
+	import Sidebar from '#lib/sidebar.svelte';
+	import TopBar from '#lib/top-bar.svelte';
 	import '@canmi/fonts/mono.css';
 	import '../app.css';
-	import type { LayoutData } from './$types';
 
-	let { children, data }: { children: Snippet; data: LayoutData } = $props();
+	let { children }: { children: Snippet } = $props();
 
 	/**
 	 * The visual layer in development, linked as the console links it: the layer order first, then
@@ -27,12 +27,6 @@
 	// What the app is made of, said for Wappalyzer from the build; see lib's spec/web/disclose.md.
 	const disclosure = import.meta.env.VITE_DISCLOSURE;
 	discloseGlobals(disclosure);
-
-	/**
-	 * The parts of space, each a path of canmi.app until it grows into an app of its own. The docs
-	 * and the specs join once written for readers; see spec/issues/space.md.
-	 */
-	const PARTS = [{ href: '/design', label: 'Design' }];
 </script>
 
 <svelte:head>
@@ -41,16 +35,15 @@
 	{@html disclosureHead(disclosure)}
 </svelte:head>
 
-<header class="flex items-center gap-6 px-6 py-4">
-	<a href="/" class="font-medium">canmi.app</a>
-	<nav class="flex flex-1 gap-4 text-(--foreground-muted)">
-		{#each PARTS as part (part.href)}
-			<a href={part.href}>{part.label}</a>
-		{/each}
-	</nav>
-	<ThemeSwitch initial={data.theme} />
-</header>
-
-<main class="px-6 py-8">
-	{@render children()}
+<!-- Three fixed regions where there is room, and only the page scrolls, as the console's do; one
+     column that scrolls whole where there is not. -->
+<Sidebar />
+<TopBar />
+<main
+	id="content"
+	class="md:fixed md:top-14 md:right-0 md:bottom-0 md:left-60 md:overflow-y-auto md:overscroll-contain"
+>
+	<div class="mx-auto flex w-full max-w-[90rem] flex-col px-8 pt-8 pb-12">
+		{@render children()}
+	</div>
 </main>

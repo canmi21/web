@@ -24,10 +24,10 @@
 	import type { Level } from '../levels.ts';
 	import { surfaces, tone } from '../style.ts';
 	import Badge from '../ui/badge.svelte';
-	import Find from './find.svelte';
 	import Icon from '@canmi/design/components/icon.svelte';
 	import IconButton from '@canmi/design/components/icon-button.svelte';
 	import { pass } from './motion.ts';
+	import SearchField from './search-field.svelte';
 	import { CONTRACT } from '../wire.ts';
 
 	let { level, live, nearest }: { level: Level; live: Live; nearest: string | undefined } =
@@ -190,7 +190,7 @@
 >
 	<!-- As tall as the top bar, so the two heads read as one band. -->
 	<div class="flex h-14 shrink-0 items-center px-3">
-		<Find />
+		<SearchField />
 	</div>
 	<!-- A page's load starts on hover; see spec/architecture/console.md. -->
 	<nav
