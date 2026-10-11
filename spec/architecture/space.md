@@ -78,11 +78,11 @@ Where a page is is the sidebar's to show, so the top bar carries no trail.
 and its words sit at the bottom of that half, against the links it names below. `nav-heading.svelte`
 takes `align`, `bottom` unless `top` is given.
 
-**Every ground past the page and a card is an interaction rank** -- lib's
-`spec/design/styles.md`, "Two grounds, and every other ground an interaction rank". Space's sidebar
-takes the nav link's `muted` and `subtle`, and finding's hover in the bar takes `strong`, so it
-leaves the white field toward the text rather than sinking toward the page. Worked out on space's
-sidebar and bar with the author on 2026-10-11, then made the contract's.
+**Every ground past the page and a card is an interaction rank** -- lib's `spec/design/styles.md`,
+"Two grounds, and every other ground an interaction rank". Space's sidebar takes the nav link's
+`muted` and `subtle`, and finding's field is set into the bar on the page's base, a step under the
+bar's surface in either theme, its keys back on the surface and its hover `strong`. Worked out on
+space's sidebar and bar with the author on 2026-10-11, then made the contract's.
 
 ## Specimens are laid on paper
 

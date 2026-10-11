@@ -44,8 +44,9 @@
 			paddingRight: '0.3125rem',
 			borderRadius: radius.md,
 			borderWidth: 0,
+			// Set into the bar, which stands on the surface: the page's base under it in either theme.
 			backgroundColor: {
-				default: 'var(--background-surface)',
+				default: 'var(--background-base)',
 				':hover': 'var(--interaction-strong)',
 			},
 			boxShadow: `0 0 0 ${borderWidth.hairline} var(--border-default)`,
@@ -59,8 +60,8 @@
 		/** The field made live, standing where it stood, as it looked. */
 		live: {
 			backgroundColor: {
-				default: 'var(--background-surface)',
-				':hover': 'var(--background-surface)',
+				default: 'var(--background-base)',
+				':hover': 'var(--background-base)',
 			},
 			color: 'var(--foreground-muted)',
 			cursor: 'text',
@@ -91,7 +92,7 @@
 			borderStyle: 'solid',
 			borderColor: 'var(--border-default)',
 			borderRadius: radius.sm,
-			backgroundColor: 'var(--background-base)',
+			backgroundColor: 'var(--background-surface)',
 			color: 'var(--foreground-muted)',
 			fontFamily: 'var(--font-mono)',
 			fontSize: fontSize.caption,

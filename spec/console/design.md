@@ -95,12 +95,16 @@ one never reads as touching the next.
 **A card stands off its ground by its own ground first and its rule last.** In the light the ground
 is a step grey and a card white on it, with a shadow too faint to read as one; in the dark the
 ground is black and a card a step above it, with no shadow, which the dark cannot show. The card's
-rule is a share of the text's own color -- black at 8 percent in the light, white at 9 percent in the
-dark -- rather than a gray of its own, so it sits as lightly on any ground and never reads as a line
-brighter than both sides of it. Mono, the palette the console takes its grays from, has the
+rule is a share of the text's own color -- black at 8 percent in the light, white at 9 percent in
+the dark -- rather than a gray of its own, so it sits as lightly on any ground and never reads as a
+line brighter than both sides of it. Mono, the palette the console takes its grays from, has the
 opposite: a card a step darker than a white ground in the light, and in the dark a solid gray rule
 that glowed around every card; the console names its grounds the other way round in `app.css` and
-leaves the palette as it is. Decided with the author on 2026-10-09.
+leaves the palette as it is. Decided with the author on 2026-10-09. **Since 2026-10-11 the card
+casts no shadow in either theme, and its rule is the dark's 9 percent with the light's at that over
+1.4**; the light's ground is 7 levels under white rather than 5, and the top bar and the sidebar
+stand on the card's surface as a card does, what is set into them on the ground again -- lib's
+`spec/design/styles.md` and `spec/design/layouts.md`.
 
 ## Hover and choice are one wash at two strengths
 

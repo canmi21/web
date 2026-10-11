@@ -79,7 +79,7 @@
 		presence: {
 			borderWidth: '2px',
 			borderStyle: 'solid',
-			borderColor: 'var(--background-base)',
+			borderColor: 'var(--background-surface)',
 		},
 	});
 </script>

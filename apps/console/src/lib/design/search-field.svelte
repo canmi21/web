@@ -35,8 +35,9 @@
 			paddingInline: '0.75rem',
 			borderRadius: radius.md,
 			borderWidth: 0,
+			// Set into the sidebar, which stands on the surface: the page's base under it.
 			backgroundColor: {
-				default: 'var(--background-surface)',
+				default: 'var(--background-base)',
 				':hover': 'var(--interaction-strong)',
 			},
 			boxShadow: `0 0 0 ${borderWidth.hairline} var(--border-default)`,
@@ -50,8 +51,8 @@
 		/** The field made live, standing where it stood, as it looked. */
 		live: {
 			backgroundColor: {
-				default: 'var(--background-surface)',
-				':hover': 'var(--background-surface)',
+				default: 'var(--background-base)',
+				':hover': 'var(--background-base)',
 			},
 			cursor: 'text',
 		},
