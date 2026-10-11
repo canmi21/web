@@ -176,7 +176,9 @@ file retires into the authored database anyway. Restyling a file on its way out 
 
 ## What the milestones taken so far settled
 
-A0, A1, A3, A4, A6, B1 to B3a and F are done, and each left a rule or a reading behind.
+A0 RFC 5vf5e, A1 RFC rjw0s, A3 RFC 9adnf, A4 RFC 8fxnq, A6 RFC nyqmt, B1 RFC ex27b, B2 RFC
+pbat8, B3 RFC p5tma, B3a RFC vp4d9 and F RFC muf64 are landed, and each left a rule or a reading
+behind.
 
 **A6's table is rebuilt rather than maintained.** The argument against a counter was that it
 drifts by one on any path that forgets it; a table written incrementally has the same failure in
