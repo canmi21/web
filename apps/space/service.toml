@@ -1,4 +1,4 @@
-# canmi.app's paths, one Worker until a part grows into an app of its own. See
+# canmi.app, the router in front of space's parts, each an app of its own. See
 # spec/architecture/space.md.
 version = 1
 name = "space"

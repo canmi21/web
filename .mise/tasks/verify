@@ -35,6 +35,9 @@ PACKAGE_GATES = {
 	"@canmi/landing": ["check-landing"],
 	"@canmi/console": ["check-console"],
 	"@canmi/space": ["check-space"],
+	"@canmi/space-design": ["check-space-design"],
+	"@canmi/space-rfcs": ["check-space-rfcs"],
+	"@canmi/space-ui": ["check-space-ui"],
 }
 RUST = ["lint-rust", "test-rust"]
 EVERYTHING = ALWAYS + NODE + [g for gates in PACKAGE_GATES.values() for g in gates] + RUST

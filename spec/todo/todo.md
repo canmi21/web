@@ -43,8 +43,9 @@ the system, and it is this layer's":
 What [../architecture/space.md](../architecture/space.md) decides and is not built:
 
 - **`canmi.app` goes to space**: platform's redirect rule in `rules/canmi.app/` comes off the apex,
-  the sdk names `canmi.app` and its paths, and `space` joins the deployer's `WORKER_OWNERS` and
-  `.mise/tasks/deployable`'s `MOVED`.
+  the sdk names `canmi.app` and its paths, and space's three Workers -- `space`, the router, and
+  `space-design` and `space-rfcs`, the parts it binds -- join the deployer's `WORKER_OWNERS` and
+  `.mise/tasks/deployable`'s `MOVED`, the parts deployed before the router that binds them.
 - **What every host carries**: robots.txt and security.txt from `@canmi/me/robots`.
 - **The console's head names its marks as the site's does**: resolved at render by its root
   layout's server and named as objects, its `app.html` no longer linking `/favicon.*` --

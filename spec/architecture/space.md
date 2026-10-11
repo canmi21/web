@@ -1,13 +1,29 @@
-# Space: canmi.app's paths, in one app until each grows
+# Space: canmi.app's paths, an app each behind a router
 
 `apps/space` answers `canmi.app`, the apex, which until now only redirected to the site because
-nothing was there. Space is a concept rather than a product: the paths it holds -- `/design` now,
-`/docs` and `/specs` later -- are each a part that would one day stand alone, and they share one SvelteKit
-app and one Worker while they are small. A part that grows becomes an app of its own, built with
-`paths.base` set to its path, and a router in front sends each path on -- the shape platform's
-`spec/architecture/platform.md`, "One name, many apps: SPA within a scope, MPA across", already
-describes. Until then, space is
-the core app that document names.
+nothing was there. Space is a concept rather than a product: each path it holds is a part that
+stands alone, and **each part is its own SvelteKit app, built with `paths.base` set to its path,
+behind a router** -- platform's `spec/architecture/platform.md`, "One name, many apps: SPA within a
+scope, MPA across". Split on 2026-10-11, when the RFCs arrived as a second part:
+
+```
+apps/space/          the router, Hono: Worker `space`, the apex's custom domain
+apps/space/design/   /design, the design system: Worker `space-design`
+apps/space/rfcs/     /rfcs, the RFCs: Worker `space-rfcs`
+libs/space-ui/       what both draw -- the frame, the prose, the specimens
+rfcs/                the RFCs themselves, read by apps/space/rfcs at build
+```
+
+**The router sends a path on by its first segment, through a service binding**, never by fetching
+it again over the network; a part's app is bound to it and has no route of its own. What belongs
+to the name rather than to a part is the router's: `/`, which redirects to the site until there is
+something to hold, and the files every host carries. **Locally the router runs in workerd with the
+same bindings**, each bound to its part's development server, so the code that routes in
+production is the code that routes on a laptop.
+
+**`rfcs/` and its app are to leave for a repository of their own once the UI they draw settles**:
+a repository of its own reads its UI from npm, whose release and sync cost minutes a turn, while
+the UI is still drawn a turn at a time. `libs/space-ui` goes to npm then.
 
 ## Everything here is public
 

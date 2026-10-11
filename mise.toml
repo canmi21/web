@@ -171,7 +171,7 @@ dir = "apps/console"
 run = "(test -f .dev.vars || pnpm run vars) && pnpm run dev"
 
 [tasks.dev-space]
-description = "Run canmi.app's design system, docs and specs"
+description = "Run canmi.app at http://localhost:26528: its router in workerd, and each part's own server"
 dir = "apps/space"
 run = "pnpm run dev"
 
@@ -237,17 +237,32 @@ dir = "apps/console"
 run = 'pnpm run check ${AUDIT:+--fail-on-warnings}'
 
 [tasks.check-space]
-description = "Type check canmi.app's space, a SvelteKit application of its own"
+description = "Type check canmi.app's router, a Worker in workerd's types"
 dir = "apps/space"
+run = "pnpm run check"
+
+[tasks.check-space-design]
+description = "Type check canmi.app/design, the design system, a SvelteKit application of its own"
+dir = "apps/space/design"
 run = 'pnpm run check ${AUDIT:+--fail-on-warnings}'
+
+[tasks.check-space-rfcs]
+description = "Type check canmi.app/rfcs, the RFCs, a SvelteKit application of its own"
+dir = "apps/space/rfcs"
+run = 'pnpm run check ${AUDIT:+--fail-on-warnings}'
+
+[tasks.check-space-ui]
+description = "Type check what every part of canmi.app draws, which is Svelte components in a library"
+dir = "libs/space-ui"
+run = 'pnpm exec svelte-check --tsconfig ./tsconfig.json ${AUDIT:+--fail-on-warnings}'
 
 [tasks.check-rfc]
 description = "Check that every RFC under rfcs/ is named, filed and written in the format"
-run = "node apps/space/scripts/check-rfc.ts"
+run = "node apps/space/rfcs/scripts/check-rfc.ts"
 
 [tasks.new-rfc]
 description = "Start an RFC with a fresh id and today's next place: `new-rfc <scope> <slug> [--dry-run]`"
-run = "node apps/space/scripts/new-rfc.ts"
+run = "node apps/space/rfcs/scripts/new-rfc.ts"
 
 [tasks.check-social]
 description = "Type check the social links row, Svelte components in a library"

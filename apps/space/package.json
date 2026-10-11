@@ -1,45 +1,27 @@
 {
 	"name": "@canmi/space",
 	"private": true,
-	"description": "canmi.app: the design system, drawn from the code itself.",
+	"description": "canmi.app: the router in front of space's parts, each an app of its own.",
 	"keywords": [
 		"cloudflare-workers",
-		"design-system",
-		"sveltekit"
+		"hono"
 	],
 	"type": "module",
-	"imports": {
-		"#lib/*": "./src/lib/*"
-	},
 	"scripts": {
-		"prepare": "svelte-kit sync",
-		"dev": "vite dev",
-		"build": "vite build",
-		"check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json",
-		"deploy": "vite build && wrangler deploy"
+		"dev": "node scripts/dev.ts",
+		"check": "tsc -p tsconfig.json --noEmit",
+		"deploy": "wrangler deploy"
+	},
+	"dependencies": {
+		"@monoflake/sdk": "^2026.1007.1",
+		"hono": "^4.13.12"
 	},
 	"devDependencies": {
-		"@canmi/design": "^2026.1011.7",
-		"@canmi/fonts": "workspace:*",
-		"@canmi/kit": "^2026.1010.0",
-		"@canmi/me": "^2026.1010.0",
-		"@canmi/web": "^2026.1009.0",
 		"@cloudflare/workers-types": "^5.20261004.1",
-		"@monoflake/sdk": "^2026.1007.1",
-		"@sentry/sveltekit": "^11.4.0",
-		"@stylexjs/stylex": "^0.19.1",
-		"@stylexjs/unplugin": "^0.19.1",
-		"@sveltejs/adapter-cloudflare": "^8.0.0",
-		"@sveltejs/kit": "^3.0.0",
-		"@sveltejs/vite-plugin-svelte": "^7.3.1",
-		"@tabler/icons-svelte-runes": "^3.49.0",
-		"@tailwindcss/vite": "^4.3.3",
-		"svelte": "^5.57.1",
-		"svelte-check": "^4.7.6",
-		"tailwindcss": "^4.3.3",
+		"@types/node": "^26.6.4",
+		"esbuild": "^0.28.2",
+		"miniflare": "5.20261001.0-alpha",
 		"typescript": "^6.0.3",
-		"vite": "^8.3.2",
-		"wrangler": "^4.147.0",
-		"yaml": "^2.9.1"
+		"wrangler": "^4.147.0"
 	}
 }

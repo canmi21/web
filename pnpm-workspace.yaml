@@ -7,6 +7,9 @@ packages:
   # The site's API, a package inside the site because its type program is workerd's, not the
   # browser's; see spec/architecture/site-api.md.
   - apps/site/api
+  # canmi.app's parts, each an app behind space's router; see spec/architecture/space.md.
+  - apps/space/design
+  - apps/space/rfcs
 
 overrides:
   # drizzle-kit still pulls the deprecated @esbuild-kit loaders, pinned at ~0.18.20 and so

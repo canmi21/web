@@ -1,7 +1,7 @@
 # Space
 
-The design system at canmi.app, drawn from the code itself.  
-A SvelteKit app rendered in one Cloudflare Worker.
+canmi.app: a router in front of its parts, the design system at `/design` and the RFCs at `/rfcs`, each an app of its own.  
+A Hono app in a Cloudflare Worker, reaching each part through a service binding.
 
 ## License
 

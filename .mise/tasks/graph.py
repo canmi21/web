@@ -11,7 +11,8 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[2]
 
 # Where a package's manifest sits: `apps/` for what is deployed, `libs/` for what is imported.
-PACKAGE_DIRECTORIES = ("apps/*", "libs/*")
+# `apps/space/*` holds canmi.app's parts, each an app of its own behind space's router.
+PACKAGE_DIRECTORIES = ("apps/*", "apps/space/*", "libs/*")
 
 # Where a deployable app's directory sits.
 APP_ROOTS = ("apps",)

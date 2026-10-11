@@ -1,0 +1,6 @@
+# canmi.app/rfcs, why each decision was made, one of space's parts behind its router. See
+# spec/architecture/space.md.
+version = 1
+name = "space-rfcs"
+display_name = "Space: RFCs"
+placements = ["workers"]
