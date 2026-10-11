@@ -4,7 +4,11 @@ title: The RFCs leave web for a repository of their own, their format's check wi
 status: draft
 supersedes: [2ut6h]
 commits: []
-references: []
+references:
+  - url: https://github.com/rust-lang/rfcs
+    took: a series' repository named for what it holds, in the plural
+  - url: https://github.com/python/peps
+    took: the same, for another series
 ---
 
 ## Question
@@ -21,6 +25,18 @@ the RFCs stay in web?
 | ------------------------------------------------ | ------------------------------------------------------------------------- |
 | web's `rfcs/`, as now                            | Every repository's record kept inside one of them, its history with web's |
 | A repository of their own, read by path from web | Two checkouts to build the pages, a sibling the workspace already gives   |
+
+What the repository is called, the rest of the workspace's names being singular:
+
+| Name   | For it                                                                          | Against it                                         |
+| ------ | ------------------------------------------------------------------------------- | -------------------------------------------------- |
+| `rfc`  | Reads alongside `lib` and `web`                                                 | Says one request for comments, where it holds many |
+| `rfcs` | Says what it holds, as `/rfcs` does and as RFC 2ut6h's plural `rfcs/` was given | The one name in `repos.toml` ending in an s        |
+
+`lib` and `web` are no precedent for the singular: a library is one collection of many packages,
+and the web is a domain, neither counted, where an RFC is one document and a repository holds many;
+the other names are domains or proper names as well. `rfcs`, then, as other series' repositories
+are named. The tasks stay `new-rfc` and `check-rfc`, since each acts on one.
 
 What a repository of their own takes:
 
