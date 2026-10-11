@@ -137,3 +137,12 @@ describe('checkPlain', () => {
 		]);
 	});
 });
+
+describe('checkPrivate in code', () => {
+	it('reads a call or a token in code as code, and a host there as a host', () => {
+		expect(checkPrivate('`stylex.create` and `radius.sm`, then `shop.real.org`')).toEqual([
+			'host shop.real.org could be real; write a reserved one, as in example.com',
+		]);
+		expect(checkPrivate('```ts\nconst a = stylex.create({});\n```')).toEqual([]);
+	});
+});

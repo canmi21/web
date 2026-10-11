@@ -162,8 +162,15 @@ const EXTENSION = new Set(
  * a mail address; see RFC p992n.
  */
 const OWN =
-	/^(?:[a-z0-9-]+\.)*(?:canmi\.net|canmi\.app|monoflake\.com|monoflake\.net|ffoni\.com)$/i;
+	/^(?:[a-z0-9-]+\.)*(?:canmi\.(?:net|app|icu)|monoflake\.(?:com|net)|ffoni\.com|ixc\.one|ill\.li|symlink\.si)$/i;
 const allowed = (host: string) => RESERVED.test(host) || OWN.test(host);
+
+/** Top-level domains a name in code ends with when it is a host rather than a call or a token. */
+const HOSTLIKE = new Set(
+	'com net org io dev app co ai me sh so one li si icu cloud xyz info biz us uk de fr jp cn tv cc gg page site tech blog link news'.split(
+		' ',
+	),
+);
 
 /** Every host, mail address and IP address in the text that could be somebody else's. */
 export function checkPrivate(text: string): string[] {
@@ -178,10 +185,18 @@ export function checkPrivate(text: string): string[] {
 		if (!allowed(host!) && !DOCUMENTATION.test(host!)) flag('host', host!);
 	for (const [, domain] of text.matchAll(/[\w.+-]+@((?:[a-z0-9-]+\.)+[a-z]{2,63})\b/gi))
 		if (!RESERVED.test(domain!)) flag('mail domain', domain!);
-	for (const [name] of text.matchAll(/(?<![\w@/.:-])(?:[a-z0-9-]+\.)+[a-z]{2,63}(?![\w-])/gi)) {
-		const tld = name.slice(name.lastIndexOf('.') + 1).toLowerCase();
-		if (!EXTENSION.has(tld) && !allowed(name)) flag('host', name);
-	}
+	// In code, `stylex.create` is a call and `radius.sm` a token, so only a name ending as a host
+	// commonly does is read as one there; in prose every dotted name is.
+	const code = /^ {0,3}(```|~~~)[\s\S]*?^ {0,3}\1|`[^`\n]*`/gm;
+	const prose = text.replace(code, ' ');
+	const coded = [...text.matchAll(code)].map(([span]) => span).join('\n');
+	const names = (within: string) =>
+		within.matchAll(/(?<![\w@/.:-])(?:[a-z0-9-]+\.)+[a-z]{2,63}(?![\w-])/gi);
+	const tldOf = (name: string) => name.slice(name.lastIndexOf('.') + 1).toLowerCase();
+	for (const [name] of names(prose))
+		if (!EXTENSION.has(tldOf(name)) && !allowed(name)) flag('host', name);
+	for (const [name] of names(coded))
+		if (HOSTLIKE.has(tldOf(name)) && !allowed(name)) flag('host', name);
 	for (const [address] of text.matchAll(/(?<![\w.])\d{1,3}(?:\.\d{1,3}){3}(?![\w.])/g))
 		if (!DOCUMENTATION.test(address)) flag('address', address);
 	return problems;
