@@ -22,11 +22,11 @@ describe('heatmap on the server', () => {
 
 	it('steps one hue from near the surface to full, and marks an unread cell apart', () => {
 		const { body } = render(Heatmap, {
-			props: { rows, times, values, hue: 'var(--color-series-3)' },
+			props: { rows, times, values, hue: 'var(--series-3)' },
 		});
-		expect(body).toContain('color-mix(in oklab, var(--color-series-3) 20%, var(--color-surface))');
-		expect(body).toContain('color-mix(in oklab, var(--color-series-3) 100%, var(--color-surface))');
-		expect(body).toContain('background-color: var(--color-sunken)');
+		expect(body).toContain('color-mix(in oklab, var(--series-3) 20%, var(--background-surface))');
+		expect(body).toContain('color-mix(in oklab, var(--series-3) 100%, var(--background-surface))');
+		expect(body).toContain('background-color: var(--background-base)');
 		expect(body).toContain(': No reading"');
 		// The scale legend names each of the five steps.
 		expect(body.match(/\+\s*<\/span>/g)).toHaveLength(5);

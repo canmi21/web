@@ -11,7 +11,7 @@
 		figure,
 		shape = 'ring',
 		size = 16,
-		color = 'var(--color-primary)',
+		color = 'var(--status-info)',
 	}: {
 		/** From 0 to 1, drawn full past 1; unknown draws the track alone. */
 		share: number | undefined;
@@ -30,7 +30,7 @@
 	const filled = $derived(
 		share === undefined || !Number.isFinite(share) ? 0 : Math.min(1, Math.max(0, share)),
 	);
-	const TRACK = 'var(--color-line-strong)';
+	const TRACK = 'var(--border-strong)';
 	/** A ring's stroke, thickening a little as the ring grows. */
 	const stroke = $derived(Math.max(3, Math.round(size / 7)));
 	const radius = $derived((size - stroke) / 2);

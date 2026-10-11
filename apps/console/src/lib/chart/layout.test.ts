@@ -90,8 +90,8 @@ describe('the sequential ramp', () => {
 	});
 
 	it('runs from near the surface to the full hue', () => {
-		expect(rampColor('red', 0, 5)).toBe('color-mix(in oklab, red 20%, var(--color-surface))');
-		expect(rampColor('red', 4, 5)).toBe('color-mix(in oklab, red 100%, var(--color-surface))');
+		expect(rampColor('red', 0, 5)).toBe('color-mix(in oklab, red 20%, var(--background-surface))');
+		expect(rampColor('red', 4, 5)).toBe('color-mix(in oklab, red 100%, var(--background-surface))');
 	});
 });
 

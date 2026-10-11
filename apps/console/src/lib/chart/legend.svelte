@@ -21,7 +21,7 @@
 
 	const styles = stylex.create({
 		item: { backgroundColor: 'transparent', borderWidth: 0, padding: 0 },
-		off: { color: 'var(--color-text-faint)', textDecorationLine: 'line-through' },
+		off: { color: 'var(--foreground-subtle)', textDecorationLine: 'line-through' },
 	});
 </script>
 

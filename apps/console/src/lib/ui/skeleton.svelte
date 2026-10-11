@@ -23,7 +23,7 @@
 
 	const styles = stylex.create({
 		fill: {
-			backgroundColor: 'color-mix(in srgb, var(--color-raised) 45%, transparent)',
+			backgroundColor: 'color-mix(in srgb, var(--interaction-strong) 45%, transparent)',
 			borderRadius: radius.lg,
 		},
 	});

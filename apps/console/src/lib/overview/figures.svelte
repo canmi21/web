@@ -57,24 +57,24 @@
 
 	const styles = stylex.create({
 		figure: {
-			color: 'var(--color-text-strong)',
+			color: 'var(--foreground-strong)',
 			fontSize: '1.25rem', // unnamed: a figure a step over the body, the ladder stopping below
 			fontWeight: weight.semibold,
 			fontVariantNumeric: 'tabular-nums',
 		},
-		rest: { color: 'var(--color-text-muted)', fontSize: text.px13 },
+		rest: { color: 'var(--foreground-muted)', fontSize: text.px13 },
 		placeholder: {
-			backgroundColor: 'color-mix(in srgb, var(--color-raised) 45%, transparent)',
+			backgroundColor: 'color-mix(in srgb, var(--interaction-strong) 45%, transparent)',
 			borderRadius: radius.md,
 		},
-		live: { backgroundColor: 'var(--color-primary)' },
-		leaving: { backgroundColor: 'var(--color-warn)' },
-		waiting: { backgroundColor: 'var(--color-text-muted)' },
-		gone: { backgroundColor: 'var(--color-danger)' },
+		live: { backgroundColor: 'var(--status-info)' },
+		leaving: { backgroundColor: 'var(--status-warning)' },
+		waiting: { backgroundColor: 'var(--foreground-muted)' },
+		gone: { backgroundColor: 'var(--status-critical)' },
 		/** A cell on the card's own ground, over the strip's rule, which shows through the gaps. */
-		cell: { backgroundColor: 'var(--color-surface)' },
+		cell: { backgroundColor: 'var(--background-surface)' },
 		/** The rule between the cells, a pixel's gap a side, so two rows have one between them too. */
-		rules: { backgroundColor: 'var(--color-line-faint)' },
+		rules: { backgroundColor: 'var(--border-subtle)' },
 	});
 
 	/** A pip's title, each node's state as the relay says it; a late one is heard. */
@@ -172,7 +172,7 @@
 				<Gauge
 					share={figures.rate ?? undefined}
 					size={28}
-					color="var(--color-good)"
+					color="var(--status-success)"
 					label={figures.rate === null
 						? 'None finished'
 						: `${Math.round(figures.rate * 100)}% succeeded`}

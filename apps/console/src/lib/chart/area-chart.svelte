@@ -336,7 +336,7 @@
 						y2={y(limit.value)}
 						vector-effect="non-scaling-stroke"
 						style:stroke={limit.tone
-							? `var(--color-${limit.tone === 'bad' ? 'danger' : 'warn'})`
+							? `var(--status-${limit.tone === 'bad' ? 'critical' : 'warning'})`
 							: undefined}
 						class={stylex.attrs(chart.crosshair).class}
 					/>

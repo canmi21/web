@@ -31,10 +31,10 @@
 			Object.keys(landed.value.failures).length === 0,
 	);
 	const COLORS = {
-		succeeded: 'var(--color-good)',
-		failed: 'var(--color-danger)',
-		skipped: 'var(--color-text-muted)',
-		running: 'var(--color-busy)',
+		succeeded: 'var(--status-success)',
+		failed: 'var(--status-critical)',
+		skipped: 'var(--foreground-muted)',
+		running: 'var(--status-info)',
 	};
 
 	type Read = Awaited<PageProps['data']['read']>;

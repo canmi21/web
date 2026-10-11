@@ -19,7 +19,7 @@
 		rows,
 		times,
 		values,
-		hue = 'var(--color-series-5)',
+		hue = 'var(--series-5)',
 		steps = 5,
 		low,
 		high,
@@ -87,7 +87,7 @@
 	const read = (row: number, column: number) => values[row]?.[column] ?? Number.NaN;
 	const fill = (value: number) => {
 		const at = rampStep(value, bottom, top, steps);
-		return at === undefined ? 'var(--color-sunken)' : rampColor(hue, at, steps);
+		return at === undefined ? 'var(--background-base)' : rampColor(hue, at, steps);
 	};
 	const said = (value: number) => (Number.isFinite(value) ? format(value) : 'No reading');
 
@@ -137,10 +137,10 @@
 	});
 	const axis = stylex.attrs(chart.axis).class;
 	const styles = stylex.create({
-		name: { color: 'var(--color-text-muted)' },
+		name: { color: 'var(--foreground-muted)' },
 		cell: { outlineOffset: '-1px' },
-		on: { outline: '1px solid var(--color-text-strong)' },
-		follow: { boxShadow: 'inset 0 0 0 1px var(--color-text-muted)' },
+		on: { outline: '1px solid var(--foreground-strong)' },
+		follow: { boxShadow: 'inset 0 0 0 1px var(--foreground-muted)' },
 	});
 </script>
 

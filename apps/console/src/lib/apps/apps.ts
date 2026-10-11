@@ -109,7 +109,7 @@ export function merge(
 
 /** A node's color, the same on every chart: its place in node order, never its rank. */
 export const colorOf = (order: Order, node: Node): string =>
-	`var(--color-series-${order.indexOf(node) + 1})`;
+	`var(--series-${order.indexOf(node) + 1})`;
 
 /** `name` of each node's series as one line a node, those that answered; the rest are unknown. */
 export function lines(

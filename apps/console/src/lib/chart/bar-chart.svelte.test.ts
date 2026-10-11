@@ -7,18 +7,18 @@ const categories = ['web', 'api', 'cdn'];
 const ok: Bars = {
 	key: 'ok',
 	label: 'Succeeded',
-	color: 'var(--color-series-1)',
+	color: 'var(--series-1)',
 	values: [8, 4, 2],
 };
 const failed: Bars = {
 	key: 'failed',
 	label: 'Failed',
-	color: 'var(--color-series-2)',
+	color: 'var(--series-2)',
 	values: [2, 0, 2],
 };
 
 /** Every drawn bar or segment: an element filled in a series color. */
-const fills = (body: string) => body.match(/background-color: var\(--color-series-\d\)/g) ?? [];
+const fills = (body: string) => body.match(/background-color: var\(--series-\d\)/g) ?? [];
 
 describe('bar chart on the server', () => {
 	it('draws a bar per category, capped in thickness, rounded only at the data end', () => {

@@ -12,20 +12,20 @@
 
 	const styles = stylex.create({
 		crumb: {
-			color: { default: 'var(--color-text-muted)', ':hover': 'var(--color-text-strong)' },
+			color: { default: 'var(--foreground-muted)', ':hover': 'var(--foreground-strong)' },
 			fontSize: text.px14,
 			transitionProperty: 'color',
 			transitionDuration: duration.base,
 		},
 		here: {
-			color: 'var(--color-text-strong)',
+			color: 'var(--foreground-strong)',
 			fontSize: text.px14,
 		},
 		slash: {
-			color: 'var(--color-line-strong)',
+			color: 'var(--border-strong)',
 		},
 		code: {
-			color: 'var(--color-text-muted)',
+			color: 'var(--foreground-muted)',
 			fontSize: text.px12,
 		},
 	});

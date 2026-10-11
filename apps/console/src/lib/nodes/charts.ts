@@ -7,7 +7,7 @@ import type { Point } from '../host.ts';
 import { type Line, metric } from '../chart/series.ts';
 import type { Event } from '../wire.ts';
 
-const color = (index: number) => `var(--color-series-${(index % 8) + 1})`;
+const color = (index: number) => `var(--series-${(index % 8) + 1})`;
 
 function lines(points: Point[], named: readonly (readonly [string, string])[]): Line[] {
 	return named.map(([name, label], index) => ({

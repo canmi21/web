@@ -81,8 +81,8 @@
 		{ key: 'detail', label: 'Detail', value: (event) => event.detail ?? '', cell: detailCell },
 	];
 	const styles = stylex.create({
-		link: { color: { default: 'var(--color-text-strong)', ':hover': 'var(--color-text)' } },
-		more: { backgroundColor: 'transparent', borderWidth: 0, color: 'var(--color-text)' },
+		link: { color: { default: 'var(--foreground-strong)', ':hover': 'var(--foreground-default)' } },
+		more: { backgroundColor: 'transparent', borderWidth: 0, color: 'var(--foreground-default)' },
 	});
 </script>
 

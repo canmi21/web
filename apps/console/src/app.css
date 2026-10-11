@@ -2,59 +2,37 @@
    spec/architecture/css/layers.md. */
 @layer properties, theme, base, components, utilities, priority1, priority2, priority3, priority4, priority5, priority6, priority7, overrides;
 @import 'tailwindcss';
-@import '@canmi/kit/theme/palettes/nord.css';
 @import '@canmi/design/styles/mono.css';
 @import '@canmi/kit/tokens/interaction.css';
 @source '.';
 
 @custom-variant dark (&:where(.dark, .dark *, [data-theme='dark'], [data-theme='dark'] *));
 
-/* The console's own names, each the contract's value in mono, read where a part is not yet on the
-   contract; Nord keeps the series. See lib's spec/design/styles.md and spec/console/design.md, "A
-   card is lifted, not outlined" and "Hover and choice are one wash at two strengths". */
+/* The kit's interaction.css draws the keyboard's ring in this name, so it stays until the console
+   takes its ring from @canmi/design. A chart's series, eight hues in a fixed order where no meaning
+   picks one, are the console's own until the charts are polished. See spec/console/design.md. */
 :root {
-	--color-ground: var(--background-base);
-	--color-sunken: var(--background-base);
-	--color-surface: var(--background-surface);
-	--color-raised: var(--interaction-strong);
-	--color-hover: var(--interaction-subtle);
-	--color-selected: var(--interaction-default);
-	/* The default rank laid on a card as one opaque color, for what must match a chosen row and
-	   cannot be translucent itself. */
-	--color-selected-solid: color-mix(
-		in srgb,
-		var(--background-surface),
-		oklch(var(--interaction-tint) 0 0) calc(var(--interaction-strength) * 100%)
-	);
-	--color-line-faint: var(--border-subtle);
-	--color-line: var(--border-default);
-	--shadow-card: var(--shadow-surface);
-	--color-line-strong: var(--border-strong);
-	--color-text-faint: var(--foreground-subtle);
-	--color-text-muted: var(--foreground-muted);
-	--color-text: var(--foreground-default);
-	--color-primary: var(--status-info);
-	--color-good: var(--status-success);
-	--color-warn: var(--status-warning);
-	--color-danger: var(--status-critical);
-	--color-busy: var(--status-info);
-	--color-note: var(--color-blue-ink);
-	/* What the keyboard's ring is drawn in, by the kit's interaction.css, and a selection's ground.
-	   See spec/console/design.md, "Accessibility". */
 	--color-accent: var(--interaction-focus);
-	--color-selection: var(--color-primary);
+	--series-1: oklch(0.628 0.134 306);
+	--series-2: oklch(0.633 0.177 144);
+	--series-3: oklch(0.651 0.203 338);
+	--series-4: oklch(0.624 0.128 105);
+	--series-5: oklch(0.652 0.181 250);
+	--series-6: oklch(0.66 0.21 19);
+	--series-7: oklch(0.66 0.115 212);
+	--series-8: oklch(0.629 0.18 45);
 }
 
 /* Over mono's own selection, which is unlayered and so outranks the base layer: information's
    blue, with white on it in light and dark alike. See spec/console/design.md, "Accessibility". */
 ::selection {
-	background-color: var(--color-selection);
+	background-color: var(--status-info);
 	color: oklch(1 0 0);
 }
 
 /* Over mono's own `html` rule: every region is fixed, so the document shows only its ground. */
 html {
-	background-color: var(--color-ground);
+	background-color: var(--background-base);
 }
 
 /* The shell's face is the style's mono, the site's Ioskeley Mono from @canmi/fonts, for code names
@@ -83,8 +61,8 @@ html {
 	}
 
 	body {
-		background-color: var(--color-ground);
-		color: var(--color-text);
+		background-color: var(--background-base);
+		color: var(--foreground-default);
 		font-family: var(--font-sans);
 		font-size: 0.875rem;
 		line-height: 1.5;
@@ -92,7 +70,7 @@ html {
 	}
 
 	* {
-		scrollbar-color: var(--color-line-strong) transparent;
+		scrollbar-color: var(--border-strong) transparent;
 		scrollbar-width: thin;
 	}
 
@@ -109,8 +87,8 @@ html {
 
 	th {
 		padding: 0.625rem 1.25rem;
-		border-bottom: 1px solid var(--color-line);
-		color: var(--color-text-muted);
+		border-bottom: 1px solid var(--border-default);
+		color: var(--foreground-muted);
 		font-size: 0.8125rem;
 		font-weight: 400;
 		text-align: left;
@@ -119,7 +97,7 @@ html {
 
 	td {
 		padding: 0.75rem 1.25rem;
-		border-bottom: 1px solid var(--color-line);
+		border-bottom: 1px solid var(--border-default);
 		vertical-align: middle;
 	}
 

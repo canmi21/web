@@ -221,7 +221,7 @@
 			probe.remove();
 			return color;
 		};
-		return { land: read('--color-line-strong'), ring: read('--color-line') };
+		return { land: read('--border-strong'), ring: read('--border-default') };
 	}
 	$effect(() => {
 		if (!canvas) return;
@@ -358,30 +358,30 @@
 	});
 
 	const styles = stylex.create({
-		land: { stroke: 'var(--color-line-strong)' },
+		land: { stroke: 'var(--border-strong)' },
 		marker: {
-			outline: { default: 'none', ':focus-visible': '2px solid var(--color-accent)' },
+			outline: { default: 'none', ':focus-visible': '2px solid var(--interaction-focus)' },
 			outlineOffset: 3,
 			borderRadius: radius.full,
 			transitionProperty: 'width, height',
 			transitionDuration: duration.base,
 		},
 		fill: {
-			backgroundColor: 'var(--color-primary)',
+			backgroundColor: 'var(--status-info)',
 			borderRadius: radius.full,
 			transitionProperty: 'opacity',
 			transitionDuration: duration.base,
 		},
-		leaving: { backgroundColor: 'var(--color-warn)' },
-		waiting: { backgroundColor: 'var(--color-text-muted)' },
-		gone: { backgroundColor: 'var(--color-danger)' },
+		leaving: { backgroundColor: 'var(--status-warning)' },
+		waiting: { backgroundColor: 'var(--foreground-muted)' },
+		gone: { backgroundColor: 'var(--status-critical)' },
 		/** The card and its point lifted as one shape, so the point casts the card's shadow too. */
 		lifted: {
 			filter: 'drop-shadow(0 4px 10px rgb(0 0 0 / 0.16)) drop-shadow(0 1px 2px rgb(0 0 0 / 0.12))',
 		},
 		halo: {
 			display: { default: 'block', '@media (prefers-reduced-motion: reduce)': 'none' },
-			backgroundColor: 'var(--color-primary)',
+			backgroundColor: 'var(--status-info)',
 			borderRadius: radius.full,
 			pointerEvents: 'none',
 			animationName: breathe,

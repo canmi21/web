@@ -84,11 +84,11 @@
 	const styles = stylex.create({
 		trigger: {
 			borderRadius: radius.md,
-			backgroundColor: { default: 'transparent', ':hover': 'var(--color-selected)' },
+			backgroundColor: { default: 'transparent', ':hover': 'var(--interaction-default)' },
 			transitionProperty: 'background-color',
 			transitionDuration: duration.base,
 		},
-		chevron: { color: 'var(--color-text-muted)' },
+		chevron: { color: 'var(--foreground-muted)' },
 	});
 </script>
 

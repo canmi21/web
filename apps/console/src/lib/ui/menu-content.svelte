@@ -31,10 +31,10 @@
 
 	const styles = stylex.create({
 		menu: {
-			backgroundColor: 'var(--color-surface)',
+			backgroundColor: 'var(--background-surface)',
 			borderWidth: border.hairlinePx,
 			borderStyle: 'solid',
-			borderColor: 'var(--color-line)',
+			borderColor: 'var(--border-default)',
 			borderRadius: radius.lg,
 			boxShadow: '0 4px 12px rgb(0 0 0 / 0.25), 0 1px 3px rgb(0 0 0 / 0.2)',
 			fontSize: text.px13,

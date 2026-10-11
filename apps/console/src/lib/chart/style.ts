@@ -14,30 +14,30 @@ import {
  */
 export const chart = stylex.create({
 	axis: {
-		color: 'var(--color-text-faint)',
+		color: 'var(--foreground-subtle)',
 		fontSize: text.px11,
 		fontVariantNumeric: figures.tabular,
 		lineHeight: 1,
 	},
 	/** A gridline as an element: a hairline one step off the surface. */
-	grid: { backgroundColor: 'var(--color-line)' },
-	baseline: { backgroundColor: 'var(--color-line-strong)' },
-	gridStroke: { stroke: 'var(--color-line)', strokeWidth: 1 },
-	baselineStroke: { stroke: 'var(--color-line-strong)', strokeWidth: 1 },
-	crosshair: { stroke: 'var(--color-text-muted)', strokeWidth: 1 },
-	marker: { stroke: 'var(--color-text-faint)', strokeWidth: 1 },
+	grid: { backgroundColor: 'var(--border-default)' },
+	baseline: { backgroundColor: 'var(--border-strong)' },
+	gridStroke: { stroke: 'var(--border-default)', strokeWidth: 1 },
+	baselineStroke: { stroke: 'var(--border-strong)', strokeWidth: 1 },
+	crosshair: { stroke: 'var(--foreground-muted)', strokeWidth: 1 },
+	marker: { stroke: 'var(--foreground-subtle)', strokeWidth: 1 },
 	/** A mark's dot, ringed in the surface so it stays legible where it crosses a line. */
-	dot: { borderRadius: radius.full, boxShadow: '0 0 0 2px var(--color-surface)' },
+	dot: { borderRadius: radius.full, boxShadow: '0 0 0 2px var(--background-surface)' },
 	tooltip: {
-		backgroundColor: 'var(--color-raised)',
+		backgroundColor: 'var(--interaction-strong)',
 		borderWidth: border.hairlinePx,
 		borderStyle: 'solid',
-		borderColor: 'var(--color-line-strong)',
+		borderColor: 'var(--border-strong)',
 		borderRadius: radius.lg,
 		boxShadow: '0 8px 24px rgb(0 0 0 / 0.35)',
 	},
 	value: {
-		color: 'var(--color-text-strong)',
+		color: 'var(--foreground-strong)',
 		fontSize: text.px12,
 		fontWeight: weight.semibold,
 		fontVariantNumeric: figures.tabular,
@@ -49,8 +49,8 @@ export const chart = stylex.create({
 	hit: {
 		backgroundColor: {
 			default: 'transparent',
-			':hover': 'color-mix(in srgb, var(--color-text) 6%, transparent)',
-			':focus-visible': 'color-mix(in srgb, var(--color-text) 6%, transparent)',
+			':hover': 'color-mix(in srgb, var(--foreground-default) 6%, transparent)',
+			':focus-visible': 'color-mix(in srgb, var(--foreground-default) 6%, transparent)',
 		},
 		borderWidth: 0,
 		padding: 0,

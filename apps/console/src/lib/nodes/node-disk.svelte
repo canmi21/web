@@ -60,7 +60,7 @@
 				{
 					key: 'bytes',
 					label: 'Bytes',
-					color: 'var(--color-series-5)',
+					color: 'var(--series-5)',
 					values: used.map((app) => app.bytes),
 				},
 			]}

@@ -103,8 +103,8 @@ describe('series', () => {
 			'web.cpu',
 		);
 		expect(made.lines.map((line) => [line.key, line.color])).toEqual([
-			['gvx', 'var(--color-series-2)'],
-			['buf', 'var(--color-series-3)'],
+			['gvx', 'var(--series-2)'],
+			['buf', 'var(--series-3)'],
 		]);
 		expect(made.unknown).toEqual(['tyo']);
 		expect(latest(made.lines)).toEqual({ gvx: 2, buf: 3 });

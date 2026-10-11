@@ -125,19 +125,19 @@
 						{
 							key: 'succeeded',
 							label: 'Succeeded',
-							color: 'var(--color-good)',
+							color: 'var(--status-success)',
 							values: outcomes.succeeded,
 						},
 						{
 							key: 'failed',
 							label: 'Failed',
-							color: 'var(--color-danger)',
+							color: 'var(--status-critical)',
 							values: outcomes.failed,
 						},
 						{
 							key: 'skipped',
 							label: 'Skipped',
-							color: 'var(--color-text-faint)',
+							color: 'var(--foreground-subtle)',
 							values: outcomes.skipped,
 						},
 					]}

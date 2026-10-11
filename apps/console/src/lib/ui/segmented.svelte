@@ -52,23 +52,23 @@
 
 	const styles = stylex.create({
 		frame: {
-			backgroundColor: 'var(--color-sunken)',
+			backgroundColor: 'var(--background-base)',
 			borderWidth: border.hairlinePx,
 			borderStyle: 'solid',
-			borderColor: 'var(--color-line)',
+			borderColor: 'var(--border-default)',
 			borderRadius: radius.md,
 		},
 		option: {
 			backgroundColor: 'transparent',
 			borderWidth: 0,
 			borderRadius: radius.sm,
-			color: { default: 'var(--color-text-muted)', ':hover': 'var(--color-text-strong)' },
+			color: { default: 'var(--foreground-muted)', ':hover': 'var(--foreground-strong)' },
 			fontSize: text.px12,
 			fontWeight: weight.medium,
 			transitionProperty: 'color, background-color',
 			transitionDuration: duration.base,
 		},
-		chosen: { backgroundColor: 'var(--color-selected)', color: 'var(--color-text-strong)' },
+		chosen: { backgroundColor: 'var(--interaction-default)', color: 'var(--foreground-strong)' },
 	});
 </script>
 

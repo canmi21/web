@@ -37,13 +37,13 @@
 			borderBottomWidth: border.doublePx,
 			borderBottomStyle: 'solid',
 			borderBottomColor: 'transparent',
-			color: { default: 'var(--color-text-muted)', ':hover': 'var(--color-text-strong)' },
+			color: { default: 'var(--foreground-muted)', ':hover': 'var(--foreground-strong)' },
 			fontSize: text.px13,
 			fontWeight: weight.medium,
 			transitionProperty: 'color, border-color',
 			transitionDuration: duration.base,
 		},
-		chosen: { color: 'var(--color-text-strong)', borderBottomColor: 'var(--color-text-strong)' },
+		chosen: { color: 'var(--foreground-strong)', borderBottomColor: 'var(--foreground-strong)' },
 	});
 </script>
 

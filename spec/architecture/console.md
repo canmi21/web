@@ -32,7 +32,7 @@ a node, and the nodes themselves -- then `Platform`, the services every layer ab
 `Services`, what the author deploys on top. A scope is the address's first segment, so a link
 keeps it, and every page shows what belongs to the scope it is read in; the nodes are infra's, and
 shown under `Infra` and `All`. An app's scope is the layer whose repository built it. Rules come in two levels: the
-shell's own a step fainter (`--color-line-faint`), the page's cards and tables at `--color-line`. A page says what it is in its
+shell's own a step fainter (`--border-subtle`), the page's cards and tables at `--border-default`. A page says what it is in its
 title and the facts beside it -- never a sentence about the page, under it or under a card. Its
 `<title>` is the one name the page is about and nothing around it -- `Nodes`, `tyo`, `#123`, an
 app's name -- with no product name and no separator: the console is behind Access and indexed by

@@ -115,10 +115,10 @@
 	});
 	const axis = stylex.attrs(chart.axis).class;
 	const styles = stylex.create({
-		name: { color: 'var(--color-text-muted)' },
+		name: { color: 'var(--foreground-muted)' },
 		segment: { borderRadius: radius.sm },
 		running: { opacity: 0.6 },
-		rule: { backgroundColor: 'var(--color-text-muted)' },
+		rule: { backgroundColor: 'var(--foreground-muted)' },
 	});
 </script>
 

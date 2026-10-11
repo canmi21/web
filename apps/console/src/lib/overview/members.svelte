@@ -25,7 +25,7 @@
 	} = $props();
 
 	const styles = stylex.create({
-		count: { color: 'var(--color-text-muted)', fontSize: text.px12 },
+		count: { color: 'var(--foreground-muted)', fontSize: text.px12 },
 	});
 </script>
 

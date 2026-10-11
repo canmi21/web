@@ -72,7 +72,7 @@
 	});
 	const styles = stylex.create({
 		row: { backgroundColor: 'transparent', borderWidth: 0, padding: 0 },
-		figure: { color: 'var(--color-text-strong)' },
+		figure: { color: 'var(--foreground-strong)' },
 		dim: { opacity: 0.4 },
 	});
 </script>

@@ -24,15 +24,15 @@
 			borderRadius: radius.md,
 			backgroundColor: {
 				default: 'transparent',
-				':hover': 'var(--color-selected)',
+				':hover': 'var(--interaction-default)',
 			},
-			color: 'var(--color-text-strong)',
+			color: 'var(--foreground-strong)',
 			fontSize: text.px14,
 			fontWeight: weight.medium,
 			transitionProperty: 'background-color',
 			transitionDuration: duration.base,
 		},
-		chevron: { color: 'var(--color-text-muted)' },
+		chevron: { color: 'var(--foreground-muted)' },
 	});
 </script>
 

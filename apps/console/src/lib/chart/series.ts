@@ -16,7 +16,7 @@ export interface Datum {
 
 /**
  * A series' identity: its key, its name, and its color, which follows the series wherever it is
- * drawn -- a `--color-series-*` variable in the fixed order, never one picked by rank.
+ * drawn -- a `--series-*` variable in the fixed order, never one picked by rank.
  */
 export interface Key {
 	key: string;

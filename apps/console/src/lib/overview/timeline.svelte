@@ -376,14 +376,14 @@
 	});
 
 	const styles = stylex.create({
-		label: { color: 'var(--color-text)', fontSize: text.px13 },
-		glyph: { color: 'var(--color-text-muted)' },
+		label: { color: 'var(--foreground-default)', fontSize: text.px13 },
+		glyph: { color: 'var(--foreground-muted)' },
 		/** An app's dot, in the colors a node's flag wears its own. */
-		well: { backgroundColor: 'var(--color-primary)' },
-		leaving: { backgroundColor: 'var(--color-warn)' },
-		down: { backgroundColor: 'var(--color-danger)' },
-		quiet: { backgroundColor: 'var(--color-text-muted)' },
-		none: { color: 'var(--color-text-muted)', fontSize: text.px13 },
+		well: { backgroundColor: 'var(--status-info)' },
+		leaving: { backgroundColor: 'var(--status-warning)' },
+		down: { backgroundColor: 'var(--status-critical)' },
+		quiet: { backgroundColor: 'var(--foreground-muted)' },
+		none: { color: 'var(--foreground-muted)', fontSize: text.px13 },
 	});
 </script>
 
@@ -408,7 +408,7 @@
 		onblur={leave}
 	>
 		<span
-			class="block size-full rounded-[2px] outline-offset-0 outline-[var(--color-accent)] group-hover:outline-2 group-hover:outline-solid group-focus-visible:outline-2 group-focus-visible:outline-solid {pointed?.key ===
+			class="block size-full rounded-[2px] outline-offset-0 outline-[var(--interaction-focus)] group-hover:outline-2 group-hover:outline-solid group-focus-visible:outline-2 group-focus-visible:outline-solid {pointed?.key ===
 			one.key
 				? 'outline-2 outline-solid'
 				: ''}"

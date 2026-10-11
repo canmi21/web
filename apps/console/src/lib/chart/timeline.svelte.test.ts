@@ -5,9 +5,9 @@ import Timeline, { type Track } from './timeline.svelte';
 
 const START = 1_790_000_000;
 const stages = [
-	{ key: 'download', label: 'Downloaded', color: 'var(--color-series-1)' },
-	{ key: 'load', label: 'Loaded', color: 'var(--color-series-2)' },
-	{ key: 'start', label: 'Started', color: 'var(--color-series-3)' },
+	{ key: 'download', label: 'Downloaded', color: 'var(--series-1)' },
+	{ key: 'load', label: 'Loaded', color: 'var(--series-2)' },
+	{ key: 'start', label: 'Started', color: 'var(--series-3)' },
 ];
 const tracks: Track[] = [
 	{
@@ -30,7 +30,7 @@ describe('timeline on the server', () => {
 	it('draws each stage across its span, GAP from the next, in its stage color', () => {
 		const { body } = render(Timeline, { props: { tracks, stages, until: START + 100 } });
 		// Four segments, and a legend swatch for each of three stages.
-		expect(body.match(/background-color: var\(--color-series-\d\)/g)).toHaveLength(4 + 3);
+		expect(body.match(/background-color: var\(--series-\d\)/g)).toHaveLength(4 + 3);
 		expect(body).toContain('left: calc(30% + 1px)');
 		expect(body).toContain('aria-label="tokyo, Downloaded 30 s, Began');
 	});

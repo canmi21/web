@@ -22,7 +22,7 @@
 	const styles = stylex.create({
 		/** The zone every moment on the page is written in, quiet beside the page's own actions. */
 		zone: {
-			color: 'var(--color-text-muted)',
+			color: 'var(--foreground-muted)',
 			fontSize: text.px13,
 			fontVariantNumeric: figures.tabular,
 		},

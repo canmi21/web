@@ -13,8 +13,8 @@
 	let {
 		values,
 		height = 32,
-		color = 'var(--color-text-faint)',
-		accent = 'var(--color-primary)',
+		color = 'var(--foreground-subtle)',
+		accent = 'var(--status-info)',
 		label,
 	}: {
 		values: number[];

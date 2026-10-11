@@ -11,10 +11,10 @@ const DAY = 86_400;
 
 /** The states a day's bar stacks, in the order they stack, each in its state's tone. */
 const STACKED: { state: RunState; color: string }[] = [
-	{ state: 'succeeded', color: 'var(--color-good)' },
-	{ state: 'failed', color: 'var(--color-danger)' },
-	{ state: 'skipped', color: 'var(--color-text-faint)' },
-	{ state: 'running', color: 'var(--color-busy)' },
+	{ state: 'succeeded', color: 'var(--status-success)' },
+	{ state: 'failed', color: 'var(--status-critical)' },
+	{ state: 'skipped', color: 'var(--foreground-subtle)' },
+	{ state: 'running', color: 'var(--status-info)' },
 ];
 
 const label = new Intl.DateTimeFormat('en-US', { month: 'short', day: 'numeric', timeZone: 'UTC' });

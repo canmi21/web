@@ -8,18 +8,18 @@ import { border, family, figures, radius, text, weight } from '@canmi/kit/tokens
 export const surfaces = stylex.create({
 	/** A bar ruled off from what is under it, on the ground. */
 	bar: {
-		backgroundColor: 'var(--color-ground)',
+		backgroundColor: 'var(--background-base)',
 		borderBottomWidth: border.hairlinePx,
 		borderBottomStyle: 'solid',
-		borderBottomColor: 'var(--color-line-faint)',
+		borderBottomColor: 'var(--border-subtle)',
 	},
 	card: {
-		backgroundColor: 'var(--color-surface)',
+		backgroundColor: 'var(--background-surface)',
 		borderWidth: border.hairlinePx,
 		borderStyle: 'solid',
-		borderColor: 'var(--color-line)',
+		borderColor: 'var(--border-default)',
 		borderRadius: radius.xl,
-		boxShadow: 'var(--shadow-card)',
+		boxShadow: 'var(--shadow-surface)',
 	},
 	/** A slot with nothing in it yet, said plainly rather than filled. */
 	empty: {
@@ -28,16 +28,16 @@ export const surfaces = stylex.create({
 	rowRule: {
 		borderTopWidth: border.hairlinePx,
 		borderTopStyle: 'solid',
-		borderTopColor: 'var(--color-line)',
+		borderTopColor: 'var(--border-default)',
 	},
 	/** The same rule between the items of a list, and none above the first. */
 	listRule: {
 		borderTopWidth: border.hairlinePx,
 		borderTopStyle: 'solid',
-		borderTopColor: { default: 'var(--color-line)', ':first-child': 'transparent' },
+		borderTopColor: { default: 'var(--border-default)', ':first-child': 'transparent' },
 	},
 	well: {
-		backgroundColor: 'var(--color-sunken)',
+		backgroundColor: 'var(--background-base)',
 		borderRadius: radius.lg,
 	},
 	pill: {
@@ -54,34 +54,34 @@ export const type = stylex.create({
 		fontSize: '1.5rem', // unnamed
 		fontWeight: weight.semibold,
 		letterSpacing: '-0.02em', // unnamed: a display size drawn tight
-		color: 'var(--color-text-strong)',
+		color: 'var(--foreground-strong)',
 	},
 	heading: {
 		fontSize: text.px14,
 		fontWeight: weight.semibold,
-		color: 'var(--color-text-strong)',
+		color: 'var(--foreground-strong)',
 	},
 	name: {
 		fontSize: text.px14,
 		fontWeight: weight.medium,
-		color: 'var(--color-text-strong)',
+		color: 'var(--foreground-strong)',
 	},
 	body: {
 		fontSize: text.px14,
-		color: 'var(--color-text)',
+		color: 'var(--foreground-default)',
 	},
 	soft: {
 		fontSize: text.px13,
-		color: 'var(--color-text-muted)',
+		color: 'var(--foreground-muted)',
 	},
 	label: {
 		fontSize: text.px13,
-		color: 'var(--color-text-muted)',
+		color: 'var(--foreground-muted)',
 	},
 	figure: {
 		fontSize: text.px13,
 		fontVariantNumeric: figures.tabular,
-		color: 'var(--color-text-strong)',
+		color: 'var(--foreground-strong)',
 	},
 	mono: {
 		fontFamily: family.monoTheme,
@@ -96,20 +96,20 @@ export const type = stylex.create({
 
 /** The one color a state is shown in, wherever it is shown. */
 export const tone = stylex.create({
-	good: { color: 'var(--color-good)' },
-	busy: { color: 'var(--color-busy)' },
-	warn: { color: 'var(--color-warn)' },
-	bad: { color: 'var(--color-danger)' },
-	quiet: { color: 'var(--color-text-muted)' },
+	good: { color: 'var(--status-success)' },
+	busy: { color: 'var(--status-info)' },
+	warn: { color: 'var(--status-warning)' },
+	bad: { color: 'var(--status-critical)' },
+	quiet: { color: 'var(--foreground-muted)' },
 });
 
 export type Tone = keyof typeof tone;
 
 /** A state's word washed in its tone. */
 export const wash = stylex.create({
-	good: { backgroundColor: 'color-mix(in srgb, var(--color-good) 14%, transparent)' },
-	busy: { backgroundColor: 'color-mix(in srgb, var(--color-busy) 14%, transparent)' },
-	warn: { backgroundColor: 'color-mix(in srgb, var(--color-warn) 14%, transparent)' },
-	bad: { backgroundColor: 'color-mix(in srgb, var(--color-danger) 16%, transparent)' },
-	quiet: { backgroundColor: 'var(--color-raised)' },
+	good: { backgroundColor: 'color-mix(in srgb, var(--status-success) 14%, transparent)' },
+	busy: { backgroundColor: 'color-mix(in srgb, var(--status-info) 14%, transparent)' },
+	warn: { backgroundColor: 'color-mix(in srgb, var(--status-warning) 14%, transparent)' },
+	bad: { backgroundColor: 'color-mix(in srgb, var(--status-critical) 16%, transparent)' },
+	quiet: { backgroundColor: 'var(--interaction-strong)' },
 });

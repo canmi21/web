@@ -103,7 +103,7 @@
 			.join(', ')}`;
 
 	const axis = stylex.attrs(chart.axis).class;
-	const styles = stylex.create({ name: { color: 'var(--color-text-muted)' } });
+	const styles = stylex.create({ name: { color: 'var(--foreground-muted)' } });
 </script>
 
 <Frame

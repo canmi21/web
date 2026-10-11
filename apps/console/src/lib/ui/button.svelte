@@ -38,16 +38,19 @@
 		},
 		primary: {
 			backgroundColor: {
-				default: 'var(--color-text-strong)',
-				':hover': 'color-mix(in srgb, var(--color-text-strong) 85%, transparent)',
+				default: 'var(--foreground-strong)',
+				':hover': 'color-mix(in srgb, var(--foreground-strong) 85%, transparent)',
 			},
 			borderColor: 'transparent',
-			color: 'var(--color-ground)',
+			color: 'var(--background-base)',
 		},
 		secondary: {
-			backgroundColor: { default: 'var(--color-surface)', ':hover': 'var(--color-raised)' },
-			borderColor: 'var(--color-line)',
-			color: 'var(--color-text-strong)',
+			backgroundColor: {
+				default: 'var(--background-surface)',
+				':hover': 'var(--interaction-strong)',
+			},
+			borderColor: 'var(--border-default)',
+			color: 'var(--foreground-strong)',
 		},
 	});
 	const kind = $derived(stylex.attrs(styles.base, styles[variant]).class);

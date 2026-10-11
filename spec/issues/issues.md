@@ -29,6 +29,7 @@ which areas exist and which entries are worth reaching for first.
 | [css.md](css.md)         | 48      | the layer migration's leftovers                                      |
 | [site.md](site.md)       | 26      | routing, rendering, the article page, the tests, the license surface |
 | [cms.md](cms.md)         | 5       | what the CMS cannot yet offer, and what it cannot reach              |
+| [status.md](status.md)   | 1       | what the status page still reads from the frozen kit                 |
 | [plan.md](plan.md)       | 3       | what the milestones leave open                                       |
 | [video.md](video.md)     | 4       | what the video pipeline has not settled                              |
 | [tooling.md](tooling.md) | 4       | the files that describe the repository rather than run it            |
@@ -145,6 +146,10 @@ reasons.
 - A clip is the one resource reference the compiler still resolves into bytes
 - The segment layer waits for its redesign
 - A new mark waits for a root the corpus cannot be published under yet
+
+### [status.md](status.md)
+
+- The status page is on the kit, not the design system
 
 ### [plan.md](plan.md)
 

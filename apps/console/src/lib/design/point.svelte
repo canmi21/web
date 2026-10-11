@@ -15,7 +15,7 @@
 		along,
 		outside = false,
 		size = 7,
-		ground = 'var(--color-surface)',
+		ground = 'var(--background-surface)',
 	}: {
 		/** The card whose rule it runs on from. */
 		card: HTMLElement | undefined;
@@ -42,8 +42,8 @@
 
 	const styles = stylex.create({
 		edge: {
-			backgroundColor: 'var(--color-surface)',
-			backgroundImage: 'linear-gradient(var(--color-line), var(--color-line))',
+			backgroundColor: 'var(--background-surface)',
+			backgroundImage: 'linear-gradient(var(--border-default), var(--border-default))',
 		},
 	});
 

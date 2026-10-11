@@ -140,7 +140,7 @@ export function rampStep(
  */
 export function rampColor(hue: string, step: number, steps: number): string {
 	const share = steps <= 1 ? 100 : Math.round(20 + (80 * step) / (steps - 1));
-	return `color-mix(in oklab, ${hue} ${share}%, var(--color-surface))`;
+	return `color-mix(in oklab, ${hue} ${share}%, var(--background-surface))`;
 }
 
 const center = bisector((at: number) => at).center;
@@ -170,6 +170,6 @@ export function fold<Part extends { key: string; label: string; color: string; v
 	const other = rest.reduce((sum, part) => sum + part.value, 0);
 	return [
 		...drawn.filter((part) => kept.has(part.key)),
-		{ key: 'other', label: 'Other', color: 'var(--color-text-faint)', value: other },
+		{ key: 'other', label: 'Other', color: 'var(--foreground-subtle)', value: other },
 	];
 }

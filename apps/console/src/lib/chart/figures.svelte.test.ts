@@ -54,7 +54,7 @@ describe('sparkline on the server', () => {
 		expect(body).toContain('preserveAspectRatio="none"');
 		expect(body).toContain('vector-effect="non-scaling-stroke"');
 		expect(body).toContain('left: 100%');
-		expect(body).toContain('background-color: var(--color-primary)');
+		expect(body).toContain('background-color: var(--status-info)');
 	});
 
 	it('draws no line for a single value', () => {
@@ -68,16 +68,18 @@ describe('meter on the server', () => {
 		const { body } = render(Meter, { props: { label: 'Disk', value: 40, limit: 100 } });
 		expect(body).toContain('role="meter"');
 		expect(body).toContain('width: 40%');
-		expect(body).toContain('color-mix(in oklab, var(--color-primary) 22%, var(--color-surface))');
+		expect(body).toContain(
+			'color-mix(in oklab, var(--status-info) 22%, var(--background-surface))',
+		);
 		expect(body).not.toContain('<svg');
 	});
 
 	it('warns and then alarms with an icon and a word, and never overfills', () => {
 		const near = render(Meter, { props: { label: 'Disk', value: 80, limit: 100 } }).body;
-		expect(near).toContain('background-color: var(--color-warn)');
+		expect(near).toContain('background-color: var(--status-warning)');
 		expect(near).toContain('High');
 		const over = render(Meter, { props: { label: 'Disk', value: 130, limit: 100 } }).body;
-		expect(over).toContain('background-color: var(--color-danger)');
+		expect(over).toContain('background-color: var(--status-critical)');
 		expect(over).toContain('Over limit');
 		expect(over).toContain(stateIcon(XCircleIcon));
 		expect(over).toContain('width: 100%');
@@ -89,7 +91,7 @@ describe('donut on the server', () => {
 		key,
 		label: key,
 		value,
-		color: `var(--color-series-${slot})`,
+		color: `var(--series-${slot})`,
 	});
 
 	it('draws a fixed square ring, a slice per part, each listed with its share', () => {

@@ -24,7 +24,7 @@
 		(cell.mark === 'unknown'
 			? `${nodeLabel(cell.node)} did not answer`
 			: `${appLabel(cell.app)} on ${nodeLabel(cell.node)}`);
-	const styles = stylex.create({ none: { color: 'var(--color-text-faint)' } });
+	const styles = stylex.create({ none: { color: 'var(--foreground-subtle)' } });
 </script>
 
 <table>

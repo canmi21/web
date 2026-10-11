@@ -27,8 +27,8 @@ describe('nodeCharts', () => {
 	it('draws each metric as a line in time order, its colors in the fixed order', () => {
 		const charts = nodeCharts(points);
 		expect(charts.cpu.map((line) => [line.key, line.color])).toEqual([
-			['cpu.usage', 'var(--color-series-1)'],
-			['cpu.iowait', 'var(--color-series-2)'],
+			['cpu.usage', 'var(--series-1)'],
+			['cpu.iowait', 'var(--series-2)'],
 		]);
 		expect(charts.cpu[0]?.points).toEqual([
 			{ at: 60, value: 10, minimum: 9, maximum: 11 },

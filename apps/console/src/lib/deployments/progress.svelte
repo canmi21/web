@@ -22,20 +22,20 @@
 			borderColor: 'transparent',
 			overflow: 'hidden',
 		},
-		succeeded: { backgroundColor: 'var(--color-good)' },
-		failed: { backgroundColor: 'var(--color-danger)' },
+		succeeded: { backgroundColor: 'var(--status-success)' },
+		failed: { backgroundColor: 'var(--status-critical)' },
 		running: {
-			backgroundColor: 'color-mix(in srgb, var(--color-busy) 22%, transparent)',
-			borderColor: 'var(--color-busy)',
+			backgroundColor: 'color-mix(in srgb, var(--status-info) 22%, transparent)',
+			borderColor: 'var(--status-info)',
 		},
 		skipped: {
 			backgroundImage:
-				'repeating-linear-gradient(45deg, var(--color-text-faint) 0 1.5px, transparent 1.5px 4px)',
-			borderColor: 'var(--color-text-faint)',
+				'repeating-linear-gradient(45deg, var(--foreground-subtle) 0 1.5px, transparent 1.5px 4px)',
+			borderColor: 'var(--foreground-subtle)',
 		},
-		absent: { borderColor: 'var(--color-line-strong)' },
-		unknown: { borderColor: 'var(--color-warn)', borderStyle: 'dashed' },
-		fill: { backgroundColor: 'var(--color-busy)' },
+		absent: { borderColor: 'var(--border-strong)' },
+		unknown: { borderColor: 'var(--status-warning)', borderStyle: 'dashed' },
+		fill: { backgroundColor: 'var(--status-info)' },
 	});
 </script>
 

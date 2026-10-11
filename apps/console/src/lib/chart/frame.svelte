@@ -51,7 +51,7 @@
 		switch: {
 			backgroundColor: 'transparent',
 			borderWidth: 0,
-			color: { default: 'var(--color-text-muted)', ':hover': 'var(--color-text-strong)' },
+			color: { default: 'var(--foreground-muted)', ':hover': 'var(--foreground-strong)' },
 		},
 	});
 </script>

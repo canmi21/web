@@ -117,16 +117,16 @@
 		row: {
 			backgroundColor: {
 				default: 'transparent',
-				':hover': 'var(--color-selected)',
+				':hover': 'var(--interaction-default)',
 			},
 			transitionProperty: 'background-color',
 			transitionDuration: duration.base,
 		},
 		/** A place's name, a step under the page's body, so the list stays dense. */
-		name: { color: 'var(--color-text)', fontSize: text.px13 },
-		count: { color: 'var(--color-text-muted)', fontSize: text.px12 },
+		name: { color: 'var(--foreground-default)', fontSize: text.px13 },
+		count: { color: 'var(--foreground-muted)', fontSize: text.px12 },
 		value: {
-			color: 'var(--color-text)',
+			color: 'var(--foreground-default)',
 			fontSize: text.px13,
 			fontVariantNumeric: 'tabular-nums',
 		},

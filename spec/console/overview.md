@@ -217,14 +217,14 @@ is, in a cookie the server draws with:
 
 **Services and connectivity are never empty once a node's history begins**: a node down for a whole
 slot is lost there, not blank, since a minute is due whether or not it is heard. Only a slot before
-the node's first minute is grey for them, and its tip says so -- `Unrecorded` -- rather than
-reading as a node with nothing to report; deploys alone have slots with
-nothing in them. **Fine is green, `--color-good`, drawn whole in every dimension but deploys**, where a slot is as
-dark as its runs rank among its outcome's. A view without nodes draws its busiest apps, each
-app's services the worst any node had of it, and is not asked about connectivity, having no node
-to hear. The legend names the dimension's own steps, one word each, the words its tip uses: `Fine,
-Changed, Degraded, Down`; `Done, Running, Partial, Failed`; `Up, Dipped, Down`; `Heard,
-Announced, Missed, Lost`; and `Unrecorded` before a node's history begins.
+the node's first minute is grey for them, and its tip says so -- `Unrecorded` -- rather than reading
+as a node with nothing to report; deploys alone have slots with nothing in them. **Fine is green,
+`--status-success`, drawn whole in every dimension but deploys**, where a slot is as dark as its
+runs rank among its outcome's. A view without nodes draws its busiest apps, each app's services the
+worst any node had of it, and is not asked about connectivity, having no node to hear. The legend
+names the dimension's own steps, one word each, the words its tip uses: `Fine, Changed, Degraded,
+Down`; `Done, Running, Partial, Failed`; `Up, Dipped, Down`; `Heard, Announced, Missed, Lost`; and
+`Unrecorded` before a node's history begins.
 
 **A slot pointed at is ringed flush in the focus ring's color**, two pixels of the accent with no
 gap, as the keyboard's focus is drawn -- the kit's `interaction.css` -- the shade on what the slot

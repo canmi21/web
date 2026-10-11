@@ -16,7 +16,7 @@ import { STAGES, markOf, said } from './state.ts';
 export const STAGE_KEYS: Key[] = STAGES.map((stage, index) => ({
 	key: stage,
 	label: said('running', stage),
-	color: `var(--color-series-${index + 1})`,
+	color: `var(--series-${index + 1})`,
 }));
 
 /** Up to this many placements are a track each; more are a track per node. */

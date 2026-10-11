@@ -57,6 +57,10 @@
 	import { type } from '../style.ts';
 	import { painted } from './verdict.ts';
 
+	/** The default rank laid on the card as one opaque color, for a ring that must match the line. */
+	const CHOSEN_OPAQUE =
+		'color-mix(in srgb, var(--background-surface), oklch(var(--interaction-tint) 0 0) calc(var(--interaction-strength) * 100%))';
+
 	let {
 		tip,
 		at,
@@ -123,30 +127,34 @@
 
 	const styles = stylex.create({
 		card: {
-			backgroundColor: 'var(--color-surface)',
+			backgroundColor: 'var(--background-surface)',
 			borderWidth: '1px',
 			borderStyle: 'solid',
-			borderColor: 'var(--color-line)',
+			borderColor: 'var(--border-default)',
 			borderRadius: 8,
 			// Its point lifted with it as one shape, as the map's card is.
 			filter: 'drop-shadow(0 6px 14px rgb(0 0 0 / 0.22)) drop-shadow(0 1px 2px rgb(0 0 0 / 0.14))',
 			fontSize: text.px12,
 			lineHeight: 1.4,
-			color: 'var(--color-text)',
+			color: 'var(--foreground-default)',
 		},
-		time: { color: 'var(--color-text-strong)', fontWeight: weight.semibold },
-		muted: { color: 'var(--color-text-muted)' },
+		time: { color: 'var(--foreground-strong)', fontWeight: weight.semibold },
+		muted: { color: 'var(--foreground-muted)' },
 		/** Nothing to say, as a dot: the muted ink, plain where a slot's grey would be too faint. */
-		idle: { backgroundColor: 'var(--color-text-muted)' },
-		word: { color: 'var(--color-text-strong)', fontWeight: weight.medium },
-		rule: { borderTopWidth: '1px', borderTopStyle: 'solid', borderTopColor: 'var(--color-line)' },
+		idle: { backgroundColor: 'var(--foreground-muted)' },
+		word: { color: 'var(--foreground-strong)', fontWeight: weight.medium },
+		rule: {
+			borderTopWidth: '1px',
+			borderTopStyle: 'solid',
+			borderTopColor: 'var(--border-default)',
+		},
 		/** A line that leads somewhere, washed under the pointer the menus' one way, its dots' rings
 		 * washed with it. */
 		line: {
-			backgroundColor: { default: 'transparent', ':hover': 'var(--color-selected)' },
+			backgroundColor: { default: 'transparent', ':hover': 'var(--interaction-default)' },
 			'--badge-ground': {
-				default: 'var(--color-surface)',
-				':hover': 'var(--color-selected-solid)',
+				default: 'var(--background-surface)',
+				':hover': CHOSEN_OPAQUE,
 			},
 			cursor: 'pointer',
 		},
@@ -163,7 +171,7 @@
 		<span
 			aria-hidden="true"
 			class="absolute -right-px -bottom-px size-1.5 rounded-full {badgeOf(verdict)}"
-			style:box-shadow="0 0 0 1.5px var(--badge-ground, var(--color-surface))"
+			style:box-shadow="0 0 0 1.5px var(--badge-ground, var(--background-surface))"
 		></span>
 	</span>
 {/snippet}
@@ -185,7 +193,7 @@
 		edge={below ? 'top' : 'bottom'}
 		along={point}
 		size={POINT}
-		ground={lastHeld && !below ? 'var(--color-selected-solid)' : undefined}
+		ground={lastHeld && !below ? CHOSEN_OPAQUE : undefined}
 	/>
 	<!-- Unseen, the gap between it and its slot, as wide as the slot, on the side its point is. -->
 	<Bridge

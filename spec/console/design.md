@@ -111,28 +111,32 @@ stand on the card's surface as a card does, what is set into them on the ground 
 **What the pointer is over and what is chosen are the text's own color laid thin, the one at seven
 tenths of the other.** A theme sets two values in `app.css`, the wash's ink -- black in the light,
 white in the dark -- and its full strength, 5 percent in the light and 7 in the dark;
-`--color-selected` is the full strength and `--color-hover` seven tenths of it, so the two tiers
-keep one ratio in both themes and a third tier is a third share, never a third gray. A chosen option
-sits a step off its frame and no more, where mono's 10 and 13 percent read as grey, and where the
-sidebar's solid `paper-hover` stood a whole gray step off the dark's black. Near black a few percent
-is a large step, the eye reading lightness by ratio, so the dark's strength is tuned by eye and not
-by symmetry. **One state takes the stronger wash; two take both.** Where a
-surface shows only the pointer -- the account's button, the bar's icons, a card's title choice, the
-view switcher, a menu's rows, the overview's places -- its hover is `--color-selected`, the tier
+`--interaction-default` is the full strength and `--interaction-subtle` seven tenths of it, so the
+two tiers keep one ratio in both themes and a third tier is a third share, never a third gray. A
+chosen option sits a step off its frame and no more, where mono's 10 and 13 percent read as grey,
+and where the sidebar's solid `paper-hover` stood a whole gray step off the dark's black. Near black
+a few percent is a large step, the eye reading lightness by ratio, so the dark's strength is tuned
+by eye and not by symmetry. **One state takes the stronger wash; two take both.** Where a surface
+shows only the pointer -- the account's button, the bar's icons, a card's title choice, the view
+switcher, a menu's rows, the overview's places -- its hover is `--interaction-default`, the tier
 furthest from the ground in either theme (darker in the light, lighter in the dark). Only where
 something chosen stands among what can be pointed at, as the sidebar's open page among its links,
-does the hover step down to `--color-hover`, so the two still read apart. Decided with the author
-on 2026-10-09; the one-state rule on 2026-10-10.
+does the hover step down to `--interaction-subtle`, so the two still read apart. Decided with the
+author on 2026-10-09; the one-state rule on 2026-10-10.
 
 **Since 2026-10-11 the wash is the contract's four ranks** -- lib's `spec/design/styles.md`, "Two
-grounds, and every other ground an interaction rank". `--color-selected` is `--interaction-default`,
-the full strength as above; `--color-hover` is `--interaction-subtle`, half of it in the light and
-seven tenths in the dark, where the two would otherwise read as one; the sidebar's open page,
-through the nav link, takes `muted` beside its `subtle` hover. `--color-raised`, once a gray of its
-own that in the light sat darker than the page, is `--interaction-strong`, and `--color-sunken` the
-base it always equaled. `--color-text` and `--color-text-muted`, read in some fifty places, are the
-contract's `default` and `muted` too, so the console's text takes its APCA tiers -- lib's
-`spec/design/styles.md`.
+grounds, and every other ground an interaction rank". A chosen option is `--interaction-default`,
+the full strength as above; a hover beside one is `--interaction-subtle`; the sidebar's open page,
+through the nav link, takes `muted` beside its `subtle` hover; what was a raised gray is
+`--interaction-strong`, and a sunken ground the base it always equaled.
+
+**The console reads the contract's names and no names of its own.** Its `--color-*` aliases were
+retired on 2026-10-11, the unpolished pages renamed onto the contract with no regard for how they
+look, to be tuned as each is polished. Two names stay: `--color-accent`, which the kit's
+`interaction.css` draws the keyboard's ring in, until the console takes its ring from
+`@canmi/design`; and `--series-1` to `--series-8`, a chart's eight hues in a fixed order where no
+meaning picks one, the console's own until the charts are polished. Nord is no longer imported; the
+series were never Nord's colors, only kept in its sheet.
 
 ## An error is the site's page, in the console's frame
 

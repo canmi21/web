@@ -13,7 +13,7 @@
 
 	const name = $derived(displayOf(app));
 	const styles = stylex.create({
-		code: { color: 'var(--color-text-muted)', fontSize: text.px11 },
+		code: { color: 'var(--foreground-muted)', fontSize: text.px11 },
 	});
 </script>
 

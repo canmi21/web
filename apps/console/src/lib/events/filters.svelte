@@ -39,15 +39,15 @@
 
 	const styles = stylex.create({
 		field: {
-			backgroundColor: 'var(--color-sunken)',
+			backgroundColor: 'var(--background-base)',
 			borderWidth: border.hairlinePx,
 			borderStyle: 'solid',
-			borderColor: { default: 'var(--color-line)', ':focus': 'var(--color-line-strong)' },
+			borderColor: { default: 'var(--border-default)', ':focus': 'var(--border-strong)' },
 			borderRadius: radius.md,
-			color: 'var(--color-text)',
+			color: 'var(--foreground-default)',
 			fontSize: text.px12,
 		},
-		clear: { color: { default: 'var(--color-text-muted)', ':hover': 'var(--color-text-strong)' } },
+		clear: { color: { default: 'var(--foreground-muted)', ':hover': 'var(--foreground-strong)' } },
 	});
 </script>
 

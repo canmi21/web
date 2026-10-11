@@ -12,7 +12,7 @@
 	let { dimension }: { dimension: Dimension } = $props();
 
 	const styles = stylex.create({
-		word: { color: 'var(--color-text-muted)', fontSize: text.px12 },
+		word: { color: 'var(--foreground-muted)', fontSize: text.px12 },
 	});
 </script>
 

@@ -51,15 +51,15 @@
 
 	const styles = stylex.create({
 		row: {
-			color: { default: 'var(--color-text-muted)', ':hover': 'var(--color-text-strong)' },
+			color: { default: 'var(--foreground-muted)', ':hover': 'var(--foreground-strong)' },
 			backgroundColor: {
 				default: 'transparent',
-				':hover': 'var(--color-selected)',
-				':focus-visible': 'var(--color-selected)',
+				':hover': 'var(--interaction-default)',
+				':focus-visible': 'var(--interaction-default)',
 			},
 		},
-		mark: { color: 'var(--color-text-muted)' },
-		rule: { backgroundColor: 'var(--color-line)' },
+		mark: { color: 'var(--foreground-muted)' },
+		rule: { backgroundColor: 'var(--border-default)' },
 	});
 	const ROW = 'relative flex h-7 shrink-0 cursor-pointer items-center gap-1.5 px-2';
 </script>

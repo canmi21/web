@@ -12,8 +12,8 @@ const points: Datum[] = Array.from({ length: 60 }, (_, minute) => ({
 	minimum: 10,
 	maximum: 40,
 }));
-const cpu: Line = { key: 'cpu', label: 'Busy', color: 'var(--color-series-2)', points };
-const memory: Line = { ...cpu, key: 'memory', label: 'Memory', color: 'var(--color-series-1)' };
+const cpu: Line = { key: 'cpu', label: 'Busy', color: 'var(--series-2)', points };
+const memory: Line = { ...cpu, key: 'memory', label: 'Memory', color: 'var(--series-1)' };
 const percent = (value: number) => `${value}%`;
 
 describe('area chart on the server', () => {

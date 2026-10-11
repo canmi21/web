@@ -87,15 +87,15 @@
 
 	const styles = stylex.create({
 		bar: { borderRadius: radius.lg },
-		said: { fontSize: text.px14, fontWeight: weight.medium, color: 'var(--color-text-strong)' },
+		said: { fontSize: text.px14, fontWeight: weight.medium, color: 'var(--foreground-strong)' },
 		link: {
 			textDecorationLine: { default: 'none', ':hover': 'underline' },
 			textUnderlineOffset: '0.2em',
 			transitionProperty: 'color',
 			transitionDuration: duration.base,
 		},
-		apart: { color: 'var(--color-text-faint)' },
-		aside: { fontSize: text.px13, color: 'var(--color-text-muted)' },
+		apart: { color: 'var(--foreground-subtle)' },
+		aside: { fontSize: text.px13, color: 'var(--foreground-muted)' },
 	});
 </script>
 

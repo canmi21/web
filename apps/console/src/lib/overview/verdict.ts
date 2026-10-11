@@ -6,9 +6,9 @@
 import * as stylex from '@stylexjs/stylex';
 
 export const painted = stylex.create({
-	none: { backgroundColor: 'color-mix(in srgb, var(--color-text) 9%, transparent)' },
-	fine: { backgroundColor: 'var(--color-good)' },
-	planned: { backgroundColor: 'var(--color-busy)' },
-	degraded: { backgroundColor: 'var(--color-warn)' },
-	down: { backgroundColor: 'var(--color-danger)' },
+	none: { backgroundColor: 'color-mix(in srgb, var(--foreground-default) 9%, transparent)' },
+	fine: { backgroundColor: 'var(--status-success)' },
+	planned: { backgroundColor: 'var(--status-info)' },
+	degraded: { backgroundColor: 'var(--status-warning)' },
+	down: { backgroundColor: 'var(--status-critical)' },
 });

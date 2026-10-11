@@ -9,8 +9,8 @@
 	const styles = stylex.create({
 		link: {
 			borderRadius: radius.md,
-			backgroundColor: 'var(--color-surface)',
-			color: 'var(--color-text-strong)',
+			backgroundColor: 'var(--background-surface)',
+			color: 'var(--foreground-strong)',
 			fontSize: text.px14,
 			fontWeight: weight.medium,
 		},

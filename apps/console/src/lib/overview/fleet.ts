@@ -9,7 +9,7 @@ import { nodeLabel } from '../map/places.ts';
 import type { Fleet } from '../server/fleet.ts';
 
 /** A node's color, by its place in the fixed node order: it follows the node, never its rank. */
-export const nodeColor = (index: number): string => `var(--color-series-${index + 1})`;
+export const nodeColor = (index: number): string => `var(--series-${index + 1})`;
 
 /** A node that did not answer, and what it said. */
 export interface Missing {

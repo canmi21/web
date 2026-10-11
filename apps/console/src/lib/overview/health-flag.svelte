@@ -12,8 +12,8 @@
 	let { code, told, size = 16 }: { code: string; told: Told; size?: number } = $props();
 
 	const styles = stylex.create({
-		well: { color: 'var(--color-primary)' },
-		ring: { borderWidth: '1.5px', borderStyle: 'solid', borderColor: 'var(--color-surface)' },
+		well: { color: 'var(--status-info)' },
+		ring: { borderWidth: '1.5px', borderStyle: 'solid', borderColor: 'var(--background-surface)' },
 	});
 	const DOT = {
 		well: styles.well,

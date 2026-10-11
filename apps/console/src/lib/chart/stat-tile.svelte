@@ -60,10 +60,10 @@
 			letterSpacing: '-0.03em', // unnamed: a display size drawn tight
 			lineHeight: line.none,
 			fontVariantNumeric: 'tabular-nums',
-			color: 'var(--color-text-strong)',
+			color: 'var(--foreground-strong)',
 		},
 		placeholder: {
-			backgroundColor: 'color-mix(in srgb, var(--color-raised) 45%, transparent)',
+			backgroundColor: 'color-mix(in srgb, var(--interaction-strong) 45%, transparent)',
 			borderRadius: radius.md,
 		},
 	});

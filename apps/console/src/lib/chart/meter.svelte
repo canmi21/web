@@ -31,16 +31,16 @@
 	const share = $derived(limit > 0 ? value / limit : 0);
 	const level = $derived(share >= danger ? 'bad' : share >= warn ? 'warn' : 'calm');
 	const FILL = {
-		calm: 'var(--color-primary)',
-		warn: 'var(--color-warn)',
-		bad: 'var(--color-danger)',
+		calm: 'var(--status-info)',
+		warn: 'var(--status-warning)',
+		bad: 'var(--status-critical)',
 	};
 	const word = $derived(share > 1 ? 'Over limit' : level === 'bad' ? 'Near limit' : 'High');
 
 	const styles = stylex.create({
 		track: { borderRadius: radius.sm, overflow: 'hidden' },
 		fill: { borderTopRightRadius: radius.sm, borderBottomRightRadius: radius.sm },
-		figure: { color: 'var(--color-text-strong)' },
+		figure: { color: 'var(--foreground-strong)' },
 	});
 </script>
 
@@ -72,7 +72,7 @@
 	</div>
 	<div
 		class="h-2 w-full {stylex.attrs(styles.track).class}"
-		style:background-color="color-mix(in oklab, {FILL[level]} 22%, var(--color-surface))"
+		style:background-color="color-mix(in oklab, {FILL[level]} 22%, var(--background-surface))"
 	>
 		<div
 			class="h-full {stylex.attrs(styles.fill).class}"
