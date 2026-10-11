@@ -55,10 +55,6 @@ What [../architecture/space.md](../architecture/space.md) decides and is not bui
   sidebar's head is the way in to finding".
 - **The console and space move onto the design system**: the token contract, then the
   primitives, then each component, the console looking as it did after every step.
-- **Space's mark takes information's blue**: the circle redrawn in `--status-info`'s light value,
-  `oklch(0.576 0.219 258.6)`, its SVG and ICO stored under their new content ids and named in
-  `data/record/symlinks.json` -- [../architecture/space.md](../architecture/space.md), "Its mark is
-  a circle in the focus blue".
 
 ## The console's reads move to the backend
 
