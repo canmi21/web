@@ -146,3 +146,11 @@ describe('checkPrivate in code', () => {
 		expect(checkPrivate('```ts\nconst a = stylex.create({});\n```')).toEqual([]);
 	});
 });
+
+describe('checkPrivate across a line', () => {
+	it('pairs a code span broken over a line before reading what follows', () => {
+		expect(checkPrivate('under `@media\n(hover: hover)`, beside `transition.colors` and')).toEqual(
+			[],
+		);
+	});
+});

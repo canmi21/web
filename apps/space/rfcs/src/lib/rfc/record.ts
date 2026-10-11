@@ -167,7 +167,7 @@ const allowed = (host: string) => RESERVED.test(host) || OWN.test(host);
 
 /** Top-level domains a name in code ends with when it is a host rather than a call or a token. */
 const HOSTLIKE = new Set(
-	'com net org io dev app co ai me sh so one li si icu cloud xyz info biz us uk de fr jp cn tv cc gg page site tech blog link news'.split(
+	'com net org io dev app co ai me sh so one li si icu cloud xyz info biz us uk de fr jp cn tv cc gg'.split(
 		' ',
 	),
 );
@@ -187,7 +187,7 @@ export function checkPrivate(text: string): string[] {
 		if (!RESERVED.test(domain!)) flag('mail domain', domain!);
 	// In code, `stylex.create` is a call and `radius.sm` a token, so only a name ending as a host
 	// commonly does is read as one there; in prose every dotted name is.
-	const code = /^ {0,3}(```|~~~)[\s\S]*?^ {0,3}\1|`[^`\n]*`/gm;
+	const code = /^ {0,3}(```|~~~)[\s\S]*?^ {0,3}\1|`(?:[^`\n]|\n(?![ \t]*\n))*`/gm;
 	const prose = text.replace(code, ' ');
 	const coded = [...text.matchAll(code)].map(([span]) => span).join('\n');
 	const names = (within: string) =>
