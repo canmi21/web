@@ -21,6 +21,14 @@ something to hold, and the files every host carries. **Locally the router runs i
 same bindings**, each bound to its part's development server, so the code that routes in
 production is the code that routes on a laptop.
 
+**The top bar's corner names the part being read and switches between them**, as the console's
+view switcher does, with its two halves split: the name leads to the part's own home, and the mark
+beside it, half a square as tall as the name's line and as wide as the mark, opens a menu of every
+part, the one open checked, each a link that loads the other app. The menu opens under the corner
+rather than its mark, so the parts' names stand under the corner's -- spec/console/design.md, "The
+menu opens out of its title". Both are `@canmi/space-ui`'s, `part-switch.svelte` and the menu it is
+drawn with; decided with the author on 2026-10-11.
+
 **`rfcs/` and its app are to leave for a repository of their own once the UI they draw settles**:
 a repository of its own reads its UI from npm, whose release and sync cost minutes a turn, while
 the UI is still drawn a turn at a time. `libs/space-ui` goes to npm then.

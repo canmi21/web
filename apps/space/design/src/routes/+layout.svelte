@@ -5,6 +5,7 @@
 	import { page } from '$app/state';
 	import Shell from '@canmi/design/layouts/shell.svelte';
 	import Head from '@canmi/space-ui/head.svelte';
+	import PartSwitch from '@canmi/space-ui/part-switch.svelte';
 	import PagesNav from '@canmi/space-ui/pages-nav.svelte';
 	import SearchField from '@canmi/space-ui/search-field.svelte';
 	import ThemeSwitch from '@canmi/space-ui/theme-switch.svelte';
@@ -21,9 +22,7 @@
 
 <!-- See spec/architecture/space.md, "The shell is the console's". -->
 <Shell label="Space" density="compact" span="bar">
-	{#snippet corner()}
-		<a href={resolve('/')} class="text-base font-bold text-(--foreground-strong)">Design</a>
-	{/snippet}
+	{#snippet corner()}<PartSwitch part="design" />{/snippet}
 	{#snippet nav()}<PagesNav groups={GROUPS} label="Design" path={page.url.pathname} />{/snippet}
 	{#snippet start()}<Sections />{/snippet}
 	{#snippet end()}

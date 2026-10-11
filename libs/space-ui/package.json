@@ -7,6 +7,7 @@
 		"./*.svelte": "./src/*.svelte",
 		"./app.css": "./src/app.css",
 		"./marks": "./src/marks.ts",
+		"./parts": "./src/parts.ts",
 		"./prose.svelte": "./src/prose/prose.svelte",
 		"./prose/directives": "./src/prose/directives.ts",
 		"./vite": "./src/vite.ts"
@@ -17,6 +18,7 @@
 		"@monoflake/sdk": "^2026.1007.1",
 		"@stylexjs/stylex": "^0.19.1",
 		"@tabler/icons-svelte-runes": "^3.49.0",
+		"bits-ui": "^2.19.5",
 		"mdast-util-directive": "^3.1.1",
 		"svelte": "^5.57.1"
 	},

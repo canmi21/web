@@ -5,6 +5,7 @@
 	import { page } from '$app/state';
 	import Shell from '@canmi/design/layouts/shell.svelte';
 	import Head from '@canmi/space-ui/head.svelte';
+	import PartSwitch from '@canmi/space-ui/part-switch.svelte';
 	import PagesNav from '@canmi/space-ui/pages-nav.svelte';
 	import SearchField from '@canmi/space-ui/search-field.svelte';
 	import ThemeSwitch from '@canmi/space-ui/theme-switch.svelte';
@@ -26,9 +27,7 @@
 
 <!-- The design system's frame; see spec/architecture/space.md. -->
 <Shell label="Space" density="compact" span="bar">
-	{#snippet corner()}
-		<a href={resolve('/')} class="text-base font-bold text-(--foreground-strong)">RFCs</a>
-	{/snippet}
+	{#snippet corner()}<PartSwitch part="rfcs" />{/snippet}
 	{#snippet nav()}<PagesNav {groups} label="RFCs" {path} />{/snippet}
 	{#snippet end()}
 		<div class="w-60"><SearchField /></div>
