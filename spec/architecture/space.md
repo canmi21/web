@@ -68,6 +68,31 @@ places with finding's stand-in at the sidebar's head, its pages under their grou
 trail to the page at the top bar's left and the switch between light and dark at its right. Every
 page is listed once, in `src/lib/pages.ts`, which the pages and the trail both read.
 
+## Specimens are laid on paper
+
+**A design page is laid out on a card as the console's overview draws its own** -- the surface, a
+hairline border, its corners and its shadow, as wide as the console's map card -- so the page reads
+as the console's cards read, a sheet on the ground. **The one exception is the box a specimen
+stands in, which is the card again on the page's own ground**: what it holds may be a card, and a
+card is drawn to stand on the ground, never on another card. Decided with the author on 2026-10-11,
+after a page with nothing under its specimens read as no page at all; the card's head and the box's
+size are still being settled on the color page, which holds one example of each.
+
+The pieces that draw specimens are space's own, in `src/lib/specimen/`.
+
+## Its mark is a circle in the focus blue
+
+Space's favicon is one circle in the blue the focus ring is drawn in, `--interaction-focus`, as the
+console's marks are: an SVG -- the circle written as its hex, `#2b7fff`, and as the oklch it is
+where a browser draws that, since a favicon reads no stylesheet of the page's -- and an ICO derived
+from it, drawn by the browser at 16, 32 and 48 pixels. Both are objects under their content ids,
+registered under `space` in `data/record/symlinks.json`. As the site's head does, the root layout's
+server asks the alias layer what each resolves to at render and the head names those objects, so a
+browser fetches the bytes with no redirect; `src/routes/[mark=mark]` follows the names a browser asks
+for on its own, `/favicon.ico` above all -- platform's `spec/architecture/delivery.md`, "A head names
+its marks by the objects they resolve to at render", which also says how this went wrong twice
+first. Decided with the author on 2026-10-11.
+
 ## Errors are the console's
 
 **A page that fails is drawn as the console draws one**, inside space's frame: `@canmi/design`'s

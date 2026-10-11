@@ -7,13 +7,16 @@
 	import { GROUPS } from './pages.ts';
 
 	const styles = stylex.create({
+		/** Half a link's height, so the list keeps its rhythm in half steps. */
 		heading: {
+			display: 'flex',
+			height: '1.125rem',
+			alignItems: 'center',
 			paddingInline: '0.75rem',
-			paddingTop: '1rem',
-			paddingBottom: '0.375rem',
 			color: 'var(--foreground-subtle)',
 			fontSize: fontSize.caption,
 			fontWeight: fontWeight.medium,
+			lineHeight: 1,
 		},
 	});
 </script>

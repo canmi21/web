@@ -152,7 +152,7 @@
 
 <!-- Three fixed regions, and only the page scrolls. See spec/architecture/console.md. -->
 <SkipLink />
-<Shell label="Console" bind:main={scroller} onscroll={moved}>
+<Shell label="Console" density="compact" bind:main={scroller} onscroll={moved}>
 	{#snippet head()}<SearchField />{/snippet}
 	{#snippet nav()}<SidebarPages {level} />{/snippet}
 	{#snippet foot()}<Account {live} nearest={data.nearest} />{/snippet}

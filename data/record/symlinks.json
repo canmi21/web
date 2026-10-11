@@ -27,6 +27,10 @@
 		"web-app-manifest-192x192.png": "d50c91bdac8b2f9e009d084251039e1b",
 		"web-app-manifest-512x512.png": "19a6408dfe2a32f61ac8b79810e6a14e"
 	},
+	"space": {
+		"favicon.ico": "d50bc534d7591e48e98fe6d80135cec5",
+		"favicon.svg": "91d0aa6321a69a0576c6e155609c7d09"
+	},
 	"status": {
 		"apple-touch-icon.png": "5cb161b09302a5c9356661c28e9f2d68",
 		"favicon-512x512.png": "1185412ad9f3d392a44af41695ba3679",

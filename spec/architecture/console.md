@@ -37,7 +37,10 @@ title and the facts beside it -- never a sentence about the page, under it or un
 `<title>` is the one name the page is about and nothing around it -- `Nodes`, `tyo`, `#123`, an
 app's name -- with no product name and no separator: the console is behind Access and indexed by
 nobody, so a title is for a reader picking out a tab, and the shortest name does that best. Its
-icons are the `console` scope's marks, the API's own, followed for the browser as every page's are.
+icons are the `console` scope's marks, the API's own; its `app.html` names them at `/favicon.svg` and
+`/favicon.ico`, which `src/routes/[mark=mark]` follows for the browser -- a redirect on every page,
+where platform's `spec/architecture/delivery.md` has a head name the objects the marks resolve to at
+render, as the site's and space's do. Moving it there is waiting in [../todo/todo.md](../todo/todo.md).
 
 **Moving between pages never waits for a node.** A page's `load` returns at once: what it reads
 from the nodes it returns as promises SvelteKit streams, and the page awaits each where it is

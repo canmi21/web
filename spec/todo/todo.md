@@ -45,8 +45,11 @@ What [../architecture/space.md](../architecture/space.md) decides and is not bui
 - **`canmi.app` goes to space**: platform's redirect rule in `rules/canmi.app/` comes off the apex,
   the sdk names `canmi.app` and its paths, and `space` joins the deployer's `WORKER_OWNERS` and
   `.mise/tasks/deployable`'s `MOVED`.
-- **What every host carries**: robots.txt and security.txt from `@canmi/me/robots`, the favicon
-  through `aka` as the console's is.
+- **What every host carries**: robots.txt and security.txt from `@canmi/me/robots`.
+- **The console's head names its marks as the site's does**: resolved at render by its root
+  layout's server and named as objects, its `app.html` no longer linking `/favicon.*` --
+  [../architecture/console.md](../architecture/console.md), and platform's
+  `spec/architecture/delivery.md`, "A head names its marks by the objects they resolve to at render".
 - **Finding is drawn again**, in the console's sidebar and space's, taking the place of the
   stand-in at each head and reading the console's `finding.ts` -- spec/console/design.md, "The
   sidebar's head is the way in to finding".

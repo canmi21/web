@@ -9,8 +9,9 @@
 	import Trail from '#lib/trail.svelte';
 	import '@canmi/fonts/mono.css';
 	import '../app.css';
+	import type { LayoutData } from './$types';
 
-	let { children }: { children: Snippet } = $props();
+	let { children, data }: { children: Snippet; data: LayoutData } = $props();
 
 	/**
 	 * The visual layer in development, linked as the console links it: the layer order first, then
@@ -36,11 +37,22 @@
 	<!-- First in the head on purpose: it declares the order the layers below it take. -->
 	{#if dev}{@html DEV_STYLEX}{/if}
 	{@html disclosureHead(disclosure)}
+	<!-- Each mark is the object the alias layer resolved it to at render; one that resolved to
+	     nothing is left out. See +layout.server.ts. -->
+	{#if data.marks['favicon.svg']}
+		<link rel="icon" type="image/svg+xml" sizes="any" href={data.marks['favicon.svg']} />
+	{/if}
+	{#if data.marks['favicon.ico']}
+		<link rel="icon" sizes="48x48" href={data.marks['favicon.ico']} />
+	{/if}
 </svelte:head>
 
 <!-- The console's frame, from @canmi/design; see spec/architecture/space.md, "The shell is the
      console's". -->
-<Shell label="Space">
+<Shell label="Space" density="compact" span="bar">
+	{#snippet corner()}
+		<a href="/design" class="text-base font-bold text-(--foreground-strong)">Design</a>
+	{/snippet}
 	{#snippet head()}<SearchField />{/snippet}
 	{#snippet nav()}<PagesNav />{/snippet}
 	{#snippet start()}<Trail />{/snippet}
