@@ -1,11 +1,13 @@
 /**
  * `check-rfc`: every file in the rfcs repository is an RFC named as the format says, its id is
- * its own, what it supersedes is an earlier decided RFC, its frontmatter and sections are the
- * format's for its status, and no host, mail address or IP address outside its references could
- * be real.
+ * its own, what it supersedes is an earlier landed RFC, what blocks it makes no cycle, the commits
+ * it names exist, its frontmatter and sections are the format's for its status, and no host, mail
+ * address or IP address outside its references could be somebody else's.
  */
+import { execFileSync } from 'node:child_process';
 import { existsSync, readFileSync } from 'node:fs';
-import { relative } from 'node:path';
+import { join, relative } from 'node:path';
+import { checkBlockers, cycles, type Graph } from '../src/lib/rfc/graph.ts';
 import { SCOPE } from '../src/lib/rfc/name.ts';
 import {
 	checkPrivate,
@@ -50,9 +52,32 @@ for (const file of files) {
 	else byPlace.set(rank(file), where);
 }
 
-// Only a decided RFC can be superseded, so every status is read before any is checked.
+// What one RFC may name depends on where the others stand, so every front is read first.
 const texts = new Map(files.map((file) => [file.id, readFileSync(file.path, 'utf8')]));
-const statusOf = new Map([...texts].map(([id, text]) => [id, readFront(text).front?.status]));
+const fronts = new Map([...texts].map(([id, text]) => [id, readFront(text).front]));
+const statusOf = (id: string) => fronts.get(id)?.status;
+const graph: Graph = new Map(
+	[...fronts].flatMap(([id, front]) =>
+		front ? [[id, { status: front.status, blockedBy: front['blocked-by'] }] as const] : [],
+	),
+);
+for (const cycle of cycles(graph)) problems.push(`blocked-by makes a cycle: ${cycle.join(' -> ')}`);
+
+/** The repositories beside this one, `workspace` naming the workspace that holds them. */
+const WORKSPACE = join(RFCS, '..', '..');
+const checkout = (repo: string) => (repo === 'workspace' ? WORKSPACE : join(RFCS, '..', repo));
+/** Whether a commit exists, or undefined when its repository is not cloned here to ask. */
+function exists(commit: string): boolean | undefined {
+	const [repo, hash] = commit.split('@') as [string, string];
+	if (!existsSync(join(checkout(repo), '.jj'))) return undefined;
+	const args = ['--ignore-working-copy', '-R', checkout(repo), 'log', '--no-graph', '-r', hash];
+	try {
+		execFileSync('jj', [...args, '-T', '""'], { stdio: 'ignore' });
+		return true;
+	} catch {
+		return false;
+	}
+}
 
 for (const file of files) {
 	const where = relative(RFCS, file.path);
@@ -69,8 +94,11 @@ for (const file of files) {
 		const earlier = byId.get(id);
 		if (!earlier) own.push(`supersedes ${id}, which no RFC holds`);
 		else if (rank(earlier) >= rank(file)) own.push(`supersedes ${id}, which is not earlier`);
-		else if (statusOf.get(id)) own.push(`supersedes ${id}, which is ${statusOf.get(id)}`);
+		else if (statusOf(id) !== 'landed') own.push(`supersedes ${id}, which is ${statusOf(id)}`);
 	}
+	own.push(...checkBlockers(file.id, graph));
+	for (const commit of front?.commits ?? [])
+		if (exists(commit) === false) own.push(`names ${commit}, which its repository does not hold`);
 	problems.push(...own.map((problem) => `${where}: ${problem}`));
 }
 

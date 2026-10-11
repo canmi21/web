@@ -124,6 +124,8 @@
 				<dd class={stylex.attrs(styles.value).class}>
 					{#if data.front.status === 'draft'}
 						<span class={stylex.attrs(styles.draft).class}>Draft</span>, not yet decided
+					{:else if data.front.status === 'accepted'}
+						<span class={stylex.attrs(styles.draft).class}>Accepted</span>, not yet landed
 					{:else if data.front.status === 'declined'}
 						<span class={stylex.attrs(styles.superseded).class}>Declined</span>
 					{:else if data.supersededBy}
@@ -136,12 +138,19 @@
 						<span class={stylex.attrs(styles.inEffect).class}>In effect</span>
 					{/if}
 				</dd>
-				<dt class={stylex.attrs(styles.term).class}>
-					{data.front.status === 'draft' ? 'Filed' : 'Decided'}
-				</dt>
+				<dt class={stylex.attrs(styles.term).class}>Filed</dt>
 				<dd class={stylex.attrs(styles.value).class}>
 					<time datetime={dayOf(data.day)}>{dayOf(data.day)}</time>
 				</dd>
+				{#if data.front['blocked-by'].length > 0}
+					<dt class={stylex.attrs(styles.term).class}>Blocked by</dt>
+					<dd class={stylex.attrs(styles.value).class}>
+						{#each data.front['blocked-by'] as id, index (id)}{index > 0 ? ', ' : ''}<a
+								href={data.paths[id]}
+								class={stylex.attrs(styles.link, styles.mono).class}>{id}</a
+							>{/each}
+					</dd>
+				{/if}
 				{#if data.front.supersedes.length > 0}
 					<dt class={stylex.attrs(styles.term).class}>Supersedes</dt>
 					<dd class={stylex.attrs(styles.value).class}>

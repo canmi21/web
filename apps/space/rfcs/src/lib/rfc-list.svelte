@@ -83,7 +83,7 @@
 				<span>{rfc.scope}</span>
 				<time datetime={dayOf(rfc.day)}>{dayOf(rfc.day)}</time>
 				<span class={stylex.attrs(styles.id).class}>{rfc.id}</span>
-				{#if rfc.status}
+				{#if rfc.status !== 'landed'}
 					<span class={stylex.attrs(styles.status).class}>{rfc.status}</span>
 				{/if}
 				{#if rfc.supersededBy}

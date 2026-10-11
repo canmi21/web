@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { checkPrivate, checkSections, checkStatus, readFront } from './record.ts';
+import { checkPrivate, checkSections, checkStatus, readFront, type Status } from './record.ts';
 
 const file = (front: string, body = '## Question\n\n## Decision\n') =>
 	`---\n${front}\n---\n\n${body}`;
@@ -8,17 +8,18 @@ describe('readFront', () => {
 	it('takes a filled frontmatter as it is', () => {
 		const { front, problems } = readFront(
 			file(
-				'name: A Decision\ntitle: A decision\nsupersedes: [abcde]\nreferences:\n  - url: https://origin.example/\n    took: a shape',
+				'name: A Decision\ntitle: A decision\nstatus: accepted\nsupersedes: [abcde]\nreferences:\n  - url: https://origin.example/\n    took: a shape',
 			),
 		);
 		expect(problems).toEqual([]);
 		expect(front).toMatchObject({ title: 'A decision', supersedes: ['abcde'], commits: [] });
 	});
 
-	it('wants a title and references, even an empty list of them', () => {
+	it('wants a title, a status and references, even an empty list of them', () => {
 		expect(readFront(file('title:')).problems).toEqual([
 			'`name` is missing',
 			'`title` is empty',
+			'`status` is missing',
 			'`references` is missing; write [] for our own idea',
 		]);
 	});
@@ -26,11 +27,11 @@ describe('readFront', () => {
 	it('names every key and value out of form', () => {
 		const { problems } = readFront(
 			file(
-				'name: t\ntitle: t\nstatus: accepted\ncommits: [web]\nreferences:\n  - url: http://origin.example/\n    took: ""',
+				'name: t\ntitle: t\nstatus: done\ncommits: [web]\nreferences:\n  - url: http://origin.example/\n    took: ""',
 			),
 		);
 		expect(problems).toEqual([
-			'`status` is neither draft nor declined',
+			'`status` is not one of draft, accepted, landed, declined',
 			'`commits[0]` is not repo@hash',
 			'`references[0].url` is not an https URL',
 			'`references[0].took` is empty',
@@ -55,7 +56,7 @@ describe('checkSections', () => {
 	it('wants a draft without a decision, and every other status with one', () => {
 		expect(checkSections('## Question\n## Options', 'draft')).toEqual([]);
 		expect(checkSections('## Question\n## Decision', 'draft')).toEqual([
-			'a draft has no `## Decision`; drop `status` when it is decided',
+			'a draft has no `## Decision`; it is `accepted` once decided',
 		]);
 		expect(checkSections('## Question', 'declined')).toEqual(['no `## Decision`']);
 	});
@@ -66,17 +67,21 @@ describe('checkSections', () => {
 });
 
 describe('checkStatus', () => {
-	it('lets only a decided RFC name commits', () => {
-		const front = (status?: 'draft' | 'declined') => ({
-			name: 'A',
-			title: 'a',
-			status,
-			supersedes: [],
-			commits: ['web@0123abc'],
-			references: [],
-		});
-		expect(checkStatus(front())).toEqual([]);
-		expect(checkStatus(front('declined'))).toEqual([
+	const front = (status: Status, commits: string[]) => ({
+		name: 'A',
+		title: 'a',
+		status,
+		supersedes: [],
+		'blocked-by': [],
+		commits,
+		references: [],
+	});
+
+	it('wants a landed RFC to name a commit, and no other to', () => {
+		expect(checkStatus(front('landed', ['web@0123abc']))).toEqual([]);
+		expect(checkStatus(front('accepted', []))).toEqual([]);
+		expect(checkStatus(front('landed', []))).toEqual(['a landed RFC names at least one commit']);
+		expect(checkStatus(front('declined', ['web@0123abc']))).toEqual([
 			'a declined RFC landed nothing, so `commits` is empty',
 		]);
 	});
@@ -100,11 +105,18 @@ describe('checkPrivate', () => {
 
 	it('names a real host, mail domain and address once each', () => {
 		// Joined, so the repository's own URL gate does not read a real address in this file.
-		const url = ['https:', '', 'canmi.app', 'x'].join('/');
-		expect(checkPrivate(`Go to ${url} or canmi.app, mail me@mail.real.org, 10.0.0.4`)).toEqual([
-			'host canmi.app could be real; write a reserved one, as in example.com',
+		const url = ['https:', '', 'shop.real.org', 'x'].join('/');
+		expect(checkPrivate(`Go to ${url} or shop.real.org, mail me@mail.real.org, 10.0.0.4`)).toEqual([
+			'host shop.real.org could be real; write a reserved one, as in example.com',
 			'mail domain mail.real.org could be real; write a reserved one, as in example.com',
 			'address 10.0.0.4 could be real; write a reserved one, as in example.com',
+		]);
+	});
+
+	it("lets the author's own hosts through, though never as a mail domain", () => {
+		const url = ['https:', '', 'cdn.monoflake.com', 'x'].join('/');
+		expect(checkPrivate(`${url}, canmi.app, api.ffoni.com, me@canmi.net`)).toEqual([
+			'mail domain canmi.net could be real; write a reserved one, as in example.com',
 		]);
 	});
 });

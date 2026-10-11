@@ -41,8 +41,8 @@ function read(): Rfc[] {
 			throw new Error(`${path} is out of form; run mise run check-rfc`);
 		rfcs.push({ ...name, scope, front, body: split(text)?.body ?? '' });
 	}
-	// Only a decided RFC supersedes; a draft names what it would. See RFC qp9l1.
-	for (const rfc of rfcs.filter((one) => !one.front.status))
+	// Only a landed RFC supersedes; an open one names what it would. See RFC p992n.
+	for (const rfc of rfcs.filter((one) => one.front.status === 'landed'))
 		for (const id of rfc.front.supersedes) {
 			const earlier = rfcs.find((one) => one.id === id);
 			if (earlier) earlier.supersededBy = rfc.id;

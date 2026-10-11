@@ -14,8 +14,8 @@ const Https = v.pipe(
 const list = <T extends v.GenericSchema<string>>(item: T) =>
 	v.optional(v.array(item, 'is not a list'), []);
 
-/** The two states an RFC may stand in besides decided, which is written as no status at all. */
-export const STATUSES = ['draft', 'declined'] as const;
+/** Where an RFC stands, in the order it moves; see RFC p992n. */
+export const STATUSES = ['draft', 'accepted', 'landed', 'declined'] as const;
 export type Status = (typeof STATUSES)[number];
 
 const Reference = v.strictObject({ url: Https, took: Text, via: v.optional(Https) });
@@ -26,10 +26,12 @@ const FrontSchema = v.strictObject({
 	name: v.pipe(Text, v.maxLength(32, 'is longer than 32 characters')),
 	/** The decision itself, as a sentence. */
 	title: Text,
-	/** Written only while an RFC is not decided, or once it was declined; see RFC qp9l1. */
-	status: v.optional(v.picklist(STATUSES, 'is neither draft nor declined')),
+	/** Where it stands; see RFC p992n. */
+	status: v.picklist(STATUSES, `is not one of ${STATUSES.join(', ')}`),
 	/** Earlier RFCs this one replaces, by id; who replaced an RFC is read off the later one. */
 	supersedes: list(v.pipe(v.string(), v.regex(ID, 'is not an id'))),
+	/** RFCs that must land before this one, by id; what an RFC blocks is read off the others. */
+	'blocked-by': list(v.pipe(v.string(), v.regex(ID, 'is not an id'))),
 	/** `repo@hash` of each commit the decision landed in before the RFC was written. */
 	commits: list(v.pipe(v.string(), v.regex(/^[a-z0-9-]+@[0-9a-f]{7,40}$/, 'is not repo@hash'))),
 	/** Where what it took came from; empty when the idea is our own. */
@@ -110,14 +112,16 @@ export function checkSections(body: string, status?: Status): string[] {
 		problems.push(`sections stand out of order; the order is ${SECTIONS.join(', ')}`);
 	if (!known.includes('Question')) problems.push('no `## Question`');
 	if (status === 'draft' && known.includes('Decision'))
-		problems.push('a draft has no `## Decision`; drop `status` when it is decided');
+		problems.push('a draft has no `## Decision`; it is `accepted` once decided');
 	if (status !== 'draft' && !known.includes('Decision')) problems.push('no `## Decision`');
 	return problems;
 }
 
-/** A draft or a declined RFC landed nothing, so it names no commit. */
+/** A landed RFC names the commits it landed in, and no other names any. */
 export function checkStatus(front: Front): string[] {
-	if (!front.status || front.commits.length === 0) return [];
+	if (front.status === 'landed')
+		return front.commits.length > 0 ? [] : ['a landed RFC names at least one commit'];
+	if (front.commits.length === 0) return [];
 	return [`a ${front.status} RFC landed nothing, so \`commits\` is empty`];
 }
 
@@ -135,7 +139,15 @@ const EXTENSION = new Set(
 	),
 );
 
-/** Every host, mail address and IP address in the text that could be real. */
+/**
+ * The author's own public names and the hosts under them, which may be written as hosts, never as
+ * a mail address; see RFC p992n.
+ */
+const OWN =
+	/^(?:[a-z0-9-]+\.)*(?:canmi\.net|canmi\.app|monoflake\.com|monoflake\.net|ffoni\.com)$/i;
+const allowed = (host: string) => RESERVED.test(host) || OWN.test(host);
+
+/** Every host, mail address and IP address in the text that could be somebody else's. */
 export function checkPrivate(text: string): string[] {
 	const problems: string[] = [];
 	const seen = new Set<string>();
@@ -145,12 +157,12 @@ export function checkPrivate(text: string): string[] {
 		problems.push(`${what} ${value} could be real; write a reserved one, as in example.com`);
 	};
 	for (const [, host] of text.matchAll(/[a-z][a-z0-9+.-]*:\/\/([^/\s:?#)\]>`'"]+)/gi))
-		if (!RESERVED.test(host!) && !DOCUMENTATION.test(host!)) flag('host', host!);
+		if (!allowed(host!) && !DOCUMENTATION.test(host!)) flag('host', host!);
 	for (const [, domain] of text.matchAll(/[\w.+-]+@((?:[a-z0-9-]+\.)+[a-z]{2,63})\b/gi))
 		if (!RESERVED.test(domain!)) flag('mail domain', domain!);
 	for (const [name] of text.matchAll(/(?<![\w@/.:-])(?:[a-z0-9-]+\.)+[a-z]{2,63}(?![\w-])/gi)) {
 		const tld = name.slice(name.lastIndexOf('.') + 1).toLowerCase();
-		if (!EXTENSION.has(tld) && !RESERVED.test(name)) flag('host', name);
+		if (!EXTENSION.has(tld) && !allowed(name)) flag('host', name);
 	}
 	for (const [address] of text.matchAll(/(?<![\w.])\d{1,3}(?:\.\d{1,3}){3}(?![\w.])/g))
 		if (!DOCUMENTATION.test(address)) flag('address', address);
