@@ -32,7 +32,7 @@ which areas exist and which entries are worth reaching for first.
 | [status.md](status.md)   | 1       | what the status page still reads from the frozen kit                 |
 | [plan.md](plan.md)       | 3       | what the milestones leave open                                       |
 | [video.md](video.md)     | 4       | what the video pipeline has not settled                              |
-| [tooling.md](tooling.md) | 4       | the files that describe the repository rather than run it            |
+| [tooling.md](tooling.md) | 5       | the files that describe the repository rather than run it            |
 
 ## Ranking, and what it is not
 

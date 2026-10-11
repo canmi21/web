@@ -1,0 +1,5 @@
+# The areas an RFC is filed under, each named for what it is about and never for the repository it
+# touches. An area is renamed or split by moving its files, since an RFC is found by its id alone
+# and no RFC names an area; the format is RFC 2ut6h's.
+process: how the work is done, and how its decisions are recorded
+design: the design system's tokens, components and layouts

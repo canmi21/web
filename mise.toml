@@ -241,6 +241,14 @@ description = "Type check canmi.app's space, a SvelteKit application of its own"
 dir = "apps/space"
 run = 'pnpm run check ${AUDIT:+--fail-on-warnings}'
 
+[tasks.check-rfc]
+description = "Check that every RFC under rfcs/ is named, filed and written in the format"
+run = "node apps/space/scripts/check-rfc.ts"
+
+[tasks.new-rfc]
+description = "Start an RFC with a fresh id and today's next place: `new-rfc <scope> <slug> [--dry-run]`"
+run = "node apps/space/scripts/new-rfc.ts"
+
 [tasks.check-social]
 description = "Type check the social links row, Svelte components in a library"
 dir = "libs/social"

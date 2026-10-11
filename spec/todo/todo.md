@@ -55,6 +55,10 @@ What [../architecture/space.md](../architecture/space.md) decides and is not bui
   sidebar's head is the way in to finding".
 - **The console and space move onto the design system**: the token contract, then the
   primitives, then each component, the console looking as it did after every step.
+- **The specs are dried to what holds now**, once there are RFCs enough to take the rest: each
+  rule keeps its current value, and why it is so, what was tried and when it was settled move into
+  an RFC -- spec/repository.md, "`rfcs/` keeps why, `spec/` keeps what". Not begun before then,
+  since a reason taken out with nowhere to go is a reason lost.
 
 ## The console's reads move to the backend
 

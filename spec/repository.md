@@ -33,3 +33,12 @@ site's API is made in both.
 
 This repository is `canmi21/lattice` renamed, so its history and its stars stayed with the site.
 The platform and infra continue the same history from the commit the three split at.
+
+## `rfcs/` keeps why, `spec/` keeps what
+
+**A rule here says what is done now; the reasons it was decided that way are an RFC**, one file
+under `rfcs/{scope}/`, published at canmi.app/rfcs. The format, and why there is one, is the first
+of them, RFC 2ut6h. An RFC is cited by its id alone, and found by it, `rfcs/*/*-2ut6h.md`,
+whatever its area and slug became. An RFC is started with
+`mise run new-rfc <scope> <slug>`, which picks its id and its place in the day, and `check-rfc`,
+which `verify` runs on every change, holds every file to the format.

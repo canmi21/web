@@ -65,3 +65,12 @@ that same set rule, and `footnotes`' `.notes-fold:not(...)` whose only declarati
 `mask-image`.
 
 **Declarations are the honest unit here**, because a rule that splits is neither moved nor kept.
+
+## The `check-*` gates might be one `check` taking what to check
+
+`new-rfc` and `check-rfc` are named as the gates beside them are, a verb and its object joined by a
+hyphen, while `new rfc <scope> <slug>` and `check rfc` read as the action they are. Making the
+object an argument means `check`, today the whole-repository type check taking nothing, becomes a
+dispatcher over every `check-*`, and `verify`'s gate table names them anew; the workspace's own
+`check <name>` names a repository, not a gate, so the two would read alike and mean different
+things. Worth deciding with any other reason to rename the gates.
