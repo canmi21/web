@@ -17,11 +17,11 @@ becomes of it when the decision goes against it?
 
 ## Options
 
-| Where an open question's argument goes    | Against it                                                         |
-| ----------------------------------------- | ------------------------------------------------------------------ |
-| An issue in `issues.md`, as now           | The spec grows back the history it was dried of                    |
-| RFCs in place of the issues               | Issues are in every repository, often a line long, some not public |
-| A draft RFC, the issue a line that cites it | One question in two places, joined by its id                     |
+| Where an open question's argument goes      | Against it                                                         |
+| ------------------------------------------- | ------------------------------------------------------------------ |
+| An issue in `issues.md`, as now             | The spec grows back the history it was dried of                    |
+| RFCs in place of the issues                 | Issues are in every repository, often a line long, some not public |
+| A draft RFC, the issue a line that cites it | One question in two places, joined by its id                       |
 
 ## Decision
 

@@ -63,6 +63,8 @@ What [../architecture/space.md](../architecture/space.md) decides and is not bui
   rule keeps its current value, and why it is so, what was tried and when it was settled move into
   an RFC -- spec/repository.md, "`rfcs/` keeps why, `spec/` keeps what". Not begun before then,
   since a reason taken out with nowhere to go is a reason lost.
+- **The RFCs move to a repository of their own**, their format's check with them, the pages in
+  web reading them by path -- RFC 7f4xx, a draft until the move lands.
 - **The issues are dried into draft RFCs**, one at a time as the specs are: an issue whose
   argument is a question of its own becomes a draft, the entry left a line citing it -- RFC qp9l1.
 
