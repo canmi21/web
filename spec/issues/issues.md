@@ -11,6 +11,9 @@ one item at a time, proposed and explicitly accepted before anything is written.
 `agent-protocol.md` says why, and the reason bites hardest on a list like this one, where every
 entry was judged once already by whoever wrote it.
 
+An entry whose argument is a question of its own keeps that argument in a draft RFC and is a line
+citing it -- spec/repository.md, "`rfcs/` keeps why, `spec/` keeps what".
+
 Anyone who finds one adds it. Nobody works an entry as a side effect of the work that found it. An
 entry that is decided leaves this list: for [../todo/todo.md](../todo/todo.md) if it is work, or
 for a rule in an ordinary file if deciding it was all of it.

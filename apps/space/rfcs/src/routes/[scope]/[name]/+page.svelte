@@ -60,6 +60,7 @@
 		value: { color: 'var(--foreground-default)' },
 		mono: { fontFamily: 'var(--font-mono)', fontSize: fontSize.label },
 		inEffect: { color: 'var(--status-success)' },
+		draft: { color: 'var(--status-info)' },
 		superseded: { color: 'var(--status-warning)' },
 		link: {
 			color: 'var(--foreground-strong)',
@@ -121,7 +122,11 @@
 			<dl class={stylex.attrs(styles.facts).class}>
 				<dt class={stylex.attrs(styles.term).class}>Status</dt>
 				<dd class={stylex.attrs(styles.value).class}>
-					{#if data.supersededBy}
+					{#if data.front.status === 'draft'}
+						<span class={stylex.attrs(styles.draft).class}>Draft</span>, not yet decided
+					{:else if data.front.status === 'declined'}
+						<span class={stylex.attrs(styles.superseded).class}>Declined</span>
+					{:else if data.supersededBy}
 						<span class={stylex.attrs(styles.superseded).class}>Superseded</span> by
 						<a
 							href={data.paths[data.supersededBy]}
@@ -131,7 +136,9 @@
 						<span class={stylex.attrs(styles.inEffect).class}>In effect</span>
 					{/if}
 				</dd>
-				<dt class={stylex.attrs(styles.term).class}>Decided</dt>
+				<dt class={stylex.attrs(styles.term).class}>
+					{data.front.status === 'draft' ? 'Filed' : 'Decided'}
+				</dt>
 				<dd class={stylex.attrs(styles.value).class}>
 					<time datetime={dayOf(data.day)}>{dayOf(data.day)}</time>
 				</dd>

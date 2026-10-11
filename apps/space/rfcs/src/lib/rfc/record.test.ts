@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { checkPrivate, checkSections, readFront } from './record.ts';
+import { checkPrivate, checkSections, checkStatus, readFront } from './record.ts';
 
 const file = (front: string, body = '## Question\n\n## Decision\n') =>
 	`---\n${front}\n---\n\n${body}`;
@@ -30,10 +30,10 @@ describe('readFront', () => {
 			),
 		);
 		expect(problems).toEqual([
+			'`status` is neither draft nor declined',
 			'`commits[0]` is not repo@hash',
 			'`references[0].url` is not an https URL',
 			'`references[0].took` is empty',
-			'`status` is not a key the format has',
 		]);
 	});
 });
@@ -52,8 +52,33 @@ describe('checkSections', () => {
 		expect(checkSections('## Question')).toEqual(['no `## Decision`']);
 	});
 
+	it('wants a draft without a decision, and every other status with one', () => {
+		expect(checkSections('## Question\n## Options', 'draft')).toEqual([]);
+		expect(checkSections('## Question\n## Decision', 'draft')).toEqual([
+			'a draft has no `## Decision`; drop `status` when it is decided',
+		]);
+		expect(checkSections('## Question', 'declined')).toEqual(['no `## Decision`']);
+	});
+
 	it('reads no heading inside fenced code', () => {
 		expect(checkSections('## Question\n```md\n## Why\n```\n## Decision')).toEqual([]);
+	});
+});
+
+describe('checkStatus', () => {
+	it('lets only a decided RFC name commits', () => {
+		const front = (status?: 'draft' | 'declined') => ({
+			name: 'A',
+			title: 'a',
+			status,
+			supersedes: [],
+			commits: ['web@0123abc'],
+			references: [],
+		});
+		expect(checkStatus(front())).toEqual([]);
+		expect(checkStatus(front('declined'))).toEqual([
+			'a declined RFC landed nothing, so `commits` is empty',
+		]);
 	});
 });
 

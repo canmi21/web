@@ -41,7 +41,8 @@ function read(): Rfc[] {
 			throw new Error(`${path} is out of form; run mise run check-rfc`);
 		rfcs.push({ ...name, scope, front, body: split(text)?.body ?? '' });
 	}
-	for (const rfc of rfcs)
+	// Only a decided RFC supersedes; a draft names what it would. See RFC qp9l1.
+	for (const rfc of rfcs.filter((one) => !one.front.status))
 		for (const id of rfc.front.supersedes) {
 			const earlier = rfcs.find((one) => one.id === id);
 			if (earlier) earlier.supersededBy = rfc.id;
@@ -62,6 +63,7 @@ export const summaryOf = ({ scope, day, order, slug, id, front, supersededBy }: 
 	slug,
 	id,
 	title: front.title,
+	status: front.status,
 	supersededBy,
 });
 

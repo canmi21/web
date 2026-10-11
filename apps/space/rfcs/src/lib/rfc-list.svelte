@@ -1,7 +1,7 @@
 <script lang="ts">
 	/**
 	 * RFCs on a card, under a title and a sentence: each its decision as a link, then its area,
-	 * its day and its id; one replaced by a later RFC says so.
+	 * its day and its id; a draft, a declined one, and one replaced by a later RFC say so.
 	 */
 	import * as stylex from '@stylexjs/stylex';
 	import { resolve } from '$app/paths';
@@ -65,6 +65,7 @@
 			color: 'var(--foreground-subtle)',
 		},
 		id: { fontFamily: 'var(--font-mono)' },
+		status: { color: 'var(--status-info)' },
 		superseded: { color: 'var(--status-warning)' },
 		empty: { padding: '1rem 1.25rem', color: 'var(--foreground-muted)' },
 	});
@@ -82,6 +83,9 @@
 				<span>{rfc.scope}</span>
 				<time datetime={dayOf(rfc.day)}>{dayOf(rfc.day)}</time>
 				<span class={stylex.attrs(styles.id).class}>{rfc.id}</span>
+				{#if rfc.status}
+					<span class={stylex.attrs(styles.status).class}>{rfc.status}</span>
+				{/if}
 				{#if rfc.supersededBy}
 					<span class={stylex.attrs(styles.superseded).class}>superseded by {rfc.supersededBy}</span
 					>

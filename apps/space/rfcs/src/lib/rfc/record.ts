@@ -14,6 +14,10 @@ const Https = v.pipe(
 const list = <T extends v.GenericSchema<string>>(item: T) =>
 	v.optional(v.array(item, 'is not a list'), []);
 
+/** The two states an RFC may stand in besides decided, which is written as no status at all. */
+export const STATUSES = ['draft', 'declined'] as const;
+export type Status = (typeof STATUSES)[number];
+
 const Reference = v.strictObject({ url: Https, took: Text, via: v.optional(Https) });
 
 /** The frontmatter as the format writes it; see RFC 2ut6h. */
@@ -22,6 +26,8 @@ const FrontSchema = v.strictObject({
 	name: v.pipe(Text, v.maxLength(32, 'is longer than 32 characters')),
 	/** The decision itself, as a sentence. */
 	title: Text,
+	/** Written only while an RFC is not decided, or once it was declined; see RFC qp9l1. */
+	status: v.optional(v.picklist(STATUSES, 'is neither draft nor declined')),
 	/** Earlier RFCs this one replaces, by id; who replaced an RFC is read off the later one. */
 	supersedes: list(v.pipe(v.string(), v.regex(ID, 'is not an id'))),
 	/** `repo@hash` of each commit the decision landed in before the RFC was written. */
@@ -33,9 +39,11 @@ const FrontSchema = v.strictObject({
 export type Front = v.InferOutput<typeof FrontSchema>;
 export type Reference = v.InferOutput<typeof Reference>;
 
-/** The body's sections, in the only order they may stand; the first and last are required. */
+/**
+ * The body's sections, in the only order they may stand; the first and last are required, except
+ * that a draft has no decision yet.
+ */
 export const SECTIONS = ['Question', 'Options', 'Evidence', 'Decision'] as const;
-const REQUIRED = new Set(['Question', 'Decision']);
 
 /** Split a file into its frontmatter's text and its body. */
 export function split(text: string): { yaml: string; body: string } | undefined {
@@ -89,8 +97,8 @@ export function sections(body: string): string[] {
 	return found;
 }
 
-/** Every way a body's sections stray from the four, their order, or the two it must have. */
-export function checkSections(body: string): string[] {
+/** Every way a body's sections stray from the four, their order, or the ones its status asks. */
+export function checkSections(body: string, status?: Status): string[] {
 	const found = sections(body);
 	const problems: string[] = [];
 	for (const name of found)
@@ -100,8 +108,17 @@ export function checkSections(body: string): string[] {
 	const order = known.map((name) => SECTIONS.indexOf(name as (typeof SECTIONS)[number]));
 	if (order.some((at, index) => index > 0 && at <= order[index - 1]!))
 		problems.push(`sections stand out of order; the order is ${SECTIONS.join(', ')}`);
-	for (const name of REQUIRED) if (!known.includes(name)) problems.push(`no \`## ${name}\``);
+	if (!known.includes('Question')) problems.push('no `## Question`');
+	if (status === 'draft' && known.includes('Decision'))
+		problems.push('a draft has no `## Decision`; drop `status` when it is decided');
+	if (status !== 'draft' && !known.includes('Decision')) problems.push('no `## Decision`');
 	return problems;
+}
+
+/** A draft or a declined RFC landed nothing, so it names no commit. */
+export function checkStatus(front: Front): string[] {
+	if (!front.status || front.commits.length === 0) return [];
+	return [`a ${front.status} RFC landed nothing, so \`commits\` is empty`];
 }
 
 /**

@@ -1,7 +1,8 @@
 /**
- * `new-rfc <name> <scope> [--dry-run]`: start an RFC from its name in title case, its slug the
- * name's words in lowercase, with an id no other holds and the next place in today's order, so
- * nobody picks any of them by hand. Prints the file it wrote.
+ * `new-rfc <name> <scope> [--draft] [--dry-run]`: start an RFC from its name in title case, its
+ * slug the name's words in lowercase, with an id no other holds and the next place in today's
+ * order, so nobody picks any of them by hand; `--draft` starts one before its decision, as RFC
+ * qp9l1 has it. Prints the file it wrote.
  */
 import { mkdirSync, writeFileSync } from 'node:fs';
 import { dirname, join, relative } from 'node:path';
@@ -10,11 +11,12 @@ import { RFCS, ROOT, rfcFiles, scopes } from './rfc-files.ts';
 
 const args = process.argv.slice(2);
 const dryRun = args.includes('--dry-run');
-const [name, scope] = args.filter((arg) => arg !== '--dry-run');
+const draft = args.includes('--draft');
+const [name, scope] = args.filter((arg) => !arg.startsWith('--'));
 const slug = slugOf(name ?? '');
 
 if (!name || !scope || !SCOPE.test(scope) || !SLUG.test(slug) || name.trim().length > 32) {
-	console.error('usage: mise run new-rfc <name> <scope> [--dry-run]');
+	console.error('usage: mise run new-rfc <name> <scope> [--draft] [--dry-run]');
 	console.error('  the name in title case, at most 32 characters; the scope an area, e.g.');
 	console.error('  mise run new-rfc "Hue Pairs" design');
 	process.exit(2);
@@ -38,16 +40,14 @@ const path = join(RFCS, scope, formatName({ day, order, slug, id }));
 
 const TEMPLATE = `---
 name: ${JSON.stringify(name.trim())}
-title:
+title:${draft ? '\nstatus: draft' : ''}
 supersedes: []
 commits: []
 references: []
 ---
 
 ## Question
-
-## Decision
-`;
+${draft ? '' : '\n## Decision\n'}`;
 
 if (dryRun) console.log(`would write ${relative(ROOT, path)}`);
 else {
