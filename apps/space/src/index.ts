@@ -35,9 +35,11 @@ app.get('/:mark', (c, next) => {
 	return followSymlink(symlinkOf(pickUrls(c.env.DEV === '1').symlink, 'space', mark));
 });
 
-for (const [segment, binding] of Object.entries(PARTS)) {
+for (const [segment, part] of Object.entries(PARTS)) {
 	const send = (c: { env: Env['Bindings']; req: { raw: Request } }) =>
-		c.env[binding].fetch(c.req.raw);
+		'development' in part && c.env.DEV !== '1'
+			? new Response('Not Found', { status: 404 })
+			: c.env[part.binding].fetch(c.req.raw);
 	app.all(`/${segment}`, send);
 	app.all(`/${segment}/*`, send);
 }

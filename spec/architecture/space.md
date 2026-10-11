@@ -31,7 +31,9 @@ drawn with; decided with the author on 2026-10-11.
 
 **The RFCs' pages are slop until the design system settles**: a consumer of the system and never a
 voice in deciding it, drawn however serves for now -- a page that looks wrong is no defect -- and
-not published. What they are made of is migrated onto the system once it stands, rather than
+not published: the router reaches them in development alone, and a rule's citation of one, drawn
+by `@canmi/space-ui`'s `rfc-ref.svelte`, is a link there and the id as words elsewhere -- RFC
+43im3. What they are made of is migrated onto the system once it stands, rather than
 reworked while it is still being decided, since each would wait on the other. Decided with the
 author on 2026-10-11.
 

@@ -23,7 +23,7 @@
 
 <!-- The design system's frame; see spec/architecture/space.md. -->
 <Shell label="Space" density="compact" span="bar">
-	{#snippet corner()}<PartSwitch part="rfcs" />{/snippet}
+	{#snippet corner()}<PartSwitch part="rfcs" {dev} />{/snippet}
 	{#snippet nav()}
 		<PagesNav groups={level.groups} up={level.up} label="RFCs" path={page.url.pathname} />
 	{/snippet}

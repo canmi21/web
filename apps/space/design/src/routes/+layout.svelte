@@ -22,7 +22,7 @@
 
 <!-- See spec/architecture/space.md, "The shell is the console's". -->
 <Shell label="Space" density="compact" span="bar">
-	{#snippet corner()}<PartSwitch part="design" />{/snippet}
+	{#snippet corner()}<PartSwitch part="design" {dev} />{/snippet}
 	{#snippet nav()}<PagesNav groups={GROUPS} label="Design" path={page.url.pathname} />{/snippet}
 	{#snippet start()}<Sections />{/snippet}
 	{#snippet end()}

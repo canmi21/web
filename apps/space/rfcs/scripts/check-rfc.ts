@@ -27,6 +27,7 @@ const rank = (file: (typeof files)[number]) => `${file.day}-${String(file.order)
 
 for (const file of files) {
 	const where = relative(ROOT, file.path);
+	if (areas.has(file.id)) problems.push(`${where}: id ${file.id} is also an area's name`);
 	const holder = byId.get(file.id);
 	if (holder) problems.push(`${where}: id ${file.id} is also ${relative(ROOT, holder.path)}'s`);
 	else byId.set(file.id, file);

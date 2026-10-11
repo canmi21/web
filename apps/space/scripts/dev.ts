@@ -63,7 +63,7 @@ const context = await esbuild.context({
 									env: {
 										DEV: { type: 'text', value: '1' },
 										...Object.fromEntries(
-											Object.entries(PARTS).map(([part, binding]) => [
+											Object.entries(PARTS).map(([part, { binding }]) => [
 												binding,
 												bound(PORTS[part as keyof typeof PARTS]),
 											]),

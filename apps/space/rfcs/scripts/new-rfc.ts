@@ -32,7 +32,8 @@ const { files } = rfcFiles();
 const day = today();
 const order =
 	Math.max(0, ...files.filter((file) => file.day === day).map((file) => file.order)) + 1;
-const id = newId(new Set(files.map((file) => file.id)));
+// An area's name is kept from the ids, since an id stands where an area's name does in a citation.
+const id = newId(new Set([...files.map((file) => file.id), ...areas.keys()]));
 const path = join(RFCS, scope, formatName({ day, order, slug, id }));
 
 const TEMPLATE = `---
