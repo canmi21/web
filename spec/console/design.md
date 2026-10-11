@@ -310,16 +310,17 @@ the top had been 27, the foot 24.5, the title to the rows 25.5. Decided with the
 ## A card's point runs on from its rule
 
 **A card that points at what it is about -- the map's card at its mark, the timeline's tip at its
-slot -- does it with one point, `lib/design/point.svelte`**: a triangle of the card's rule, and
-over it a triangle of the card's ground standing in by the rule's width, both from the card's
-inner edge, the ground's reaching a pixel into the card to cover the rule across the opening. The
-slanted sides run on from the card's rule with no step at the joint. **The rule's width is read
-off the card as the browser drew it**, since the browser snaps a rule to whole device pixels --
-one at 1.8x, two at 2x -- and a width written once would be right on one screen only; the slant
-takes half a device pixel more, because a slanted line smoothed over its neighbors reads thinner
-than a straight one as wide. A square turned a quarter with two sides ruled, as the map's card had
-first, sat its corners on the rule's inner edge and stood a pixel proud of it at the joint, and
-its slanted rule read thin. Decided with the author on 2026-10-10.
+slot -- does it with one point, `@canmi/design/components/point.svelte`**, now lib's -- its
+spec/design/components.md, "A card's point runs on from its rule" -- and drawn as it was here: a
+triangle of the card's rule, and over it a triangle of the card's ground standing in by the rule's
+width, both from the card's inner edge, the ground's reaching a pixel into the card to cover the
+rule across the opening. The slanted sides run on from the card's rule with no step at the joint.
+**The rule's width is read off the card as the browser drew it**, since the browser snaps a rule to
+whole device pixels -- one at 1.8x, two at 2x -- and a width written once would be right on one
+screen only; the slant takes half a device pixel more, because a slanted line smoothed over its
+neighbors reads thinner than a straight one as wide. A square turned a quarter with two sides ruled,
+as the map's card had first, sat its corners on the rule's inner edge and stood a pixel proud of it
+at the joint, and its slanted rule read thin. Decided with the author on 2026-10-10.
 
 ## A surface the pointer opened holds the pointer
 

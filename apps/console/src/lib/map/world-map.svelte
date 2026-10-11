@@ -21,7 +21,7 @@
 	import { prefer } from '../ui/preference.ts';
 	import Bridge from '../design/bridge.svelte';
 	import { Held } from '../design/held.ts';
-	import Point from '../design/point.svelte';
+	import Point from '@canmi/design/components/point.svelte';
 	import PlaceCard from './place-card.svelte';
 	import { gather, nameOf, nodeLabel, PLACES } from './places.ts';
 

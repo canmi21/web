@@ -71,7 +71,8 @@ the sidebar and the top bar both read.
 
 **The top bar names the layers, not the page.** Foundations, Primitives, Components and Layouts
 follow Design as plain links, left-aligned, in the order each stands on the one before, the layer
-holding the page being read in the strong tone; a layer with no page yet is named and not linked.
+holding the page being read in the strong tone; a layer with no page yet is named and not linked,
+in the subtle tone, the pointer over it showing `not-allowed`.
 Where a page is is the sidebar's to show, so the top bar carries no trail.
 
 **A group's heading is half a link tall**, so the sidebar's list keeps its rhythm in half steps,
@@ -85,10 +86,12 @@ bar's surface in either theme, its keys back on the surface and its hover `stron
 space's sidebar and bar with the author on 2026-10-11, then made the contract's.
 
 **A specimen may hold both themes at once.** The color page draws each hue as two capsules, the
-light's value then the dark's; the wells follow the page's theme and only each hue is a `ThemeScope`
+dark's value then the light's; the wells follow the page's theme and only each hue is a `ThemeScope`
 of its own theme, so a reader in either theme sees both and nothing is written twice -- lib's
 `spec/design/components.md`, "A theme scope". What a specimen is called stands outside its scopes,
-in the page's theme.
+in the page's theme. A capsule is a button that copies its token as `var(--token)`, ready to
+paste into code: the pointer over it shows `copy`, and a click ticks it in white for 1.2 seconds,
+each tick on its own clock so several may stand at once.
 
 ## Specimens are laid on paper
 

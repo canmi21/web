@@ -304,8 +304,8 @@ importers:
         specifier: workspace:*
         version: link:../../libs/addresses
       '@canmi/design':
-        specifier: ^2026.1011.6
-        version: 2026.1011.6(@stylexjs/stylex@0.19.1)(@tabler/icons-svelte-runes@3.49.0(svelte@5.57.1))(svelte@5.57.1)
+        specifier: ^2026.1011.7
+        version: 2026.1011.7(@stylexjs/stylex@0.19.1)(@tabler/icons-svelte-runes@3.49.0(svelte@5.57.1))(svelte@5.57.1)
       '@canmi/fonts':
         specifier: workspace:*
         version: link:../../libs/fonts
@@ -760,8 +760,8 @@ importers:
   apps/space:
     devDependencies:
       '@canmi/design':
-        specifier: ^2026.1011.6
-        version: 2026.1011.6(@stylexjs/stylex@0.19.1)(@tabler/icons-svelte-runes@3.49.0(svelte@5.57.1))(svelte@5.57.1)
+        specifier: ^2026.1011.7
+        version: 2026.1011.7(@stylexjs/stylex@0.19.1)(@tabler/icons-svelte-runes@3.49.0(svelte@5.57.1))(svelte@5.57.1)
       '@canmi/fonts':
         specifier: workspace:*
         version: link:../../libs/fonts
@@ -1363,8 +1363,8 @@ packages:
   '@bytecodealliance/preview3-shim@0.6.1':
     resolution: {integrity: sha512-61mEfjfgGmZhEMA0H3waawPKvYd3za9y0vJ7pmQz/9yvm4FR6Ef+cmqhnxDE7ezsM07MY1btP92ymmgsgFwxmg==}
 
-  '@canmi/design@2026.1011.6':
-    resolution: {integrity: sha512-l61W0A3oQWp9NtvHObfTgqIlOf1A2XgH2jj8Two0sykJzfjPepYrUEtD7BLQTbUPzKHcy4z4O8s7gUdTWFTEOA==}
+  '@canmi/design@2026.1011.7':
+    resolution: {integrity: sha512-+a326XV1zr6QplEgYcPYXJ+YygzGL5TOXwb6fkM6NJrHfXmKq0SSScI7q4twfFTkPzd6Zxuzv1IogqJl/fyV6w==}
     peerDependencies:
       '@stylexjs/stylex': ^0.19.1
       '@tabler/icons-svelte-runes': ^3.49.0
@@ -5929,7 +5929,7 @@ snapshots:
       '@bytecodealliance/jco-node-fs': 0.3.2
       '@bytecodealliance/preview2-shim': 0.25.0
 
-  '@canmi/design@2026.1011.6(@stylexjs/stylex@0.19.1)(@tabler/icons-svelte-runes@3.49.0(svelte@5.57.1))(svelte@5.57.1)':
+  '@canmi/design@2026.1011.7(@stylexjs/stylex@0.19.1)(@tabler/icons-svelte-runes@3.49.0(svelte@5.57.1))(svelte@5.57.1)':
     optionalDependencies:
       '@stylexjs/stylex': 0.19.1
       '@tabler/icons-svelte-runes': 3.49.0(svelte@5.57.1)

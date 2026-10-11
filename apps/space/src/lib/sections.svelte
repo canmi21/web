@@ -20,7 +20,7 @@
 			transitionDuration: duration.base,
 		},
 		current: { color: 'var(--foreground-strong)' },
-		absent: { color: 'var(--foreground-subtle)', cursor: 'default' },
+		absent: { color: 'var(--foreground-subtle)', cursor: 'not-allowed' },
 	});
 
 	/** The layer whose group lists the page being read. */

@@ -51,7 +51,7 @@
 	import RocketIcon from '@tabler/icons-svelte-runes/icons/rocket';
 	import Icon from '@canmi/design/components/icon.svelte';
 	import Bridge from '../design/bridge.svelte';
-	import Point from '../design/point.svelte';
+	import Point from '@canmi/design/components/point.svelte';
 	import { heightBeside } from '@canmi/design/components/icon';
 	import Flag from '../map/flag.svelte';
 	import { type } from '../style.ts';
