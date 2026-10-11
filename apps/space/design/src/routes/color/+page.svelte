@@ -2,13 +2,15 @@
 	/**
 	 * The system's hues on a card, under a title and a sentence: each hue a pair of capsules, the
 	 * dark's then the light's, the wells in the page's theme and each hue held in its own. A capsule
-	 * is named by its tip and copies its token as code reads it.
+	 * is named by its tip and copies its token as code reads it; the card cites the RFC behind it.
 	 */
 	import * as stylex from '@stylexjs/stylex';
 	import { borderWidth, fontWeight, lineHeight, radius } from '@canmi/design/scale.stylex';
 	import Icon from '@canmi/design/components/icon.svelte';
 	import ThemeScope from '@canmi/design/components/theme-scope.svelte';
 	import Tooltip from '@canmi/design/components/tooltip.svelte';
+	import RfcRef from '@canmi/space-ui/rfc-ref.svelte';
+	import { dev } from '$app/env';
 	import CheckIcon from '@tabler/icons-svelte-runes/icons/check';
 	import { SvelteMap } from 'svelte/reactivity';
 
@@ -188,7 +190,7 @@
 	<header class={stylex.attrs(styles.head).class}>
 		<h2 class={stylex.attrs(styles.title).class}>Hues</h2>
 		<p class={stylex.attrs(styles.sentence).class}>
-			Each at its purest, the dark's then the light's, a step lighter.
+			Each at its purest, the dark's then the light's, a step lighter. <RfcRef id="b0i0r" {dev} />
 		</p>
 	</header>
 	<div class={stylex.attrs(styles.body).class}>
