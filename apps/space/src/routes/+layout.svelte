@@ -2,8 +2,11 @@
 	import type { Snippet } from 'svelte';
 	import { dev } from '$app/env';
 	import { discloseGlobals, disclosureHead } from '@canmi/web/disclose';
-	import Sidebar from '#lib/sidebar.svelte';
-	import TopBar from '#lib/top-bar.svelte';
+	import Shell from '@canmi/design/layouts/shell.svelte';
+	import PagesNav from '#lib/pages-nav.svelte';
+	import SearchField from '#lib/search-field.svelte';
+	import ThemeSwitch from '#lib/theme-switch.svelte';
+	import Trail from '#lib/trail.svelte';
 	import '@canmi/fonts/mono.css';
 	import '../app.css';
 
@@ -35,15 +38,12 @@
 	{@html disclosureHead(disclosure)}
 </svelte:head>
 
-<!-- Three fixed regions where there is room, and only the page scrolls, as the console's do; one
-     column that scrolls whole where there is not. -->
-<Sidebar />
-<TopBar />
-<main
-	id="content"
-	class="md:fixed md:top-14 md:right-0 md:bottom-0 md:left-60 md:overflow-y-auto md:overscroll-contain"
->
-	<div class="mx-auto flex w-full max-w-[90rem] flex-col px-8 pt-8 pb-12">
-		{@render children()}
-	</div>
-</main>
+<!-- The console's frame, from @canmi/design; see spec/architecture/space.md, "The shell is the
+     console's". -->
+<Shell label="Space">
+	{#snippet head()}<SearchField />{/snippet}
+	{#snippet nav()}<PagesNav />{/snippet}
+	{#snippet start()}<Trail />{/snippet}
+	{#snippet end()}<ThemeSwitch />{/snippet}
+	{@render children()}
+</Shell>

@@ -10,9 +10,14 @@
 	import { trackFocusSource } from '@canmi/kit/behavior/focus-source';
 	import { discloseGlobals, disclosureHead } from '@canmi/web/disclose';
 	import { CLIENT_TITLE, pageOf, statusText } from '@canmi/web/error';
-	import Sidebar from '#lib/design/sidebar.svelte';
+	import Account from '#lib/design/account.svelte';
+	import BarEnd from '#lib/design/bar-end.svelte';
+	import SearchField from '#lib/design/search-field.svelte';
+	import SidebarPages from '#lib/design/sidebar-pages.svelte';
 	import SkipLink from '#lib/design/skip-link.svelte';
-	import TopBar from '#lib/design/top-bar.svelte';
+	import Switcher from '#lib/design/switcher.svelte';
+	import Trail from '#lib/design/trail.svelte';
+	import Shell from '@canmi/design/layouts/shell.svelte';
 	import { provideActions } from '#lib/ui/actions.svelte.js';
 	import { goTo, holdTag, keepPlace, placeIn, placeOf, placeTag } from '#lib/ui/place.js';
 	import { setTimeZone, settle } from '#lib/ui/time-zone.js';
@@ -147,19 +152,15 @@
 
 <!-- Three fixed regions, and only the page scrolls. See spec/architecture/console.md. -->
 <SkipLink />
-<Sidebar {level} {live} nearest={data.nearest} />
-<TopBar {view} section={level.section} trail={level.trail} actions={actions.current} />
-<main
-	id="content"
-	tabindex="-1"
-	bind:this={scroller}
-	onscroll={moved}
-	class="fixed top-14 right-0 bottom-0 left-60 overflow-y-auto overscroll-contain"
->
-	<div class="mx-auto flex w-full max-w-[90rem] flex-col gap-6 px-8 pt-8 pb-12">
-		{@render children()}
-	</div>
-</main>
+<Shell label="Console" bind:main={scroller} onscroll={moved}>
+	{#snippet head()}<SearchField />{/snippet}
+	{#snippet nav()}<SidebarPages {level} />{/snippet}
+	{#snippet foot()}<Account {live} nearest={data.nearest} />{/snippet}
+	{#snippet start()}<Switcher {view} section={level.section} />{/snippet}
+	{#snippet center()}<Trail trail={level.trail} />{/snippet}
+	{#snippet end()}<BarEnd actions={actions.current} />{/snippet}
+	{@render children()}
+</Shell>
 <!-- A reload at its place before the first frame, which the hydrated page would reach a frame
      late; see src/lib/ui/place.ts. Run as the document is parsed, never again. -->
 {@html placeTag}

@@ -14,8 +14,8 @@ html {
 }
 
 @layer base {
-	/* Where the regions are fixed, the document itself never scrolls: only the page's main region
-	   does. */
+	/* Where the shell's regions are fixed, the document itself never scrolls: only the page's
+	   region does. */
 	@media (width >= 48rem) {
 		html,
 		body {

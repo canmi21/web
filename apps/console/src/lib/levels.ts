@@ -4,7 +4,7 @@
  * top bar writes, so the shell is drawn from one answer. A record with a page and nothing under it
  * -- a run -- is no level, and keeps the level it was opened from. See spec/console/navigation.md.
  */
-import type { Component } from 'svelte';
+import type { IconComponent } from '@canmi/design/components/icon';
 import ActivityIcon from '@tabler/icons-svelte-runes/icons/activity';
 import ChartLineIcon from '@tabler/icons-svelte-runes/icons/chart-line';
 import DatabaseIcon from '@tabler/icons-svelte-runes/icons/database';
@@ -21,7 +21,7 @@ import { type Section, sectionOf, sectionsIn } from './sections.ts';
 export interface Item {
 	readonly key: string;
 	readonly label: string;
-	readonly icon: Component<{ size?: number; stroke?: number }>;
+	readonly icon: IconComponent;
 	readonly href: string;
 }
 

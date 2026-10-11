@@ -1,5 +1,4 @@
 import * as stylex from '@stylexjs/stylex';
-import { borderWidth } from '@canmi/design/scale.stylex';
 import { border, family, figures, radius, text, weight } from '@canmi/kit/tokens/vocabulary.stylex';
 
 /**
@@ -7,14 +6,7 @@ import { border, family, figures, radius, text, weight } from '@canmi/kit/tokens
  * border and radius here, where a thing sits in the markup. See spec/architecture/css/layers.md.
  */
 export const surfaces = stylex.create({
-	/** The sidebar, on the ground and ruled off from the page a step fainter than a card is. */
-	sidebar: {
-		backgroundColor: 'var(--background-base)',
-		borderRightWidth: borderWidth.hairline,
-		borderRightStyle: 'solid',
-		borderRightColor: 'var(--border-subtle)',
-	},
-	/** The top bar, ruled off as the sidebar is. */
+	/** A bar ruled off from what is under it, on the ground. */
 	bar: {
 		backgroundColor: 'var(--color-ground)',
 		borderBottomWidth: border.hairlinePx,

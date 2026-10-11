@@ -7,11 +7,17 @@ import tailwindcss from '@tailwindcss/vite';
 import { defineConfig } from 'vite';
 import { pickUrls } from '@monoflake/sdk';
 import { buildDefine } from '@canmi/web/build';
+import { pluginOptions, sourcemapSetting, uploadsSourceMaps } from '@canmi/web/sentry/build';
+import { sentrySvelteKit } from '@sentry/sveltekit/vite';
 
 // The repository root, as the site and the console set it: StyleX hashes a class from the file's
 // path relative to this.
 const ROOT = fileURLToPath(new URL('../../', import.meta.url));
 
+// Sentry's plugin hands its browser half the `$app/state` tracing SvelteKit 3 needs, as the
+// console's does; maps upload only with a token. See spec/architecture/space.md, "Errors are the
+// console's".
+const upload = uploadsSourceMaps(process.env);
 const stylexPlugin = stylex({
 	useCSSLayers: true,
 	unstable_moduleResolution: { type: 'commonJS', rootDir: ROOT },
@@ -35,6 +41,14 @@ export default defineConfig(({ mode }) => ({
 			},
 		},
 		tailwindcss(),
+		sentrySvelteKit(
+			pluginOptions({
+				project: 'space',
+				upload,
+				env: process.env,
+				mapsToDelete: ['.svelte-kit/output/**/*.map'],
+			}),
+		),
 		sveltekit({
 			preprocess: vitePreprocess(),
 			compilerOptions: { runes: true },
@@ -53,6 +67,7 @@ export default defineConfig(({ mode }) => ({
 	],
 	build: {
 		target: 'es2023',
+		sourcemap: sourcemapSetting(upload),
 		rollupOptions: { output: { hashCharacters: 'hex' } },
 	},
 }));

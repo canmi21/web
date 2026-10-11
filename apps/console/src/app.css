@@ -60,11 +60,14 @@ html {
 /* What carries no class: the document, the scrollbars, and a table's elements, which
    are too many to class one by one. Written to lose to anything a component says. */
 @layer base {
-	/* The page does not scroll: only the console's main region does. */
-	html,
-	body {
-		overflow: hidden;
-		overscroll-behavior: none;
+	/* Where the shell's regions are fixed, the document does not scroll: only the page's region
+	   does. Narrower, the shell is one column and the document scrolls it. */
+	@media (width >= 48rem) {
+		html,
+		body {
+			overflow: hidden;
+			overscroll-behavior: none;
+		}
 	}
 
 	/* A reload finding its place, for the moment before the offset is set: src/lib/ui/place.ts. */

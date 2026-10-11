@@ -30,7 +30,7 @@ around a reader's credentials, which no static build can.
 same for every reader goes into the Cache API, and a reader's credentials stay in the request that
 carries them.
 
-## The design system: three layers, and a style across them
+## The design system: its layers, and a style across them
 
 What space's `/design` shows, drawn from the code itself and never a picture of it:
 
@@ -38,7 +38,11 @@ What space's `/design` shows, drawn from the code itself and never a picture of 
   technology is told, drawing nothing. There is one set, and every component stands on it.
 - **Components** bind a primitive and draw it, taking its accessibility with it. They are the
   units an interface is made of.
-- **An interface** is components put together: a sidebar, a top bar, a page. It is an app's own.
+- **Layouts** frame a whole page: which regions stand where, which one scrolls, how they stack on
+  a narrow screen. A component may be put anywhere; a layout holds the viewport and is put inside
+  nothing -- lib's `spec/design/layouts.md`.
+- **An interface** is what an app puts in a layout's places: its own pages, its sidebar's links,
+  its top bar's trail. It is the app's own.
 
 **A style is two things, kept apart.** Its colors are values given to one contract of semantic
 names -- lib's `spec/design/styles.md` holds the names and how one is made -- and light and dark are
@@ -58,12 +62,20 @@ move them -- [../issues/site.md](../issues/site.md) and [../issues/cms.md](../is
 
 ## The shell is the console's
 
-Three fixed regions where there is room -- the sidebar down the left, the top bar across, and the
-page between them, which alone scrolls -- with the console's widths and insets, so the two are drawn
-from one set of parts; where there is not, one column that scrolls whole. The sidebar's head holds
-finding's stand-in, as the console's does; the top bar holds the trail to the page and the switch
-between light and dark. Every page is listed once, in `src/lib/pages.ts`, which the sidebar and the
-trail both read.
+Both are framed by `@canmi/design`'s shell -- lib's `spec/design/layouts.md`, "The shell" -- so
+every width, inset and scrolling region is the same in each and neither sets one. Space fills its
+places with finding's stand-in at the sidebar's head, its pages under their group headings, the
+trail to the page at the top bar's left and the switch between light and dark at its right. Every
+page is listed once, in `src/lib/pages.ts`, which the pages and the trail both read.
+
+## Errors are the console's
+
+**A page that fails is drawn as the console draws one**, inside space's frame: `@canmi/design`'s
+error pages -- lib's `spec/design/components.md`, "An error page" -- given the support address and
+the report form here, which of the two `@canmi/web/error`'s stamp decides. Where the frame itself
+fails, `src/error.html` stands in, the console's static page. Errors go to Sentry under space's own
+DSN, `EXTERNAL.sentry.space`, and development loads the reporter and sends nothing, as the
+console's does.
 
 ## Defined once, rendered here, later
 

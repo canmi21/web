@@ -438,7 +438,7 @@ the point moves to where the selectability rule lands.
 
 ## The site keeps a style no design system holds
 
-[../architecture/space.md](../architecture/space.md), "The design system: three layers, and a
+[../architecture/space.md](../architecture/space.md), "The design system: its layers, and a
 style across them", has the console and space on one contract of semantic colors and one family of
 components. The site's style is its own and only it uses it -- its components in
 `apps/site/src/lib/components/` and `@canmi/ui/primitives`, which draws and so is a component

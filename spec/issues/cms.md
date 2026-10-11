@@ -93,7 +93,7 @@ a record".
 ## The CMS keeps a style of its own, and moving it waits on the platform
 
 The CMS made a style unlike the site's, and is to move to the console's neutral one --
-[../architecture/space.md](../architecture/space.md), "The design system: three layers, and a
+[../architecture/space.md](../architecture/space.md), "The design system: its layers, and a
 style across them". It waits in a chain: the design system comes first, the platform's interface
 is built on it, the platform is waiting on that interface, and the CMS's move waits on the
 platform -- [../todo/milestones.md](../todo/milestones.md), D3 and D4.

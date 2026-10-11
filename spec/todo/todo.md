@@ -46,8 +46,7 @@ What [../architecture/space.md](../architecture/space.md) decides and is not bui
   the sdk names `canmi.app` and its paths, and `space` joins the deployer's `WORKER_OWNERS` and
   `.mise/tasks/deployable`'s `MOVED`.
 - **What every host carries**: robots.txt and security.txt from `@canmi/me/robots`, the favicon
-  through `aka` as the console's is, and Sentry with its own DSN, `EXTERNAL.sentry.space`, once
-  `@canmi/me` is released with it.
+  through `aka` as the console's is.
 - **Finding is drawn again**, in the console's sidebar and space's, taking the place of the
   stand-in at each head and reading the console's `finding.ts` -- spec/console/design.md, "The
   sidebar's head is the way in to finding".
