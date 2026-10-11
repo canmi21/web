@@ -98,8 +98,19 @@ Both are framed by `@canmi/design`'s shell -- lib's `spec/design/layouts.md`, "T
 every width, inset and scrolling region is the same in each and neither sets one. Space's sidebar
 has no head, only its pages under their group headings; the top bar holds the system's layers after
 Design at its left, and finding's stand-in and the switch between light and dark at its right, the
-field 15rem wide and as tall as the switch. Every page is listed once, in `src/lib/pages.ts`, which
-the sidebar and the top bar both read.
+field 15rem wide and as tall as the switch. Every page is listed once, in the design app's
+`src/lib/pages.ts`, which the sidebar, the top bar and home all read.
+
+**The sidebar has levels, as the console's does** -- spec/console/navigation.md, "Entering a level
+replaces the sidebar with it". The top level is Home and each category, Color among them, under the
+heading of the layer holding it. A category is a level of its own: entering it replaces the sidebar
+with its pages under the way back, `Design`, and Home is not among them, since a level deeper has no
+use for it; the move slides as the console's does. **A link that enters a level ends in a chevron**,
+in the subtle tone and the link's own on hover, so a reader sees which entries hold a list before
+opening one; the RFCs' areas carry it too. A category is entered at its first page drawn, and its
+own address leads there. **A page not drawn yet is named and not linked**, in the subtle tone, the
+pointer over it showing `not-allowed`, as a layer with no page is in the top bar, so a category
+shows what it will hold before it holds it.
 
 **The top bar names the layers, not the page.** Foundations, Primitives, Components and Layouts
 follow Design as plain links, left-aligned, in the order each stands on the one before, the layer
@@ -117,7 +128,7 @@ takes `align`, `bottom` unless `top` is given.
 bar's surface in either theme, its keys back on the surface and its hover `strong`. Worked out on
 space's sidebar and bar with the author on 2026-10-11, then made the contract's.
 
-**A specimen may hold both themes at once.** The color page draws each hue as two capsules, the
+**A specimen may hold both themes at once.** The hues page draws each hue as two capsules, the
 dark's value then the light's; the wells follow the page's theme and only each hue is a `ThemeScope`
 of its own theme, so a reader in either theme sees both and nothing is written twice -- lib's
 `spec/design/components.md`, "A theme scope". What a specimen is called stands outside its scopes,
@@ -133,7 +144,7 @@ as the console's cards read, a sheet on the ground. **The one exception is the b
 stands in, which is the card again on the page's own ground**: what it holds may be a card, and a
 card is drawn to stand on the ground, never on another card. Decided with the author on 2026-10-11,
 after a page with nothing under its specimens read as no page at all; the card's head and the box's
-size are still being settled on the color page, which holds one example of each.
+size are still being settled on the hues page, which holds one example of each.
 
 The pieces that draw specimens are space's own, in `src/lib/specimen/`.
 

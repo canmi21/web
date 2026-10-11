@@ -34,6 +34,7 @@ export function levelOf(areas: readonly Area[], scope: string | undefined): Leve
 						href: resolve('/[scope]', { scope: listed }),
 						label: titleOf(listed),
 						icon: AreaIcon,
+						enters: true,
 					})),
 				},
 			],

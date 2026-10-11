@@ -183,7 +183,7 @@
 </script>
 
 <svelte:head>
-	<title>Color</title>
+	<title>Hues</title>
 </svelte:head>
 
 <section class={stylex.attrs(styles.card).class}>

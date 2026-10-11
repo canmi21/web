@@ -3,7 +3,7 @@
 	import * as stylex from '@stylexjs/stylex';
 	import { page } from '$app/state';
 	import { duration, fontSize, radius } from '@canmi/design/scale.stylex';
-	import { GROUPS, SECTIONS } from './pages.ts';
+	import { LAYERS, layerOf } from './pages.ts';
 
 	const styles = stylex.create({
 		list: { display: 'flex', flexShrink: 0, alignItems: 'center', gap: '0.25rem' },
@@ -23,17 +23,16 @@
 		absent: { color: 'var(--foreground-subtle)', cursor: 'not-allowed' },
 	});
 
-	/** The layer whose group lists the page being read. */
-	const held = $derived(
-		GROUPS.find((group) => group.pages.some((one) => one.href === page.url.pathname))?.label,
-	);
+	/** The layer holding the page being read. */
+	const held = $derived(layerOf(page.url.pathname)?.label);
 </script>
 
 <nav aria-label="Sections" class={stylex.attrs(styles.list).class}>
-	{#each SECTIONS as section (section.label)}
-		{#if section.href}
+	{#each LAYERS as section (section.label)}
+		{@const href = section.categories.find((one) => one.href)?.href}
+		{#if href}
 			<a
-				href={section.href}
+				{href}
 				aria-current={held === section.label ? 'true' : undefined}
 				class={stylex.attrs(styles.link, held === section.label && styles.current).class}
 				>{section.label}</a

@@ -1,8 +1,8 @@
 <script lang="ts">
-	import { GROUPS } from '#lib/pages.js';
+	import { LAYERS } from '#lib/pages.js';
 
-	/** Every page under the overview, by its group. */
-	const SECTIONS = GROUPS.filter((group) => group.label !== undefined);
+	/** Every category drawn so far, by the layer holding it. */
+	const SECTIONS = LAYERS.filter((layer) => layer.categories.some((one) => one.href));
 </script>
 
 <svelte:head>
@@ -22,7 +22,7 @@
 		<section class="flex flex-col gap-2">
 			<h2 class="font-medium text-(--foreground-strong)">{group.label}</h2>
 			<ul class="flex flex-col gap-1">
-				{#each group.pages as one (one.href)}
+				{#each group.categories.filter((one) => one.href) as one (one.label)}
 					<li>
 						<a href={one.href} class="text-(--foreground-muted) hover:text-(--foreground-strong)"
 							>{one.label}</a
