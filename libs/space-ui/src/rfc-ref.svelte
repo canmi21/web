@@ -19,6 +19,8 @@
 			whiteSpace: 'nowrap',
 		},
 		kind: { fontFamily: 'var(--font-mono)' },
+		/** Not reached yet, as a page not drawn is: the pointer says so. */
+		closed: { cursor: 'not-allowed' },
 		/** A link by its place and the pointer alone, with no underline. */
 		link: {
 			color: { default: 'var(--foreground-muted)', ':hover': 'var(--foreground-strong)' },
@@ -35,5 +37,5 @@
 {#if reached('rfcs', dev)}
 	<a href="/rfcs/{id}" class={stylex.attrs(styles.ref, styles.link).class}>{@render cited()}</a>
 {:else}
-	<span class={stylex.attrs(styles.ref).class}>{@render cited()}</span>
+	<span class={stylex.attrs(styles.ref, styles.closed).class}>{@render cited()}</span>
 {/if}

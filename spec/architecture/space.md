@@ -32,8 +32,8 @@ voice in deciding it, and reached nowhere, development included. **A part not ye
 development alone or nowhere** -- `reach` in `src/parts.ts` and `@canmi/space-ui`'s `parts.ts` --
 and one reached nowhere answers 404, is left out of the corner's menu and is not started in
 development. A rule's citation of an RFC, drawn by `@canmi/space-ui`'s `rfc-ref.svelte`, is a link
-only where the RFCs are reached, and the id as words until then -- RFC ggry5. What their pages are
-made of is migrated onto the system once it stands.
+only where the RFCs are reached, and until then the id as words, the pointer over it showing
+`not-allowed` -- RFC ggry5. What their pages are made of is migrated onto the system once it stands.
 
 **The RFCs are a repository of their own and their app stays here**, reading them from the
 sibling checkout and holding them to their format -- RFC 7f4xx, and the workspace's `spec/rfcs.md`.
@@ -102,10 +102,10 @@ as the console's does. **A link that enters a level ends in a chevron**, in the 
 link's own on hover; the RFCs' areas carry it too. **A layer is a level the reader never steps
 into**, as a route group is one the address never shows, turned the other way: it takes a segment of
 the address, `/foundations/color/hues`, and names the way back out of its categories, and the
-sidebar draws no list for it. The
-way back leads to the top level. A layer's address and a category's lead to the first page drawn
-under them. **A page not drawn yet is named and not linked**, in the subtle tone, the pointer over
-it showing `not-allowed`, as a layer with no page is in the top bar. RFC tasde.
+sidebar draws no list for it. The way back leads to the top level. A layer's address and a
+category's lead to the first page drawn under them. **A page not drawn yet is named and not
+linked**, in the subtle tone, the pointer over it showing `not-allowed`, as a layer with no page is
+in the top bar. RFC tasde.
 
 **The top bar names the layers, not the page.** Foundations, Primitives, Components and Layouts
 follow Design as plain links, left-aligned, in the order each stands on the one before, the layer
