@@ -14,7 +14,7 @@
 		"./vite": "./src/vite.ts"
 	},
 	"dependencies": {
-		"@canmi/design": "^2026.1012.1",
+		"@canmi/design": "^2026.1012.2",
 		"@canmi/web": "^2026.1009.0",
 		"@monoflake/sdk": "^2026.1007.1",
 		"@stylexjs/stylex": "^0.19.1",

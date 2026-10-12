@@ -101,10 +101,11 @@ line brighter than both sides of it. Mono, the palette the console takes its gra
 opposite: a card a step darker than a white ground in the light, and in the dark a solid gray rule
 that glowed around every card; the console names its grounds the other way round in `app.css` and
 leaves the palette as it is. Decided with the author on 2026-10-09. **Since 2026-10-11 the card
-casts no shadow in either theme, and its rule is the dark's 9 percent with the light's at that over
-1.4**; the light's ground is 7 levels under white rather than 5, and the top bar and the sidebar
-stand on the card's surface as a card does, what is set into them on the ground again -- lib's
-`spec/design/styles.md` and `spec/design/layouts.md`.
+casts no shadow in either theme, and its rule is the dark's 9 percent with the light's standing
+1/1.5 as far off in CIELAB L\***, RFC trwdn; the light's ground is `oklch(0.979 0 0)` and the dark's
+card `oklch(0.159 0 0)`, and the top bar and the sidebar stand on the card's surface as a card does,
+what is set into them on the ground again -- lib's `spec/design/styles.md` and
+`spec/design/layouts.md`.
 
 ## Hover and choice are one wash at two strengths
 
