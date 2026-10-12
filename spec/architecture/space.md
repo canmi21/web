@@ -143,12 +143,44 @@ each tick on its own clock so several may stand at once.
 ## Specimens are laid on paper
 
 **A design page is laid out on a card as the console's overview draws its own** -- the surface, a
-hairline border, its corners and its shadow, as wide as the console's map card -- so the page reads
-as the console's cards read, a sheet on the ground. **The one exception is the box a specimen
-stands in, which is the card again on the page's own ground**: what it holds may be a card, and a
-card is drawn to stand on the ground, never on another card. Decided with the author on 2026-10-11,
-after a page with nothing under its specimens read as no page at all; the card's head and the box's
-size are still being settled on the hues page, which holds one example of each.
+hairline border, its corners, as wide as the console's map card -- so the page reads as the
+console's cards read, a sheet on the ground. **The one exception is the box a specimen stands in,
+which is the card again on the page's own ground**: what it holds may be a card, and a card is drawn
+to stand on the ground, never on another card. A specimen with a shape of its own, a page drawn
+small, stands in the box at its own proportions and is never stretched to the card. **The card's
+inset is the same on every side**, and the title and the RFC are trimmed to their capitals so the
+inset is measured to the letters, not to their leading -- `src/lib/specimen/frame.stylex.ts`. The
+card keeps the console's card's `radius.xl`, and the box, standing further in than that corner
+reaches, holds `lg` of its own -- lib's `spec/design/styles.md`, "Of two corners nested". Decided
+with the author on 2026-10-11, after a page with nothing under its specimens read as no page at all.
+
+**A box stands its row in a proportion, not at a height**: the space above and below the row is a
+share of the space the row leaves either side, `1`, `2/3`, `1/2` or `1/3` and no other, worked out
+from the card's width as it is, so the row keeps its proportion at any width; never less than 2rem
+-- `src/lib/specimen/box.svelte`. The hues stand at `1/2` and the materials at `2/3`.
+
+**A page opens on everything it shows together, with nothing said**: its first card holds every
+specimen and no label, no value and no word beside them, only a name in a tip and a press that
+copies. Each group follows on a card of its own, with when it is used and each value under its
+specimen. A swatch is a well on the surface, ringed, with the color set into it and its corner the
+well's less the inset -- `src/lib/specimen/swatch.svelte`.
+
+**A card's head is its title, one sentence of the rule, and the RFC behind it.** The sentence is
+the shortest that says the rule, one where one will do, with commas and periods and no other
+stops: no colon, semicolon or dash. The derivation is the RFC's, not the sentence's. The RFC
+stands at the head's top right on every card, a link by its place and the pointer alone, with no
+underline.
+
+**A specimen is drawn in the page's theme.** Both themes stand side by side only where the rule
+is why the two differ, as a hue's pair does; light and dark themselves need no case made for them,
+and a page drawn twice is hard on a reader in either.
+
+**A value is written as CSS writes it, in the terms it was chosen in**: a ground's
+`oklch(0.145 0 0)`, a rank's or a border's the text's color and how much of it is laid,
+`oklch(1 0 0 / 4.9%)`. It is worked out from the style's own files where the server renders, in
+the theme the reader's cookie names, so it is there in the first frame and follows the theme with
+no measuring; a first visit, before the cookie is written, fills it in once the theme is known.
+What a press copies is still the token, `var(--token)`.
 
 The pieces that draw specimens are space's own, in `src/lib/specimen/`.
 
@@ -171,9 +203,9 @@ it.
 **A page that fails is drawn as the console draws one**, inside space's frame: `@canmi/design`'s
 error pages -- lib's `spec/design/components.md`, "An error page" -- given the support address and
 the report form here, which of the two `@canmi/web/error`'s stamp decides. Where the frame itself
-fails, `src/error.html` stands in, the console's static page. Errors go to Sentry under space's own
-DSN, `EXTERNAL.sentry.space`, and development loads the reporter and sends nothing, as the
-console's does.
+fails, `src/error.html` stands in, the console's static page, themed as the console's is. Errors go
+to Sentry under space's own DSN, `EXTERNAL.sentry.space`, and development loads the reporter and
+sends nothing, as the console's does.
 
 ## Defined once, rendered here, later
 

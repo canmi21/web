@@ -1,12 +1,14 @@
 <script lang="ts">
 	/**
-	 * A specimen's card: its name and one sentence of the rule it shows, the RFC behind the rule
-	 * after it, and the specimen under them, in a body that is a container so what it holds can read
-	 * its width. See spec/architecture/space.md, "Specimens are laid on paper".
+	 * A specimen's card: its name and one sentence of the rule it shows, the RFC behind the rule at
+	 * the head's top right, always there, and the specimen under them, in a body that is a container
+	 * so what it holds can read its width. See spec/architecture/space.md, "Specimens are laid on
+	 * paper".
 	 */
 	import * as stylex from '@stylexjs/stylex';
 	import type { Snippet } from 'svelte';
 	import { borderWidth, fontWeight, lineHeight, radius } from '@canmi/design/scale.stylex';
+	import { frame } from './frame.stylex.ts';
 	import RfcRef from '@canmi/space-ui/rfc-ref.svelte';
 	import { dev } from '$app/env';
 
@@ -31,38 +33,47 @@
 		},
 		head: {
 			display: 'flex',
-			flexDirection: 'column',
-			gap: '0.25rem',
-			paddingInline: '1.25rem',
-			paddingTop: '1rem',
+			alignItems: 'flex-start',
+			justifyContent: 'space-between',
+			gap: '1.5rem',
+			paddingInline: frame.inset,
+			paddingTop: frame.inset,
 		},
+		words: { display: 'flex', flexDirection: 'column', gap: '0.5rem' },
+		/** The RFC, its capitals' top level with the title's. */
+		cited: { flexShrink: 0, textBox: 'trim-start cap alphabetic' },
 		title: {
 			fontSize: '1.5rem', // unnamed: a page title
 			fontWeight: fontWeight.semibold,
 			letterSpacing: '-0.02em',
 			color: 'var(--foreground-strong)',
+			// The leading above the capitals trimmed, so the card's top inset is its sides'.
+			textBox: 'trim-start cap alphabetic',
 		},
 		rule: {
 			fontSize: '1rem', // unnamed: the reader's own size, for a sentence to read
 			lineHeight: lineHeight.relaxed,
 			color: 'var(--foreground-muted)',
+			// And below the baseline, so the gap to the specimen is the inset again.
+			textBox: 'trim-end cap alphabetic',
 		},
 		body: {
 			containerType: 'inline-size',
 			display: 'flex',
 			flexGrow: 1,
 			flexDirection: 'column',
-			paddingInline: '1.25rem',
-			paddingTop: '0.75rem',
-			paddingBottom: '1.25rem',
+			padding: frame.inset,
 		},
 	});
 </script>
 
 <section class={stylex.attrs(styles.card).class}>
 	<header class={stylex.attrs(styles.head).class}>
-		<h2 class={stylex.attrs(styles.title).class}>{title}</h2>
-		<p class={stylex.attrs(styles.rule).class}>{rule} <RfcRef id={rfc} {dev} /></p>
+		<div class={stylex.attrs(styles.words).class}>
+			<h2 class={stylex.attrs(styles.title).class}>{title}</h2>
+			<p class={stylex.attrs(styles.rule).class}>{rule}</p>
+		</div>
+		<span class={stylex.attrs(styles.cited).class}><RfcRef id={rfc} {dev} /></span>
 	</header>
 	<div class={stylex.attrs(styles.body).class}>
 		{@render children()}

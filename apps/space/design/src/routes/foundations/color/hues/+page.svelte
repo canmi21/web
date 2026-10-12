@@ -9,6 +9,7 @@
 	import Icon from '@canmi/design/components/icon.svelte';
 	import ThemeScope from '@canmi/design/components/theme-scope.svelte';
 	import Tooltip from '@canmi/design/components/tooltip.svelte';
+	import Box from '#lib/specimen/box.svelte';
 	import Card from '#lib/specimen/card.svelte';
 	import CheckIcon from '@tabler/icons-svelte-runes/icons/check';
 	import { SvelteMap } from 'svelte/reactivity';
@@ -67,17 +68,7 @@
 		 * The card again, on the page's own ground, the hues standing in it half as far from its top
 		 * and bottom as the row leaves either side, whatever its width, and never nearer than a side.
 		 */
-		box: {
-			display: 'flex',
-			justifyContent: 'center',
-			gap: share(BETWEEN),
-			paddingBlock: `max(${SIDE}rem, calc((100cqw - ${DRAWN}) / 4))`,
-			borderWidth: borderWidth.hairline,
-			borderStyle: 'solid',
-			borderColor: 'var(--border-default)',
-			borderRadius: radius.xl,
-			backgroundColor: 'var(--background-base)',
-		},
+		row: { display: 'flex', gap: share(BETWEEN) },
 		/** A hue's two capsules, closer to each other than to the next hue's. */
 		pair: { display: 'flex', gap: share(WITHIN) },
 		/** A capsule's well, a button that copies its token, and says so by the cursor. */
@@ -148,38 +139,41 @@
 
 <Card
 	title="Hues"
-	rule="Each at its purest, the dark's then the light's, a step lighter."
+	rule="Each hue is at its purest, its light a step lighter than its dark."
 	rfc="b0i0r"
 >
-	<div class={stylex.attrs(styles.box).class}>
-		{#each GROUPS.flat() as hue (hue.token)}
-			<div class={stylex.attrs(styles.pair).class}>
-				{#each THEMES as theme, index (theme)}
-					{@const key = `${hue.token}:${theme}`}
-					<Tooltip label={hue.name}>
-						<button
-							type="button"
-							aria-label="Copy {hue.token}, {hue.name} in the {theme}"
-							class={stylex.attrs(styles.well, styles.reach, index > 0 && styles.reachAfter).class}
-							onclick={() => copy(hue.token, key)}
-						>
-							<ThemeScope {theme}>
-								<span
-									class={stylex.attrs(styles.hue).class}
-									style:background-color="var({hue.token})"
-								></span>
-							</ThemeScope>
-							{#if ticked.has(key)}
-								<ThemeScope theme="dark">
-									<span class={stylex.attrs(styles.tick).class}>
-										<Icon icon={CheckIcon} size={16} stroke={3} />
-									</span>
+	<Box row={DRAWN} ratio="1/2">
+		<div class={stylex.attrs(styles.row).class}>
+			{#each GROUPS.flat() as hue (hue.token)}
+				<div class={stylex.attrs(styles.pair).class}>
+					{#each THEMES as theme, index (theme)}
+						{@const key = `${hue.token}:${theme}`}
+						<Tooltip label={hue.name}>
+							<button
+								type="button"
+								aria-label="Copy {hue.token}, {hue.name} in the {theme}"
+								class={stylex.attrs(styles.well, styles.reach, index > 0 && styles.reachAfter)
+									.class}
+								onclick={() => copy(hue.token, key)}
+							>
+								<ThemeScope {theme}>
+									<span
+										class={stylex.attrs(styles.hue).class}
+										style:background-color="var({hue.token})"
+									></span>
 								</ThemeScope>
-							{/if}
-						</button>
-					</Tooltip>
-				{/each}
-			</div>
-		{/each}
-	</div>
+								{#if ticked.has(key)}
+									<ThemeScope theme="dark">
+										<span class={stylex.attrs(styles.tick).class}>
+											<Icon icon={CheckIcon} size={16} stroke={3} />
+										</span>
+									</ThemeScope>
+								{/if}
+							</button>
+						</Tooltip>
+					{/each}
+				</div>
+			{/each}
+		</div>
+	</Box>
 </Card>

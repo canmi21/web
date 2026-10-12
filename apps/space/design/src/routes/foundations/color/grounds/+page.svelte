@@ -17,7 +17,7 @@
 			borderWidth: borderWidth.hairline,
 			borderStyle: 'solid',
 			borderColor: 'var(--border-default)',
-			borderRadius: radius.xl,
+			borderRadius: radius.lg,
 			backgroundColor: 'var(--background-base)',
 		},
 		/** The blank page, a window of a screen's proportions, never stretched to the card. */
@@ -159,7 +159,7 @@
 
 <Card
 	title="Grounds"
-	rule="Regions stand on the surface, a step off the page's base, and what is set into them on the base again, apart by ground and border alone."
+	rule="Regions stand on the surface, and what is set into them goes back to the base."
 	rfc="c656n"
 >
 	<div class={stylex.attrs(styles.box).class}>
