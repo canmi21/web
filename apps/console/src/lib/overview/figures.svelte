@@ -8,6 +8,7 @@
 	 * See spec/console/overview.md, "The figures are a line and a drawing each".
 	 */
 	import * as stylex from '@stylexjs/stylex';
+	import { fontSize } from '@canmi/design/scale.stylex';
 	import { radius, text, weight } from '@canmi/kit/tokens/vocabulary.stylex';
 	import type { Snippet } from 'svelte';
 	import Gauge from '../chart/gauge.svelte';
@@ -58,7 +59,7 @@
 	const styles = stylex.create({
 		figure: {
 			color: 'var(--foreground-strong)',
-			fontSize: '1.25rem', // unnamed: a figure a step over the body, the ladder stopping below
+			fontSize: fontSize.title, // a figure a step over the body
 			fontWeight: weight.semibold,
 			fontVariantNumeric: 'tabular-nums',
 		},

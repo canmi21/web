@@ -14,8 +14,13 @@ export class Ticks {
 	}
 
 	/** Copy `token` and tick the mark `key` names, from this copy. */
-	async copy(token: string, key: string): Promise<void> {
-		await navigator.clipboard.writeText(`var(${token})`);
+	copy(token: string, key: string): Promise<void> {
+		return this.write(`var(${token})`, key);
+	}
+
+	/** Copy `text` as it is, a measure's const as code reads it, and tick the mark `key` names. */
+	async write(text: string, key: string): Promise<void> {
+		await navigator.clipboard.writeText(text);
 		clearTimeout(this.#clocks.get(key));
 		this.#clocks.set(
 			key,

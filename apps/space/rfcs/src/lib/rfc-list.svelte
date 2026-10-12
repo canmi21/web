@@ -31,13 +31,13 @@
 		},
 		head: { display: 'flex', flexDirection: 'column', gap: '0.25rem', padding: '1rem 1.25rem' },
 		title: {
-			fontSize: '1.5rem', // unnamed: a page title
+			fontSize: fontSize.headline,
 			fontWeight: fontWeight.semibold,
 			letterSpacing: '-0.02em',
 			color: 'var(--foreground-strong)',
 		},
 		sentence: {
-			fontSize: '1rem', // unnamed: the reader's own size, for a sentence to read
+			fontSize: fontSize.prose,
 			lineHeight: lineHeight.relaxed,
 			color: 'var(--foreground-muted)',
 		},

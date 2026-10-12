@@ -7,7 +7,7 @@
 	 */
 	import * as stylex from '@stylexjs/stylex';
 	import type { Snippet } from 'svelte';
-	import { borderWidth, fontWeight, lineHeight, radius } from '@canmi/design/scale.stylex';
+	import { borderWidth, fontSize, fontWeight, lineHeight, radius } from '@canmi/design/scale.stylex';
 	import { frame } from './frame.stylex.ts';
 	import RfcRef from '@canmi/space-ui/rfc-ref.svelte';
 	import { dev } from '$app/env';
@@ -43,7 +43,7 @@
 		/** The RFC, its capitals' top level with the title's. */
 		cited: { flexShrink: 0, textBox: 'trim-start cap alphabetic' },
 		title: {
-			fontSize: '1.5rem', // unnamed: a page title
+			fontSize: fontSize.headline,
 			fontWeight: fontWeight.semibold,
 			letterSpacing: '-0.02em',
 			color: 'var(--foreground-strong)',
@@ -51,7 +51,7 @@
 			textBox: 'trim-start cap alphabetic',
 		},
 		rule: {
-			fontSize: '1rem', // unnamed: the reader's own size, for a sentence to read
+			fontSize: fontSize.prose,
 			lineHeight: lineHeight.relaxed,
 			color: 'var(--foreground-muted)',
 			// And below the baseline, so the gap to the specimen is the inset again.

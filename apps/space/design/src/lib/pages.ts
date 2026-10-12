@@ -14,7 +14,14 @@ import LightAndDarkIcon from '@tabler/icons-svelte-runes/icons/contrast';
 import HuesIcon from '@tabler/icons-svelte-runes/icons/color-swatch';
 import MaterialsIcon from '@tabler/icons-svelte-runes/icons/texture';
 import InteractionIcon from '@tabler/icons-svelte-runes/icons/pointer';
-import TextIcon from '@tabler/icons-svelte-runes/icons/typography';
+import TextIcon from '@tabler/icons-svelte-runes/icons/text-color';
+import TypographyIcon from '@tabler/icons-svelte-runes/icons/typography';
+import FamiliesIcon from '@tabler/icons-svelte-runes/icons/letter-case';
+import SizesIcon from '@tabler/icons-svelte-runes/icons/text-size';
+import WeightsIcon from '@tabler/icons-svelte-runes/icons/bold';
+import LeadingIcon from '@tabler/icons-svelte-runes/icons/line-height';
+import TrackingIcon from '@tabler/icons-svelte-runes/icons/letter-spacing';
+import NumbersIcon from '@tabler/icons-svelte-runes/icons/numbers';
 
 /** A category: a page in the top level that is entered, its own pages replacing the sidebar. */
 export interface Category extends Page {
@@ -49,6 +56,15 @@ const COLOR: readonly Page[] = [
 	{ href: resolve('/foundations/color/hues'), label: 'Hues', icon: HuesIcon },
 ];
 
+const TYPOGRAPHY: readonly Page[] = [
+	{ label: 'Families', icon: FamiliesIcon },
+	{ href: resolve('/foundations/typography/sizes'), label: 'Sizes', icon: SizesIcon },
+	{ label: 'Weights', icon: WeightsIcon },
+	{ label: 'Leading', icon: LeadingIcon },
+	{ label: 'Tracking', icon: TrackingIcon },
+	{ label: 'Numbers', icon: NumbersIcon },
+];
+
 /** The system's layers in the order each stands on the last. */
 export const LAYERS: readonly Layer[] = [
 	{
@@ -62,6 +78,14 @@ export const LAYERS: readonly Layer[] = [
 				icon: ColorIcon,
 				enters: true,
 				pages: COLOR,
+			},
+			{
+				...firstOf(TYPOGRAPHY),
+				label: 'Typography',
+				slug: 'typography',
+				icon: TypographyIcon,
+				enters: true,
+				pages: TYPOGRAPHY,
 			},
 		],
 	},

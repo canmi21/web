@@ -5,6 +5,7 @@
 	 * figure that is a share has its ring beside it.
 	 */
 	import * as stylex from '@stylexjs/stylex';
+	import { fontSize } from '@canmi/design/scale.stylex';
 	import { line, radius, weight } from '@canmi/kit/tokens/vocabulary.stylex';
 	import ArrowDownIcon from '@tabler/icons-svelte-runes/icons/arrow-down';
 	import ArrowUpIcon from '@tabler/icons-svelte-runes/icons/arrow-up';
@@ -55,7 +56,7 @@
 
 	const styles = stylex.create({
 		figure: {
-			fontSize: '1.875rem', // unnamed: the figure step, which the ladder stops below
+			fontSize: fontSize.display, // a figure read at a glance
 			fontWeight: weight.semibold,
 			letterSpacing: '-0.03em', // unnamed: a display size drawn tight
 			lineHeight: line.none,
@@ -72,9 +73,7 @@
 <div class="flex min-w-0 flex-col gap-2 px-5 pt-4 pb-4 {stylex.attrs(surfaces.card).class}">
 	<span class={stylex.attrs(type.label).class}>{label}</span>
 	{#if pending}
-		<span
-			class="h-[1.875rem] w-16 self-start {stylex.attrs(styles.placeholder).class}"
-			aria-busy="true"
+		<span class="h-8 w-16 self-start {stylex.attrs(styles.placeholder).class}" aria-busy="true"
 		></span>
 		{#if pending === 'trend'}<span class="h-8"></span>{/if}
 	{:else}

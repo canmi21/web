@@ -10,13 +10,13 @@ export const styles = stylex.create({
 		display: 'flex',
 		flexDirection: 'column',
 		gap: '1rem',
-		fontSize: '1rem', // unnamed: the reader's own size, for prose to read
+		fontSize: fontSize.prose,
 		lineHeight: lineHeight.relaxed,
 		color: 'var(--foreground-default)',
 	},
 	h2: {
 		marginTop: '1.5rem',
-		fontSize: '1.25rem', // unnamed: a section's title, a step over the prose
+		fontSize: fontSize.title,
 		fontWeight: fontWeight.semibold,
 		letterSpacing: '-0.01em',
 		color: 'var(--foreground-strong)',

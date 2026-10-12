@@ -9,7 +9,7 @@
 	import CheckIcon from '@tabler/icons-svelte-runes/icons/check';
 	import SelectorIcon from '@tabler/icons-svelte-runes/icons/selector';
 	import Icon from '@canmi/design/components/icon.svelte';
-	import { duration, fontWeight, radius } from '@canmi/design/scale.stylex';
+	import { duration, fontSize, fontWeight, radius } from '@canmi/design/scale.stylex';
 	import MenuContent from './menu/menu-content.svelte';
 	import MenuRow from './menu/menu-row.svelte';
 	import { PARTS, reached, type Part } from './parts.ts';
@@ -31,7 +31,7 @@
 	const styles = stylex.create({
 		corner: { display: 'flex', alignItems: 'center', gap: '0.125rem' },
 		name: {
-			fontSize: '1rem', // unnamed: the corner's name, a step over the bar's links
+			fontSize: fontSize.prose, // the corner's name, a step over the bar's links
 			fontWeight: fontWeight.semibold,
 			color: 'var(--foreground-strong)',
 		},

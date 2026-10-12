@@ -38,7 +38,7 @@
 		},
 		area: { color: { default: 'var(--foreground-muted)', ':hover': 'var(--foreground-strong)' } },
 		title: {
-			fontSize: '2rem', // unnamed: a document's title, the largest words it has
+			fontSize: fontSize.display,
 			fontWeight: fontWeight.semibold,
 			letterSpacing: '-0.025em',
 			lineHeight: 1.2,
@@ -70,7 +70,7 @@
 		},
 		references: { display: 'flex', flexDirection: 'column', gap: '1rem' },
 		h2: {
-			fontSize: '1.25rem', // unnamed: a section's title, as the prose's own
+			fontSize: fontSize.title,
 			fontWeight: fontWeight.semibold,
 			letterSpacing: '-0.01em',
 			color: 'var(--foreground-strong)',

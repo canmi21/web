@@ -1,6 +1,6 @@
 import * as stylex from '@stylexjs/stylex';
 import { border, family, figures, radius, text, weight } from '@canmi/kit/tokens/vocabulary.stylex';
-import { radius as step } from '@canmi/design/scale.stylex';
+import { fontSize, radius as step } from '@canmi/design/scale.stylex';
 
 /**
  * The console's recipes, on the palette's semantic names and the kit's vocabulary: color, type,
@@ -62,7 +62,7 @@ export const corners = stylex.create({
 
 export const type = stylex.create({
 	title: {
-		fontSize: '1.5rem', // unnamed
+		fontSize: fontSize.headline,
 		fontWeight: weight.semibold,
 		letterSpacing: '-0.02em', // unnamed: a display size drawn tight
 		color: 'var(--foreground-strong)',
