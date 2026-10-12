@@ -6,7 +6,7 @@
 	 * and how much of it is laid, a text tier its APCA contrast on the surface.
 	 */
 	import * as stylex from '@stylexjs/stylex';
-	import { borderWidth, fontSize, fontWeight, radius } from '@canmi/design/scale.stylex';
+	import { fontSize, fontWeight } from '@canmi/design/scale.stylex';
 	import { currentTheme, type Theme } from '@canmi/design/theme';
 	import { page } from '$app/state';
 	import { untrack } from 'svelte';
@@ -92,6 +92,17 @@
 	const ROW = ACROSS * TILE + (ACROSS - 1) * GAP;
 
 	/**
+	 * A group's tiles and the gap between two, in rem, and the row the longest group makes: every
+	 * group's box is measured against it, so the four stand at one height.
+	 */
+	const NAMED = 8.5;
+	const NAMED_GAP = 2;
+	const LONGEST = Math.max(...GROUPS.map((group) => group.tiles.length));
+	const NAMED_ROW = LONGEST * NAMED + (LONGEST - 1) * NAMED_GAP;
+	/** How far a tile's name and value hang below it, in rem, the gap to the tile included. */
+	const HANG = 3.25;
+
+	/**
 	 * A value in a group's terms: as CSS writes it, for the text its alpha as a percentage, or for a
 	 * text tier its contrast, as APCA writes it.
 	 */
@@ -118,33 +129,33 @@
 	});
 
 	const styles = stylex.create({
-		/** The card again, on the page's own ground, what it shows standing in its middle. */
-		box: {
-			display: 'flex',
-			flexWrap: 'wrap',
-			justifyContent: 'center',
-			paddingBlock: '3rem',
-			paddingInline: '2rem',
-			borderWidth: borderWidth.hairline,
-			borderStyle: 'solid',
-			borderColor: 'var(--border-default)',
-			borderRadius: radius.lg,
-			backgroundColor: 'var(--background-base)',
-		},
 		/** Every tile at one gap, no group told from another: what they are is the cards' below. */
 		all: { display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: `${GAP}rem` },
 		/** No wider than a row of `ACROSS`, so the tiles fall into two rows. */
 		rows: { maxWidth: 'var(--row)' },
 		/** A group's own card: each tile over its name and its value. */
-		named: { columnGap: '2rem', rowGap: '1.5rem' },
-		/** The tile, and under it its name and value, starting where the tile's color starts. */
-		item: { display: 'flex', flexDirection: 'column', gap: '0.625rem' },
+		named: {
+			display: 'flex',
+			flexWrap: 'wrap',
+			justifyContent: 'center',
+			columnGap: `${NAMED_GAP}rem`,
+			rowGap: `${HANG + 1.5}rem`,
+		},
+		/**
+		 * The tile, and hung under it its name and value, starting where the tile's color starts: the
+		 * tile alone is what the box centers.
+		 */
+		item: { position: 'relative', display: 'flex' },
 		/** A tile's name and its value, closer to each other than to the tile. */
 		caption: {
 			display: 'flex',
 			flexDirection: 'column',
 			gap: '0.125rem',
+			position: 'absolute',
+			insetBlockStart: 'calc(100% + 0.625rem)',
+			insetInlineStart: 0,
 			paddingInlineStart: frame.well,
+			whiteSpace: 'nowrap',
 		},
 		name: {
 			fontSize: fontSize.body,
@@ -178,21 +189,23 @@
 
 	{#each GROUPS as group (group.label)}
 		<Card title={group.label} rule={group.rule} rfc={group.rfc}>
-			<div class={stylex.attrs(styles.box, styles.named).class}>
-				{#each group.tiles as tile (tile.token)}
-					<div class={stylex.attrs(styles.item).class}>
-						<Swatch name={tile.name} token={tile.token} size="8.5rem" tip={false} />
-						<div class={stylex.attrs(styles.caption).class}>
-							<span class={stylex.attrs(styles.name).class}>{tile.name}</span>
-							{#if theme}
-								<span class={stylex.attrs(styles.value).class}>
-									{readOf(tile.token, theme, group.reading)}
-								</span>
-							{/if}
+			<Box row="{NAMED_ROW}rem" ratio="1/2" hang="{HANG}rem">
+				<div class={stylex.attrs(styles.named).class}>
+					{#each group.tiles as tile (tile.token)}
+						<div class={stylex.attrs(styles.item).class}>
+							<Swatch name={tile.name} token={tile.token} size="{NAMED}rem" tip={false} />
+							<div class={stylex.attrs(styles.caption).class}>
+								<span class={stylex.attrs(styles.name).class}>{tile.name}</span>
+								{#if theme}
+									<span class={stylex.attrs(styles.value).class}>
+										{readOf(tile.token, theme, group.reading)}
+									</span>
+								{/if}
+							</div>
 						</div>
-					</div>
-				{/each}
-			</div>
+					{/each}
+				</div>
+			</Box>
 		</Card>
 	{/each}
 </div>

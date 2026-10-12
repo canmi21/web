@@ -10,7 +10,9 @@
 	 * The box a specimen stands in: the card again, on the page's own ground, holding a row centered
 	 * in it. Its space above and below is a share of the space the row leaves either side, worked out
 	 * from the card's width as it is, so the row stands in the same proportion at any width, and
-	 * never nearer an edge than `SIDE`. `row` is the row's width at its largest.
+	 * never nearer an edge than `SIDE`. `row` is the row's width at its largest, its own or the
+	 * widest of a series it stands in. `hang` is how far labels hang below the row: they are left out
+	 * of its centering, and only push the foot down where the box is too short to hold them.
 	 */
 	import * as stylex from '@stylexjs/stylex';
 	import type { Snippet } from 'svelte';
@@ -20,10 +22,12 @@
 		row,
 		ratio = '1/2',
 		ground = 'base',
+		hang,
 		children,
 	}: {
 		row: string;
 		ratio?: Ratio;
+		hang?: string;
 		/** What it stands on: the page's base, or the gray both themes share as space.md allows. */
 		ground?: 'base' | 'neutral';
 		children: Snippet;
@@ -31,10 +35,14 @@
 
 	/** The least the box keeps between the row and any of its edges, in rem. */
 	const SIDE = 2;
+	/** The least a hanging label keeps off the box's foot, in rem. */
+	const HUNG = 1;
 
 	/** The space either side as it stands, `SIDE` where the row is as wide as the box lets it be. */
 	const side = $derived(`max(${SIDE}rem, (100cqw - ${row}) / 2)`);
 	const block = $derived(`max(${SIDE}rem, ${side} * ${SHARE[ratio]})`);
+	/** The space below, the same as above unless what hangs needs more, kept `HUNG` off the edge. */
+	const foot = $derived(hang ? `max(${block}, ${hang} + ${HUNG}rem)` : block);
 
 	const styles = stylex.create({
 		box: {
@@ -53,7 +61,8 @@
 
 <div
 	class={stylex.attrs(styles.box, ground !== 'base' && styles[ground]).class}
-	style:padding-block={block}
+	style:padding-top={block}
+	style:padding-bottom={foot}
 >
 	{@render children()}
 </div>
