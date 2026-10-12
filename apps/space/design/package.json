@@ -19,7 +19,7 @@
 		"deploy": "vite build && wrangler deploy"
 	},
 	"devDependencies": {
-		"@canmi/design": "^2026.1012.3",
+		"@canmi/design": "^2026.1012.4",
 		"@canmi/fonts": "workspace:*",
 		"@canmi/kit": "^2026.1010.0",
 		"@canmi/me": "^2026.1010.0",
@@ -35,9 +35,11 @@
 		"@sveltejs/vite-plugin-svelte": "^7.3.1",
 		"@tabler/icons-svelte-runes": "^3.49.0",
 		"@tailwindcss/vite": "^4.3.3",
+		"@types/three": "^0.186.0",
 		"svelte": "^5.57.1",
 		"svelte-check": "^4.7.6",
 		"tailwindcss": "^4.3.3",
+		"three": "^0.186.1",
 		"typescript": "^6.0.3",
 		"vite": "^8.3.2",
 		"wrangler": "^4.147.0"
