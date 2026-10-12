@@ -28,7 +28,7 @@
 	}[] = [
 		{
 			label: 'Background',
-			rule: 'The page stands on the base, and a region on the surface.',
+			rule: 'The page rests on the base, and each region on the surface a step above it.',
 			rfc: 'c656n',
 			reading: 'oklch',
 			tiles: [
@@ -38,7 +38,7 @@
 		},
 		{
 			label: 'Interaction',
-			rule: 'A hover, a choice or a fill is one of four ranks laid over a ground.',
+			rule: 'Hover, selection and fill are ranks of the text, laid thin over a ground.',
 			rfc: 'ic4cd',
 			reading: 'text',
 			tiles: [
@@ -50,7 +50,7 @@
 		},
 		{
 			label: 'Border',
-			rule: 'A line between two things is one of three borders.',
+			rule: "Borders set one thing apart from the next, each the text's own color laid thin.",
 			rfc: 'h27v0',
 			reading: 'text',
 			tiles: [
@@ -61,13 +61,14 @@
 		},
 	];
 
-	/** The first card's tile, the gap between tiles in a group and between groups, in rem. */
+	/** The first card's tiles, every one, and their size and the one gap between any two, in rem. */
+	const ALL = GROUPS.flatMap((group) =>
+		group.tiles.map((tile) => ({ ...tile, name: `${group.label} ${tile.name}` })),
+	);
 	const TILE = 4.5;
-	const WITHIN = 0.75;
-	const BETWEEN = 2.5;
-	const TILES = GROUPS.flatMap((group) => group.tiles).length;
+	const GAP = 0.75;
 	/** Its row at full width, the measure the box's space above and below is worked out against. */
-	const ROW = TILES * TILE + (TILES - GROUPS.length) * WITHIN + (GROUPS.length - 1) * BETWEEN;
+	const ROW = ALL.length * TILE + (ALL.length - 1) * GAP;
 
 	/** A value in a group's terms, as CSS writes it: for the text, its alpha as a percentage. */
 	function readOf(value: string, reading: Reading): string {
@@ -104,18 +105,13 @@
 			borderRadius: radius.lg,
 			backgroundColor: 'var(--background-base)',
 		},
-		/** The groups apart by more than the tiles in one. */
-		groups: {
-			display: 'flex',
-			flexWrap: 'wrap',
-			justifyContent: 'center',
-			columnGap: `${BETWEEN}rem`,
-			rowGap: '1.5rem',
-		},
-		group: { display: 'flex', gap: `${WITHIN}rem` },
+		/** Every tile at one gap, no group told from another: what they are is the cards' below. */
+		all: { display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: `${GAP}rem` },
 		/** A group's own card: each tile over its name and its value. */
 		named: { columnGap: '2rem', rowGap: '1.5rem' },
 		item: { display: 'flex', flexDirection: 'column', gap: '0.625rem' },
+		/** A tile's name and its value, closer to each other than to the tile. */
+		caption: { display: 'flex', flexDirection: 'column', gap: '0.25rem' },
 		name: {
 			fontSize: fontSize.body,
 			fontWeight: fontWeight.medium,
@@ -123,6 +119,8 @@
 		},
 		value: {
 			fontFamily: 'var(--font-mono)',
+			// A space half a cell, the rest of the mono's cells kept whole.
+			wordSpacing: '-0.5ch',
 			fontSize: fontSize.caption,
 			color: 'var(--foreground-muted)',
 		},
@@ -134,15 +132,11 @@
 </svelte:head>
 
 <div class="flex flex-col gap-6">
-	<Card title="Materials" rule="Every gray on a page is one of these nine." rfc="ic4cd">
+	<Card title="Materials" rule="A fixed set of grays makes up every neutral on a page." rfc="ic4cd">
 		<Box row="{ROW}rem" ratio="2/3">
-			<div class={stylex.attrs(styles.groups).class}>
-				{#each GROUPS as group (group.label)}
-					<div class={stylex.attrs(styles.group).class}>
-						{#each group.tiles as tile (tile.token)}
-							<Swatch name="{group.label} {tile.name}" token={tile.token} size="{TILE}rem" />
-						{/each}
-					</div>
+			<div class={stylex.attrs(styles.all).class}>
+				{#each ALL as tile (tile.token)}
+					<Swatch name={tile.name} token={tile.token} size="{TILE}rem" reach="{GAP / 2}rem" />
 				{/each}
 			</div>
 		</Box>
@@ -153,13 +147,15 @@
 			<div class={stylex.attrs(styles.box, styles.named).class}>
 				{#each group.tiles as tile (tile.token)}
 					<div class={stylex.attrs(styles.item).class}>
-						<Swatch name={tile.name} token={tile.token} size="6.5rem" />
-						<span class={stylex.attrs(styles.name).class}>{tile.name}</span>
-						{#if theme}
-							<span class={stylex.attrs(styles.value).class}>
-								{readOf(valueOf(tile.token, theme) ?? '', group.reading)}
-							</span>
-						{/if}
+						<Swatch name={tile.name} token={tile.token} size="6.5rem" tip={false} />
+						<div class={stylex.attrs(styles.caption).class}>
+							<span class={stylex.attrs(styles.name).class}>{tile.name}</span>
+							{#if theme}
+								<span class={stylex.attrs(styles.value).class}>
+									{readOf(valueOf(tile.token, theme) ?? '', group.reading)}
+								</span>
+							{/if}
+						</div>
 					</div>
 				{/each}
 			</div>

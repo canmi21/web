@@ -160,27 +160,28 @@ from the card's width as it is, so the row keeps its proportion at any width; ne
 -- `src/lib/specimen/box.svelte`. The hues stand at `1/2` and the materials at `2/3`.
 
 **A page opens on everything it shows together, with nothing said**: its first card holds every
-specimen and no label, no value and no word beside them, only a name in a tip and a press that
-copies. Each group follows on a card of its own, with when it is used and each value under its
-specimen. A swatch is a well on the surface, ringed, with the color set into it and its corner the
-well's less the inset -- `src/lib/specimen/swatch.svelte`.
+specimen at one gap, in no groups, and no label, no value and no word beside them, only a name in a
+tip and a press that copies. Each group follows on a card of its own, with when it is used and each
+value under its specimen. A swatch is a well on the surface, ringed, with the color set into it and
+its corner the well's less the inset -- `src/lib/specimen/swatch.svelte`.
 
-**A card's head is its title, one sentence of the rule, and the RFC behind it.** The sentence is
-the shortest that says the rule, one where one will do, with commas and periods and no other
-stops: no colon, semicolon or dash. The derivation is the RFC's, not the sentence's. The RFC
-stands at the head's top right on every card, a link by its place and the pointer alone, with no
-underline.
+**A card's head is its title, one sentence of the rule, and the RFC behind it.** The sentence is the
+shortest that says the rule, one where one will do, with commas and periods and no other stops: no
+colon, semicolon or dash. The derivation is the RFC's, not the sentence's. **It states the rule as
+it stands, in the present and objectively**: neither a command, no must or only, nor a reason, and
+with no count in it, only one or more; no two cards open on the same word. The RFC stands at the
+head's top right on every card, a link by its place and the pointer alone, with no underline.
 
 **A specimen is drawn in the page's theme.** Both themes stand side by side only where the rule
 is why the two differ, as a hue's pair does; light and dark themselves need no case made for them,
 and a page drawn twice is hard on a reader in either.
 
-**A value is written as CSS writes it, in the terms it was chosen in**: a ground's
-`oklch(0.145 0 0)`, a rank's or a border's the text's color and how much of it is laid,
-`oklch(1 0 0 / 4.9%)`. It is worked out from the style's own files where the server renders, in
-the theme the reader's cookie names, so it is there in the first frame and follows the theme with
-no measuring; a first visit, before the cookie is written, fills it in once the theme is known.
-What a press copies is still the token, `var(--token)`.
+**A value is written as CSS writes it, in the terms it was chosen in**: a ground's `oklch(0.145 0
+0)`, a rank's or a border's the text's color and how much of it is laid, `oklch(1 0 0 / 4.9%)`. It
+is worked out from the style's own files where the server renders, in the theme the reader's cookie
+names, so it is there in the first frame and follows the theme with no measuring; a first visit,
+before the cookie is written, fills it in once the theme is known. What a press copies is still the
+token, `var(--token)`. Why is RFC x88ri.
 
 The pieces that draw specimens are space's own, in `src/lib/specimen/`.
 

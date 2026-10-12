@@ -159,7 +159,7 @@
 
 <Card
 	title="Grounds"
-	rule="Regions stand on the surface, and what is set into them goes back to the base."
+	rule="Regions rise onto the surface, while what sits inside them returns to the base."
 	rfc="c656n"
 >
 	<div class={stylex.attrs(styles.box).class}>

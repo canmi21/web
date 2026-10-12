@@ -139,7 +139,7 @@
 
 <Card
 	title="Hues"
-	rule="Each hue is at its purest, its light a step lighter than its dark."
+	rule="Each hue keeps its purest saturation, its light a step above its dark."
 	rfc="b0i0r"
 >
 	<Box row={DRAWN} ratio="1/2">

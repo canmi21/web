@@ -2,8 +2,8 @@
 	/**
 	 * One of the style's colors as a tile: a well on the surface, ringed in a hairline, and the color
 	 * set into it, its corner the well's less the inset -- lib's spec/design/styles.md, "Of two
-	 * corners nested". Named by its tip; a press copies its token as code reads it and ticks it in
-	 * the strongest text, each tick on its own clock.
+	 * corners nested". Named by its tip where nothing beside it names it; a press copies its token
+	 * as code reads it and ticks it in the strongest text, each tick on its own clock.
 	 */
 	import * as stylex from '@stylexjs/stylex';
 	import { borderWidth, radius } from '@canmi/design/scale.stylex';
@@ -11,7 +11,21 @@
 	import Tooltip from '@canmi/design/components/tooltip.svelte';
 	import CheckIcon from '@tabler/icons-svelte-runes/icons/check';
 
-	let { name, token, size = '4.5rem' }: { name: string; token: string; size?: string } = $props();
+	let {
+		name,
+		token,
+		size = '4.5rem',
+		tip = true,
+		reach,
+	}: {
+		name: string;
+		token: string;
+		size?: string;
+		/** Off where the name already stands beside it: lib's spec/design/components.md. */
+		tip?: boolean;
+		/** Half the gap to its neighbors, which its pointer area takes, unseen, on either side. */
+		reach?: string;
+	} = $props();
 
 	let ticking: ReturnType<typeof setTimeout> | undefined = $state();
 
@@ -39,6 +53,20 @@
 			boxShadow: `0 0 0 ${borderWidth.hairline} var(--border-default)`,
 			cursor: 'copy',
 		},
+		/**
+		 * The well's unseen reach into half of each gap beside it, so the pointer crossing from one
+		 * swatch to the next never leaves both and the tips follow it without a break.
+		 */
+		reach: {
+			'::before': {
+				content: '""',
+				position: 'absolute',
+				top: 0,
+				bottom: 0,
+				left: 'calc(-1 * var(--reach))',
+				right: 'calc(-1 * var(--reach))',
+			},
+		},
 		/** The color, ringed inside its own edge so one close to the well still has one. */
 		color: {
 			flexGrow: 1,
@@ -63,11 +91,12 @@
 	});
 </script>
 
-<Tooltip label={name}>
+{#snippet well()}
 	<button
 		type="button"
 		aria-label="Copy {token}, {name}"
-		class={stylex.attrs(styles.well).class}
+		class={stylex.attrs(styles.well, reach !== undefined && styles.reach).class}
+		style:--reach={reach}
 		style:width={size}
 		style:height={size}
 		onclick={copy}
@@ -79,4 +108,10 @@
 			</span>
 		{/if}
 	</button>
-</Tooltip>
+{/snippet}
+
+{#if tip}
+	<Tooltip label={name}>{@render well()}</Tooltip>
+{:else}
+	{@render well()}
+{/if}
