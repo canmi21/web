@@ -113,6 +113,11 @@ holding the page being read in the strong tone; a layer with no page yet is name
 in the subtle tone, the pointer over it showing `not-allowed`.
 Where a page is is the sidebar's to show, so the top bar carries no trail.
 
+**What a reader would press but is not built yet is shown in its place, named and not linked, and
+the pointer over it shows `not-allowed`**: never hidden, and never left as words with nothing said.
+Among links it takes the subtle tone; standing alone it keeps its own. It lifts with what it leads
+to -- RFC lkuqy.
+
 **A group's heading is half a link tall**, and its words sit at the bottom of that half, against the
 links it names below. `nav-heading.svelte` takes `align`, `bottom` unless `top` is given.
 
