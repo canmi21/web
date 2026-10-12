@@ -18,7 +18,7 @@
 	import { readings } from '../node.ts';
 	import { CODES } from '../nodes/facts.ts';
 	import { scoped } from '../scope/context.ts';
-	import { type } from '../style.ts';
+	import { corners, type } from '../style.ts';
 
 	let {
 		live,
@@ -151,7 +151,7 @@
 			<li data-key={place.name}>
 				<a
 					href={shared ? to('/nodes') : toNode(lead)}
-					class="h-7 rounded-md px-2 {COLUMNS} {stylex.attrs(styles.row).class}"
+					class="h-7 px-2 {COLUMNS} {stylex.attrs(styles.row, corners.md).class}"
 					onpointerenter={() => (pointed = lead)}
 					onpointerleave={() => (pointed = undefined)}
 					onfocus={() => (pointed = lead)}

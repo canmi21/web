@@ -18,7 +18,7 @@
 	import IconButton from '@canmi/design/components/icon-button.svelte';
 	import type { Live } from '../live.svelte.ts';
 	import { countryOf } from '../map/places.ts';
-	import { tone } from '../style.ts';
+	import { corners, tone } from '../style.ts';
 	import Badge from '../ui/badge.svelte';
 	import { CONTRACT } from '../wire.ts';
 
@@ -111,14 +111,15 @@
 				width="32"
 				height="32"
 				fetchpriority="high"
-				class="size-8 rounded-full object-cover {stylex.attrs(styles.disc).class}"
+				class="size-8 object-cover {stylex.attrs(styles.disc, corners.full).class}"
 			/>
 			<!-- Whether the socket is up, as a presence dot ringed in the sidebar's own ground. -->
 			<span
 				aria-hidden="true"
-				class="absolute -right-0.5 -bottom-0.5 size-3 rounded-full bg-current {stylex.attrs(
+				class="absolute -right-0.5 -bottom-0.5 size-3 bg-current {stylex.attrs(
 					tone[TONE[live.mode]],
 					styles.presence,
+					corners.full,
 				).class}"
 			></span>
 		</span>

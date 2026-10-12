@@ -61,7 +61,9 @@
 		option: {
 			backgroundColor: 'transparent',
 			borderWidth: 0,
-			borderRadius: radius.sm,
+			// The frame's corner less its padding and rule, lib's spec/design/styles.md, "Of two
+			// corners nested".
+			borderRadius: `calc(${radius.md} - 0.125rem - ${border.hairlinePx})`,
 			color: { default: 'var(--foreground-muted)', ':hover': 'var(--foreground-strong)' },
 			fontSize: text.px12,
 			fontWeight: weight.medium,

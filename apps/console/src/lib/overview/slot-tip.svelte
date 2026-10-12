@@ -46,6 +46,7 @@
 	 */
 	import * as stylex from '@stylexjs/stylex';
 	import { text, weight } from '@canmi/kit/tokens/vocabulary.stylex';
+	import { radius } from '@canmi/design/scale.stylex';
 	import AccessPointIcon from '@tabler/icons-svelte-runes/icons/access-point';
 	import PackagesIcon from '@tabler/icons-svelte-runes/icons/packages';
 	import RocketIcon from '@tabler/icons-svelte-runes/icons/rocket';
@@ -54,7 +55,7 @@
 	import Point from '@canmi/design/components/point.svelte';
 	import { heightBeside } from '@canmi/design/components/icon';
 	import Flag from '../map/flag.svelte';
-	import { type } from '../style.ts';
+	import { corners, type } from '../style.ts';
 	import { painted } from './verdict.ts';
 
 	/** The default rank laid on the card as one opaque color, for a ring that must match the line. */
@@ -100,9 +101,16 @@
 	const END = '[text-box:trim-end_cap_alphabetic]';
 	/**
 	 * The last line's foot rounded as the card's is inside its rule, so its wash keeps to the card:
-	 * the card cannot clip it, its point and bridge standing outside it.
+	 * the card cannot clip it, its point and bridge standing outside it. Its corner is the card's
+	 * less the rule, lib's spec/design/styles.md, "Of two corners nested".
 	 */
-	const FOOT = 'rounded-b-[calc(8px-var(--rule,1px))]';
+	const footing = stylex.create({
+		foot: {
+			borderBottomLeftRadius: `calc(${radius.lg} - var(--rule, 1px))`,
+			borderBottomRightRadius: `calc(${radius.lg} - var(--rule, 1px))`,
+		},
+	});
+	const FOOT = stylex.attrs(footing.foot).class ?? '';
 
 	/** How far it stands off the window's edges, and off the slot past its point, in pixels. */
 	const OFF = 8;
@@ -170,7 +178,8 @@
 		<Flag {code} size={14} />
 		<span
 			aria-hidden="true"
-			class="absolute -right-px -bottom-px size-1.5 rounded-full {badgeOf(verdict)}"
+			class="absolute -right-px -bottom-px size-1.5 {badgeOf(verdict)} {stylex.attrs(corners.full)
+				.class}"
 			style:box-shadow="0 0 0 1.5px var(--badge-ground, var(--background-surface))"
 		></span>
 	</span>

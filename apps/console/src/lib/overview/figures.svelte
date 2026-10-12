@@ -17,7 +17,7 @@
 	import { shown } from '../map/marks.ts';
 	import { stateOf } from '../node.ts';
 	import { CODES } from '../nodes/facts.ts';
-	import { type } from '../style.ts';
+	import { corners, type } from '../style.ts';
 	import type { State } from '../wire.ts';
 	import type { Figures } from './deploys.ts';
 
@@ -132,7 +132,7 @@
 	<span class="grid shrink-0 grid-cols-4 gap-1.5" role="img" aria-label="Each node, heard or not">
 		{#each heard as one (one.code)}
 			<span
-				class="size-1.5 rounded-full {stylex.attrs(styles[one.shown]).class}"
+				class="size-1.5 {stylex.attrs(styles[one.shown], corners.full).class}"
 				title="{nameOf(one.code).full}: {SAID[one.state]}"
 			></span>
 		{/each}

@@ -6,7 +6,7 @@
 	 */
 	import * as stylex from '@stylexjs/stylex';
 	import Flag from '../map/flag.svelte';
-	import { tone } from '../style.ts';
+	import { corners, tone } from '../style.ts';
 	import type { Told } from './health.ts';
 
 	let { code, told, size = 16 }: { code: string; told: Told; size?: number } = $props();
@@ -28,9 +28,10 @@
 	<Flag {code} {size} />
 	<span
 		aria-hidden="true"
-		class="absolute -right-1 bottom-0 size-2 rounded-full bg-current {stylex.attrs(
+		class="absolute -right-1 bottom-0 size-2 bg-current {stylex.attrs(
 			DOT[told.health],
 			styles.ring,
+			corners.full,
 		).class}"
 	></span>
 	<span class="sr-only">{told.said}</span>

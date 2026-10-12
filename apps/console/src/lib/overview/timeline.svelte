@@ -14,7 +14,7 @@
 	import { partOf } from '../map/places.ts';
 	import { scoped } from '../scope/context.ts';
 	import { SCOPES, displayOf } from '../scope/scope.ts';
-	import { type } from '../style.ts';
+	import { corners, type } from '../style.ts';
 	import { offsetIn, offsetOf, timeZone } from '../ui/time-zone.ts';
 	import type { History } from '../wire.ts';
 	import Icon from '@canmi/design/components/icon.svelte';
@@ -408,13 +408,14 @@
 		onblur={leave}
 	>
 		<span
-			class="block size-full rounded-[2px] outline-offset-0 outline-[var(--interaction-focus)] group-hover:outline-2 group-hover:outline-solid group-focus-visible:outline-2 group-focus-visible:outline-solid {pointed?.key ===
+			class="block size-full {stylex.attrs(corners.xs)
+				.class} outline-offset-0 outline-[var(--interaction-focus)] group-hover:outline-2 group-hover:outline-solid group-focus-visible:outline-2 group-focus-visible:outline-solid {pointed?.key ===
 			one.key
 				? 'outline-2 outline-solid'
 				: ''}"
 		>
 			<span
-				class="block size-full rounded-[2px] {stylex.attrs(painted[one.verdict]).class}"
+				class="block size-full {stylex.attrs(painted[one.verdict], corners.xs).class}"
 				style:opacity={one.verdict === 'none' ? undefined : one.opacity.toFixed(3)}
 			></span>
 		</span>
@@ -492,8 +493,8 @@
 			bounds: { slot: SLOT, gap: GAP },
 			layers: [
 				'group relative block h-full min-w-0 shrink-0 outline-none',
-				'block size-full rounded-[2px]',
-				'block size-full rounded-[2px]',
+				`block size-full ${stylex.attrs(corners.xs).class}`,
+				`block size-full ${stylex.attrs(corners.xs).class}`,
 			],
 			paints: VERDICTS.map((verdict) => stylex.attrs(painted[verdict]).class ?? ''),
 			opacities: Array.from({ length: SHADES }, (_, shade) => opacityOf(shade + 1).toFixed(3)),

@@ -10,7 +10,7 @@
 	import { stateOf } from '../node.ts';
 	import { CODES } from '../nodes/facts.ts';
 	import { scoped } from '../scope/context.ts';
-	import { surfaces, tone } from '../style.ts';
+	import { corners, surfaces, tone } from '../style.ts';
 	import type { State } from '../wire.ts';
 	import type { Now } from './moving.ts';
 
@@ -106,7 +106,7 @@
 >
 	<span
 		aria-hidden="true"
-		class="size-2 shrink-0 rounded-full bg-current {stylex.attrs(known ? tone[level] : tone.quiet)
+		class="size-2 shrink-0 bg-current {stylex.attrs(known ? tone[level] : tone.quiet, corners.full)
 			.class}"
 	></span>
 	<p class="flex min-w-0 flex-1 flex-wrap items-center gap-x-2 {stylex.attrs(styles.said).class}">

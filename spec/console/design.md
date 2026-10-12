@@ -156,7 +156,10 @@ Client Behavior`. **Where the frame itself fails, `src/error.html` stands in**: 
 falls to the static page, which was SvelteKit's bare `500 Internal Error` until 2026-10-09. It is
 the same page as static HTML -- the console's colors written out and following the reader's light or
 dark, the address written out, a way to try again -- and needs nothing else to load. Decided with
-the author on 2026-10-09.
+the author on 2026-10-09. **Its theme is the reader's, as every page's is**: `@canmi/design/theme`'s
+script is written out in its head, the cookie and else the system deciding the mark, and with no
+script it falls to the system's preference alone, in a `<noscript>`. Until 2026-10-11 it took the
+system's alone, so a reader who had chosen light on a dark system met a dark page.
 
 ## A choice in a card's head is its title
 
@@ -241,7 +244,10 @@ order.** An element with no class -- what Bits UI portals out and keys off a sta
 keyframe, a pseudo-element -- is the `<style>` block's. A declaration that is a member of a named
 recipe, or of the type ramp -- color, radius, border, shadow, opacity, transition, the type -- is
 StyleX's, on the kit's vocabulary tokens and the palette's semantic names, never a literal:
-`duration.base` rather than `120ms`, `radius.full` rather than a large number. Everything else is a
+`duration.base` rather than `120ms`, `radius.full` rather than a large number. **A corner is one of
+the scale's five steps or the pill, or worked out from the corner around it** -- lib's
+`spec/design/styles.md`, "Of two corners nested" -- and `corners` in `src/lib/style.ts` holds the
+steps a mark takes of its own; since 2026-10-11 no `rounded-*` class is left. Everything else is a
 one-off on one element and is Tailwind's, in the markup: layout, spacing, size, position, and a
 `cursor` that no recipe carries.
 

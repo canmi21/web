@@ -7,6 +7,7 @@
 	import * as stylex from '@stylexjs/stylex';
 	import { text } from '@canmi/kit/tokens/vocabulary.stylex';
 	import { type Dimension, LEGENDS, WORDS } from './history.ts';
+	import { corners } from '../style.ts';
 	import { painted } from './verdict.ts';
 
 	let { dimension }: { dimension: Dimension } = $props();
@@ -22,7 +23,7 @@
 	<div class="flex h-7 items-center justify-end gap-x-4 {stylex.attrs(styles.word).class}">
 		{#each LEGENDS[dimension] as verdict (verdict)}
 			<span class="flex items-center gap-1.5" title={WORDS[dimension][verdict]}>
-				<span class="h-3 w-[3px] rounded-[1px] {stylex.attrs(painted[verdict]).class}"></span>
+				<span class="h-3 w-[3px] {stylex.attrs(painted[verdict], corners.xs).class}"></span>
 				<span class="hidden whitespace-nowrap @min-[24rem]:inline">{WORDS[dimension][verdict]}</span
 				>
 			</span>
