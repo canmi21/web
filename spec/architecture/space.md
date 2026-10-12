@@ -104,13 +104,17 @@ field 15rem wide and as tall as the switch. Every page is listed once, in the de
 **The sidebar has levels, as the console's does** -- spec/console/navigation.md, "Entering a level
 replaces the sidebar with it". The top level is Home and each category, Color among them, under the
 heading of the layer holding it. A category is a level of its own: entering it replaces the sidebar
-with its pages under the way back, `Design`, and Home is not among them, since a level deeper has no
-use for it; the move slides as the console's does. **A link that enters a level ends in a chevron**,
-in the subtle tone and the link's own on hover, so a reader sees which entries hold a list before
-opening one; the RFCs' areas carry it too. A category is entered at its first page drawn, and its
-own address leads there. **A page not drawn yet is named and not linked**, in the subtle tone, the
-pointer over it showing `not-allowed`, as a layer with no page is in the top bar, so a category
-shows what it will hold before it holds it.
+with its pages under the way back, named for its layer, and Home is not among them, since a level
+deeper has no use for it; the move slides as the console's does. **A link that enters a level ends
+in a chevron**, in the subtle tone and the link's own on hover, so a reader sees which entries hold
+a list before opening one; the RFCs' areas carry it too. **A layer is a level the reader never steps
+into**, as a route group is one the address never shows, turned the other way: it takes a segment of
+the address, `/foundations/color/hues`, and names the way back out of its categories, and the
+sidebar draws no list for it, since one of four layers would leave the top level all but empty. The
+way back leads to the top level. A layer's address and a category's lead to the first page drawn
+under them. **A page not drawn yet is named and not linked**, in the subtle tone, the pointer over
+it showing `not-allowed`, as a layer with no page is in the top bar, so a category shows what it
+will hold before it holds it.
 
 **The top bar names the layers, not the page.** Foundations, Primitives, Components and Layouts
 follow Design as plain links, left-aligned, in the order each stands on the one before, the layer

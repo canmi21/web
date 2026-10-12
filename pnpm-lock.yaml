@@ -304,8 +304,8 @@ importers:
         specifier: workspace:*
         version: link:../../libs/addresses
       '@canmi/design':
-        specifier: ^2026.1011.7
-        version: 2026.1011.7(@stylexjs/stylex@0.19.1)(@tabler/icons-svelte-runes@3.49.0(svelte@5.57.1))(svelte@5.57.1)
+        specifier: ^2026.1012.0
+        version: 2026.1012.0(@stylexjs/stylex@0.19.1)(@tabler/icons-svelte-runes@3.49.0(svelte@5.57.1))(svelte@5.57.1)
       '@canmi/fonts':
         specifier: workspace:*
         version: link:../../libs/fonts
@@ -788,8 +788,8 @@ importers:
   apps/space/design:
     devDependencies:
       '@canmi/design':
-        specifier: ^2026.1011.7
-        version: 2026.1011.7(@stylexjs/stylex@0.19.1)(@tabler/icons-svelte-runes@3.49.0(svelte@5.57.1))(svelte@5.57.1)
+        specifier: ^2026.1012.0
+        version: 2026.1012.0(@stylexjs/stylex@0.19.1)(@tabler/icons-svelte-runes@3.49.0(svelte@5.57.1))(svelte@5.57.1)
       '@canmi/fonts':
         specifier: workspace:*
         version: link:../../../libs/fonts
@@ -857,8 +857,8 @@ importers:
   apps/space/rfcs:
     devDependencies:
       '@canmi/design':
-        specifier: ^2026.1011.7
-        version: 2026.1011.7(@stylexjs/stylex@0.19.1)(@tabler/icons-svelte-runes@3.49.0(svelte@5.57.1))(svelte@5.57.1)
+        specifier: ^2026.1012.0
+        version: 2026.1012.0(@stylexjs/stylex@0.19.1)(@tabler/icons-svelte-runes@3.49.0(svelte@5.57.1))(svelte@5.57.1)
       '@canmi/fonts':
         specifier: workspace:*
         version: link:../../../libs/fonts
@@ -1244,8 +1244,8 @@ importers:
   libs/space-ui:
     dependencies:
       '@canmi/design':
-        specifier: ^2026.1011.7
-        version: 2026.1011.7(@stylexjs/stylex@0.19.1)(@tabler/icons-svelte-runes@3.49.0(svelte@5.57.1))(svelte@5.57.1)
+        specifier: ^2026.1012.0
+        version: 2026.1012.0(@stylexjs/stylex@0.19.1)(@tabler/icons-svelte-runes@3.49.0(svelte@5.57.1))(svelte@5.57.1)
       '@canmi/web':
         specifier: ^2026.1009.0
         version: 2026.1009.0(@sentry/sveltekit@11.4.0(@babel/core@7.29.7(supports-color@10.2.2))(@cloudflare/workers-types@5.20261004.1)(@sveltejs/kit@3.0.0(@opentelemetry/api@1.9.1)(@sveltejs/vite-plugin-svelte@7.3.1(svelte@5.57.1)(vite@8.3.2(@types/node@26.6.4)(esbuild@0.28.2)(jiti@2.7.0)(tsx@4.23.15)(yaml@2.9.1)))(svelte@5.57.1)(typescript@6.0.3)(vite@8.3.2(@types/node@26.6.4)(esbuild@0.28.2)(jiti@2.7.0)(tsx@4.23.15)(yaml@2.9.1)))(svelte@5.57.1)(vite@8.3.2(@types/node@26.6.4)(esbuild@0.28.2)(jiti@2.7.0)(tsx@4.23.15)(yaml@2.9.1)))(@sveltejs/kit@3.0.0(@opentelemetry/api@1.9.1)(@sveltejs/vite-plugin-svelte@7.3.1(svelte@5.57.1)(vite@8.3.2(@types/node@26.6.4)(esbuild@0.28.2)(jiti@2.7.0)(tsx@4.23.15)(yaml@2.9.1)))(svelte@5.57.1)(typescript@6.0.3)(vite@8.3.2(@types/node@26.6.4)(esbuild@0.28.2)(jiti@2.7.0)(tsx@4.23.15)(yaml@2.9.1)))(hono@4.13.12)
@@ -1524,8 +1524,8 @@ packages:
   '@bytecodealliance/preview3-shim@0.6.1':
     resolution: {integrity: sha512-61mEfjfgGmZhEMA0H3waawPKvYd3za9y0vJ7pmQz/9yvm4FR6Ef+cmqhnxDE7ezsM07MY1btP92ymmgsgFwxmg==}
 
-  '@canmi/design@2026.1011.7':
-    resolution: {integrity: sha512-+a326XV1zr6QplEgYcPYXJ+YygzGL5TOXwb6fkM6NJrHfXmKq0SSScI7q4twfFTkPzd6Zxuzv1IogqJl/fyV6w==}
+  '@canmi/design@2026.1012.0':
+    resolution: {integrity: sha512-pUzmyD3WO+tiV6gPM+MVsZ2dA7DwnniFG1lvUl6RqsUlxhspW6FBjBA72y5MnlycWd7c6Er1kVmzjXWKvJYhtw==}
     peerDependencies:
       '@stylexjs/stylex': ^0.19.1
       '@tabler/icons-svelte-runes': ^3.49.0
@@ -6090,7 +6090,7 @@ snapshots:
       '@bytecodealliance/jco-node-fs': 0.3.2
       '@bytecodealliance/preview2-shim': 0.25.0
 
-  '@canmi/design@2026.1011.7(@stylexjs/stylex@0.19.1)(@tabler/icons-svelte-runes@3.49.0(svelte@5.57.1))(svelte@5.57.1)':
+  '@canmi/design@2026.1012.0(@stylexjs/stylex@0.19.1)(@tabler/icons-svelte-runes@3.49.0(svelte@5.57.1))(svelte@5.57.1)':
     optionalDependencies:
       '@stylexjs/stylex': 0.19.1
       '@tabler/icons-svelte-runes': 3.49.0(svelte@5.57.1)

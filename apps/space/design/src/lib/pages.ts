@@ -11,43 +11,60 @@ import ColorIcon from '@tabler/icons-svelte-runes/icons/palette';
 import GroundsIcon from '@tabler/icons-svelte-runes/icons/stack-2';
 import HomeIcon from '@tabler/icons-svelte-runes/icons/home';
 import HuesIcon from '@tabler/icons-svelte-runes/icons/color-swatch';
+import MaterialsIcon from '@tabler/icons-svelte-runes/icons/texture';
 import InteractionIcon from '@tabler/icons-svelte-runes/icons/pointer';
 import TextIcon from '@tabler/icons-svelte-runes/icons/typography';
 
 /** A category: a page in the top level that is entered, its own pages replacing the sidebar. */
 export interface Category extends Page {
+	/** Its segment of the address, after its layer's. */
+	readonly slug: string;
 	readonly pages: readonly Page[];
 }
 
-/** One of the system's layers, in the top bar, and the categories the top level lists under it. */
+/**
+ * One of the system's layers, in the top bar, and the categories the top level lists under it. A
+ * layer is a level the reader never steps into: it has a segment of the address and names the way
+ * back out of its categories, and the sidebar draws no list of its own for it.
+ */
 export interface Layer {
 	readonly label: string;
+	readonly slug: string;
 	readonly categories: readonly Category[];
 }
 
 /** A page without `href` is named and not linked: it is not drawn yet. */
 const COLOR: readonly Page[] = [
-	{ label: 'Grounds', icon: GroundsIcon },
+	{ href: resolve('/foundations/color/materials'), label: 'Materials', icon: MaterialsIcon },
+	{ href: resolve('/foundations/color/grounds'), label: 'Grounds', icon: GroundsIcon },
 	{ label: 'Text', icon: TextIcon },
 	{ label: 'Borders', icon: BordersIcon },
 	{ label: 'Interaction', icon: InteractionIcon },
-	{ href: resolve('/color/hues'), label: 'Hues', icon: HuesIcon },
+	{ href: resolve('/foundations/color/hues'), label: 'Hues', icon: HuesIcon },
 ];
 
 /** The system's layers in the order each stands on the last. */
 export const LAYERS: readonly Layer[] = [
 	{
 		label: 'Foundations',
+		slug: 'foundations',
 		categories: [
-			{ ...firstOf(COLOR), label: 'Color', icon: ColorIcon, enters: true, pages: COLOR },
+			{
+				...firstOf(COLOR),
+				label: 'Color',
+				slug: 'color',
+				icon: ColorIcon,
+				enters: true,
+				pages: COLOR,
+			},
 		],
 	},
-	{ label: 'Primitives', categories: [] },
-	{ label: 'Components', categories: [] },
-	{ label: 'Layouts', categories: [] },
+	{ label: 'Primitives', slug: 'primitives', categories: [] },
+	{ label: 'Components', slug: 'components', categories: [] },
+	{ label: 'Layouts', slug: 'layouts', categories: [] },
 ];
 
-/** A category is entered at its first page drawn. */
+/** A category is entered at its first page drawn, and a layer at its first category's. */
 function firstOf(pages: readonly Page[]): { href?: string } {
 	return { href: pages.find((one) => one.href)?.href };
 }
@@ -69,7 +86,7 @@ export function levelOf(path: string): Level {
 	const place = placeOf(path);
 	if (place)
 		return {
-			up: { href: resolve('/'), label: 'Design' },
+			up: { href: resolve('/'), label: place.layer.label },
 			groups: [{ pages: place.category.pages }],
 		};
 	return {
@@ -86,4 +103,20 @@ export function levelOf(path: string): Level {
 /** The layer holding the page at `path`, none at home. */
 export function layerOf(path: string): Layer | undefined {
 	return placeOf(path)?.layer;
+}
+
+/** Where a layer is entered: its first category's first page drawn, none while it has none. */
+export function entryOf(layer: Layer): string | undefined {
+	return layer.categories.find((one) => one.href)?.href;
+}
+
+/**
+ * The page an address short of one leads to: a layer's, or a category's under it, entered at its
+ * first page drawn. None where the address names neither.
+ */
+export function leadOf(layerSlug: string, categorySlug?: string): string | undefined {
+	const layer = LAYERS.find((one) => one.slug === layerSlug);
+	if (!layer) return undefined;
+	if (categorySlug === undefined) return entryOf(layer);
+	return layer.categories.find((one) => one.slug === categorySlug)?.href;
 }

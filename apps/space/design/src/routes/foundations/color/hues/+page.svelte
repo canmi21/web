@@ -5,12 +5,11 @@
 	 * is named by its tip and copies its token as code reads it; the card cites the RFC behind it.
 	 */
 	import * as stylex from '@stylexjs/stylex';
-	import { borderWidth, fontWeight, lineHeight, radius } from '@canmi/design/scale.stylex';
+	import { borderWidth, radius } from '@canmi/design/scale.stylex';
 	import Icon from '@canmi/design/components/icon.svelte';
 	import ThemeScope from '@canmi/design/components/theme-scope.svelte';
 	import Tooltip from '@canmi/design/components/tooltip.svelte';
-	import RfcRef from '@canmi/space-ui/rfc-ref.svelte';
-	import { dev } from '$app/env';
+	import Card from '#lib/specimen/card.svelte';
 	import CheckIcon from '@tabler/icons-svelte-runes/icons/check';
 	import { SvelteMap } from 'svelte/reactivity';
 
@@ -64,45 +63,6 @@
 	});
 
 	const styles = stylex.create({
-		card: {
-			display: 'flex',
-			minWidth: 0,
-			flexDirection: 'column',
-			borderWidth: borderWidth.hairline,
-			borderStyle: 'solid',
-			borderColor: 'var(--border-default)',
-			borderRadius: radius.xl,
-			backgroundColor: 'var(--background-surface)',
-			boxShadow: 'var(--shadow-surface)',
-		},
-		head: {
-			display: 'flex',
-			flexDirection: 'column',
-			gap: '0.25rem',
-			paddingInline: '1.25rem',
-			paddingTop: '1rem',
-		},
-		title: {
-			fontSize: '1.5rem', // unnamed: a page title
-			fontWeight: fontWeight.semibold,
-			letterSpacing: '-0.02em',
-			color: 'var(--foreground-strong)',
-		},
-		sentence: {
-			fontSize: '1rem', // unnamed: the reader's own size, for a sentence to read
-			lineHeight: lineHeight.relaxed,
-			color: 'var(--foreground-muted)',
-		},
-		/** A container, so the box below can read its own width. */
-		body: {
-			containerType: 'inline-size',
-			display: 'flex',
-			flexGrow: 1,
-			flexDirection: 'column',
-			paddingInline: '1.25rem',
-			paddingTop: '0.75rem',
-			paddingBottom: '1.25rem',
-		},
 		/**
 		 * The card again, on the page's own ground, the hues standing in it half as far from its top
 		 * and bottom as the row leaves either side, whatever its width, and never nearer than a side.
@@ -186,45 +146,40 @@
 	<title>Hues</title>
 </svelte:head>
 
-<section class={stylex.attrs(styles.card).class}>
-	<header class={stylex.attrs(styles.head).class}>
-		<h2 class={stylex.attrs(styles.title).class}>Hues</h2>
-		<p class={stylex.attrs(styles.sentence).class}>
-			Each at its purest, the dark's then the light's, a step lighter. <RfcRef id="b0i0r" {dev} />
-		</p>
-	</header>
-	<div class={stylex.attrs(styles.body).class}>
-		<div class={stylex.attrs(styles.box).class}>
-			{#each GROUPS.flat() as hue (hue.token)}
-				<div class={stylex.attrs(styles.pair).class}>
-					{#each THEMES as theme, index (theme)}
-						{@const key = `${hue.token}:${theme}`}
-						<Tooltip label={hue.name}>
-							<button
-								type="button"
-								aria-label="Copy {hue.token}, {hue.name} in the {theme}"
-								class={stylex.attrs(styles.well, styles.reach, index > 0 && styles.reachAfter)
-									.class}
-								onclick={() => copy(hue.token, key)}
-							>
-								<ThemeScope {theme}>
-									<span
-										class={stylex.attrs(styles.hue).class}
-										style:background-color="var({hue.token})"
-									></span>
+<Card
+	title="Hues"
+	rule="Each at its purest, the dark's then the light's, a step lighter."
+	rfc="b0i0r"
+>
+	<div class={stylex.attrs(styles.box).class}>
+		{#each GROUPS.flat() as hue (hue.token)}
+			<div class={stylex.attrs(styles.pair).class}>
+				{#each THEMES as theme, index (theme)}
+					{@const key = `${hue.token}:${theme}`}
+					<Tooltip label={hue.name}>
+						<button
+							type="button"
+							aria-label="Copy {hue.token}, {hue.name} in the {theme}"
+							class={stylex.attrs(styles.well, styles.reach, index > 0 && styles.reachAfter).class}
+							onclick={() => copy(hue.token, key)}
+						>
+							<ThemeScope {theme}>
+								<span
+									class={stylex.attrs(styles.hue).class}
+									style:background-color="var({hue.token})"
+								></span>
+							</ThemeScope>
+							{#if ticked.has(key)}
+								<ThemeScope theme="dark">
+									<span class={stylex.attrs(styles.tick).class}>
+										<Icon icon={CheckIcon} size={16} stroke={3} />
+									</span>
 								</ThemeScope>
-								{#if ticked.has(key)}
-									<ThemeScope theme="dark">
-										<span class={stylex.attrs(styles.tick).class}>
-											<Icon icon={CheckIcon} size={16} stroke={3} />
-										</span>
-									</ThemeScope>
-								{/if}
-							</button>
-						</Tooltip>
-					{/each}
-				</div>
-			{/each}
-		</div>
+							{/if}
+						</button>
+					</Tooltip>
+				{/each}
+			</div>
+		{/each}
 	</div>
-</section>
+</Card>

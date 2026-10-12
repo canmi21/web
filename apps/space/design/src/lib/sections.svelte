@@ -3,7 +3,7 @@
 	import * as stylex from '@stylexjs/stylex';
 	import { page } from '$app/state';
 	import { duration, fontSize, radius } from '@canmi/design/scale.stylex';
-	import { LAYERS, layerOf } from './pages.ts';
+	import { LAYERS, entryOf, layerOf } from './pages.ts';
 
 	const styles = stylex.create({
 		list: { display: 'flex', flexShrink: 0, alignItems: 'center', gap: '0.25rem' },
@@ -29,7 +29,7 @@
 
 <nav aria-label="Sections" class={stylex.attrs(styles.list).class}>
 	{#each LAYERS as section (section.label)}
-		{@const href = section.categories.find((one) => one.href)?.href}
+		{@const href = entryOf(section)}
 		{#if href}
 			<a
 				{href}
