@@ -161,6 +161,15 @@ the proportion. It is worked out from the card's width as it is, so the row keep
 any width -- `src/lib/specimen/box.svelte`. The hues stand at `1/2`, the materials at `2/3` and the
 grays of both themes at `2`.
 
+**A specimen drawn in 3D rests seen from straight above**, the flat plan the server draws, so
+it is there in the first frame. A while in sight it tours its menu's views; the pointer or the
+keyboard coming on stops the tour where it stands and hands it to the reader, and nothing takes it
+back when they leave. Nearly out of sight it goes back to rest, to tour again. A drag turns what is
+drawn, not the camera, about the line square to the drag, so the point held follows the pointer;
+the menu, there from the first movement until that rest, brings it to a set view. It fills its box
+to the edge and is cut off there. What it shows is a relation, one level for the grounds in both
+themes, not the size of a step, which its own card draws -- `src/lib/specimen/relief.svelte`.
+
 **Every mark of a color copies its token on a press**, `var(--token)` as code reads it, and ticks
 the mark it was pressed on, each tick on its own clock: a swatch, a ramp's cell, a stop on a way,
 wherever a color stands to be looked at -- `src/lib/specimen/ticks.svelte.ts`. A mark that stands

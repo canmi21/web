@@ -141,6 +141,8 @@
 		},
 		first: { borderStartStartRadius: radius.lg, borderEndStartRadius: radius.lg },
 		last: { borderStartEndRadius: radius.lg, borderEndEndRadius: radius.lg },
+		/** A box a scene fills to its edge, cut off there as a window onto it would be. */
+		bleed: { padding: 0, overflow: 'hidden' },
 		/** A box both themes stand in at once, on the one gray they share, so neither is the odd one. */
 		neutral: { backgroundColor: 'var(--background-neutral)' },
 		/** A window held in one theme, painted in its base. */
@@ -405,7 +407,7 @@
 		rule="The grounds alone rise alike, each surface brighter than its base in both themes."
 		rfc="c656n"
 	>
-		<div class={stylex.attrs(styles.box, styles.neutral).class}>
+		<div class={stylex.attrs(styles.box, styles.neutral, styles.bleed).class}>
 			<Relief />
 		</div>
 	</Card>

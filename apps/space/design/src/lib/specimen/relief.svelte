@@ -1,7 +1,8 @@
 <script lang="ts">
 	/**
-	 * The grounds of both themes drawn in 3D, each region lifted off its base as far as it stands
-	 * brighter in L*, with a field set into it back down at the base. It rests seen from straight
+	 * The grounds of both themes drawn in 3D, each region lifted one level off its base, the same in
+	 * both, with a field set into it back down at the base: a level, not how far apart the grays
+	 * are, which the step's card shows. It rests seen from straight
 	 * above, the flat plan the server draws, where the two look alike. In sight a while, it tours
 	 * the menu's views one after another, and the relief shows; the pointer coming onto it stops the
 	 * tour where it is and leaves it to the reader, a drag turning it anywhere and the menu bringing
@@ -20,20 +21,24 @@
 	import SquareIcon from '@tabler/icons-svelte-runes/icons/square';
 	import StairsIcon from '@tabler/icons-svelte-runes/icons/stairs';
 	import type * as Three from 'three';
-	import { levelOf, lightnessOf, shadeOf, stepOf } from './lightness.ts';
+	import { levelOf, lightnessOf, shadeOf } from './lightness.ts';
 	import { Ticks } from './ticks.svelte.ts';
 
 	/** The scene in its own units: a plate per theme, side by side, with room around them. */
-	const SCENE = { width: 26, height: 12 };
+	const SCENE = { width: 28, height: 13 };
 	const PLATE = { width: 10, depth: 7, radius: 0.45, thickness: 0.3 };
 	const REGION = { width: 7.6, depth: 5.2, radius: 0.35 };
 	const FIELD = { width: 2.8, depth: 2.4, radius: 0.25 };
-	/** How high a region stands per L* it is brighter than its base. */
-	const LIFT = 0.28;
+	/** How high a region stands over its base, one level in either theme. */
+	const LEVEL = 0.8;
 	/** The share of light a side takes, against a top's whole. */
 	const SIDE = 0.8;
 
-	/** A view, in degrees: tipped from straight down, and turned about the upright. */
+	/**
+	 * A view, in degrees, as a camera going round it would take it: tipped from straight down
+	 * toward the front, and turned about the upright. The camera stays above and the scene turns
+	 * instead, so a drag can turn it about any line, as a hand turns what it holds.
+	 */
 	type Pose = { pitch: number; yaw: number };
 	/**
 	 * The menu's views, each a mark named by its tip, in the order the tour takes them, the first
@@ -61,6 +66,8 @@
 	const GLIDE = 1200;
 	const HOLD = 1800;
 	const FIELD_OF_VIEW = 15;
+	/** How far a drag turns the scene, in degrees a pixel. */
+	const TURN = 0.4;
 	/** The shares of the box in sight above which its wait starts, and below which it goes back. */
 	const ARRIVED = 0.6;
 	const LEAVING = 0.2;
@@ -130,6 +137,9 @@
 		const renderer = new three.WebGLRenderer({ canvas, antialias: true, alpha: true });
 		renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
 		const scene = new three.Scene();
+		/** Everything drawn, turned as one about the middle between the plates. */
+		const held = new three.Group();
+		scene.add(held);
 		const camera = new three.PerspectiveCamera(FIELD_OF_VIEW, SCENE.width / SCENE.height, 1, 400);
 		const owned: { dispose(): void }[] = [renderer];
 
@@ -185,21 +195,27 @@
 			shape.holes.push(rounded(FIELD));
 			const region = solid(
 				shape,
-				stepOf('--background-surface', theme) * LIFT,
+				LEVEL,
 				lightnessOf('--background-surface', theme),
 				edge,
 				'--background-surface',
 			);
 			region.position.set(x, 0, 0);
 			plate.userData.theme = region.userData.theme = theme;
-			scene.add(plate, region);
+			held.add(plate, region);
 			pickable.push(plate, region);
 		}
 
 		const still = matchMedia('(prefers-reduced-motion: reduce)');
-		let pose: Pose = REST;
-		let glide: { from: Pose; to: Pose; start: number } | undefined;
-		let drag: { x: number; y: number; from: Pose; moved: boolean } | undefined;
+		/** The turn of the scene that shows a pose: the camera's way round it, undone. */
+		const turnOf = ({ pitch, yaw }: Pose) =>
+			new three.Quaternion().setFromEuler(
+				new three.Euler((-pitch * Math.PI) / 180, (-yaw * Math.PI) / 180, 0, 'XYZ'),
+			);
+		const turns = VIEWS.map((view) => turnOf(view.pose));
+		const turn = turnOf(REST);
+		let glide: { from: Three.Quaternion; to: Three.Quaternion; start: number } | undefined;
+		let drag: { x: number; y: number; moved: boolean } | undefined;
 		/**
 		 * At rest and waiting to be seen, waiting in sight, on its tour, or the reader's: only leaving
 		 * sight brings it back to the first.
@@ -213,26 +229,17 @@
 			go?.(VIEWS[stop]?.pose ?? REST);
 		}
 
-		const near = (a: Pose, b: Pose) =>
-			Math.abs(a.pitch - b.pitch) < 0.5 && Math.abs(a.yaw - b.yaw) < 0.5;
+		/** Straight above, its top toward the scene's far side: the screen's right is x, its up -z. */
+		camera.up.set(0, 0, -1);
 		function look() {
-			const [pitch, yaw] = [(pose.pitch * Math.PI) / 180, (pose.yaw * Math.PI) / 180];
 			const reach = SCENE.width / 2 / (Math.tan((FIELD_OF_VIEW * Math.PI) / 360) * camera.aspect);
-			camera.position.set(
-				reach * Math.sin(pitch) * Math.sin(yaw),
-				reach * Math.cos(pitch),
-				reach * Math.sin(pitch) * Math.cos(yaw),
-			);
-			// Toward the far side and square to the view at every pitch, straight down and level alike.
-			camera.up.set(
-				-Math.cos(pitch) * Math.sin(yaw),
-				Math.sin(pitch),
-				-Math.cos(pitch) * Math.cos(yaw),
-			);
+			camera.position.set(0, reach, 0);
 			camera.lookAt(0, 0, 0);
+			held.quaternion.copy(turn);
 			renderer.render(scene, camera);
 			drawn = true;
-			at = VIEWS.find((view) => near(pose, view.pose))?.name ?? '';
+			const index = turns.findIndex((each) => turn.angleTo(each) < (0.5 * Math.PI) / 180);
+			at = VIEWS[index]?.name ?? '';
 		}
 
 		let frame = 0;
@@ -241,10 +248,7 @@
 			if (glide) {
 				const t = still.matches ? 1 : Math.min(1, (now - glide.start) / GLIDE);
 				const e = t < 0.5 ? 4 * t ** 3 : 1 - (-2 * t + 2) ** 3 / 2;
-				pose = {
-					pitch: glide.from.pitch + (glide.to.pitch - glide.from.pitch) * e,
-					yaw: glide.from.yaw + (glide.to.yaw - glide.from.yaw) * e,
-				};
+				turn.slerpQuaternions(glide.from, glide.to, e);
 				if (t === 1) {
 					glide = undefined;
 					if (phase === 'touring') timer = setTimeout(onward, HOLD);
@@ -258,7 +262,7 @@
 		};
 		go = (to: Pose) => {
 			drag = undefined;
-			glide = { from: pose, to, start: performance.now() };
+			glide = { from: turn.clone(), to: turnOf(to), start: performance.now() };
 			kick();
 		};
 
@@ -306,7 +310,7 @@
 		);
 		sight.observe(box);
 
-		/** The pointer coming on, or the keyboard, stops the tour where it stands and hands it to the reader. */
+		/** The pointer or the keyboard coming on stops the tour where it stands, for the reader. */
 		function enter() {
 			clearTimeout(timer);
 			if (phase === 'waiting' || phase === 'touring') glide = undefined;
@@ -318,18 +322,26 @@
 			glide = undefined;
 			phase = 'free';
 			engaged = true;
-			drag = { x: event.clientX, y: event.clientY, from: pose, moved: false };
+			drag = { x: event.clientX, y: event.clientY, moved: false };
 			canvas.setPointerCapture(event.pointerId);
 			grabbing = true;
 		}
+		const axis = new three.Vector3();
+		const step = new three.Quaternion();
+		/**
+		 * The point held follows the pointer: the scene turns about the line square to the drag and to
+		 * the view, as far as the pointer went, a degree for every few pixels.
+		 */
 		function move(event: PointerEvent) {
 			if (!drag) return;
 			const [dx, dy] = [event.clientX - drag.x, event.clientY - drag.y];
-			if (Math.hypot(dx, dy) > 4) drag.moved = true;
-			pose = {
-				pitch: Math.min(90, Math.max(0, drag.from.pitch + dy * 0.3)),
-				yaw: drag.from.yaw + dx * 0.4,
-			};
+			if (!dx && !dy) return;
+			drag.x = event.clientX;
+			drag.y = event.clientY;
+			drag.moved ||= Math.hypot(dx, dy) > 0;
+			axis.set(dy, 0, -dx).normalize();
+			step.setFromAxisAngle(axis, (Math.hypot(dx, dy) * TURN * Math.PI) / 180);
+			turn.premultiply(step);
 			kick();
 		}
 		function up(event: PointerEvent) {
@@ -476,7 +488,7 @@
 	<canvas
 		bind:this={canvas}
 		class={stylex.attrs(styles.canvas, grabbing && styles.grabbing).class}
-		aria-label="The base and the surface of both themes, lifted as far as each stands brighter"
+		aria-label="The base and the surface of both themes, the surface a level above the base in each"
 	></canvas>
 	<div
 		class={stylex.attrs(styles.menu, go && engaged && styles.shown).class}
