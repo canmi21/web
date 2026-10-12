@@ -1,9 +1,9 @@
 <script lang="ts">
 	/**
-	 * Every neutral a page is built of, in the page's theme: all nine together with nothing said,
+	 * Every neutral a page is built of, in the page's theme: all of them together with nothing said,
 	 * then each group on a card of its own, with when it is used and each value under its tile, in
 	 * the terms it was chosen in: a ground its oklch, a rank or a border the strongest text's oklch
-	 * and how much of it is laid.
+	 * and how much of it is laid, a text tier its APCA contrast on the surface.
 	 */
 	import * as stylex from '@stylexjs/stylex';
 	import { borderWidth, fontSize, fontWeight, radius } from '@canmi/design/scale.stylex';
@@ -12,12 +12,16 @@
 	import { untrack } from 'svelte';
 	import Box from '#lib/specimen/box.svelte';
 	import Card from '#lib/specimen/card.svelte';
+	import { contrastOf } from '#lib/specimen/apca.ts';
 	import { valueOf } from '#lib/specimen/mono.ts';
 	import { frame } from '#lib/specimen/frame.stylex.ts';
 	import Swatch from '#lib/specimen/swatch.svelte';
 
-	/** What a group's values are read as: a ground's oklch, or the text's and how much is laid. */
-	type Reading = 'oklch' | 'text';
+	/**
+	 * What a group's values are read as: a ground's oklch, the text's and how much is laid, or a
+	 * text tier's contrast on the surface.
+	 */
+	type Reading = 'oklch' | 'text' | 'contrast';
 
 	/** Each group named as its tokens are, with the rule for when it is used and its RFC. */
 	const GROUPS: readonly {
@@ -29,7 +33,7 @@
 	}[] = [
 		{
 			label: 'Background',
-			rule: 'Lightness alone sets the base and the surface apart, the surface a step brighter in either theme.',
+			rule: 'The base and the surface are two lightnesses of one gray, the surface the lighter.',
 			rfc: 'c656n',
 			reading: 'oklch',
 			tiles: [
@@ -39,7 +43,7 @@
 		},
 		{
 			label: 'Interaction',
-			rule: "Ranks take the text's color at their own opacity, laid over whatever ground lies beneath.",
+			rule: 'Ranks are the text color at a low opacity, laid over the ground below.',
 			rfc: 'ic4cd',
 			reading: 'text',
 			tiles: [
@@ -51,13 +55,25 @@
 		},
 		{
 			label: 'Border',
-			rule: "Borders draw on the same opacity of the text's color, a little heavier than the ranks.",
+			rule: 'Borders are the text color too, at a little more opacity than the ranks.',
 			rfc: 'h27v0',
 			reading: 'text',
 			tiles: [
 				{ name: 'Subtle', token: '--border-subtle' },
 				{ name: 'Default', token: '--border-default' },
 				{ name: 'Strong', token: '--border-strong' },
+			],
+		},
+		{
+			label: 'Foreground',
+			rule: 'Each text tier is set by its APCA contrast on the surface, the same in both themes.',
+			rfc: 'yvws0',
+			reading: 'contrast',
+			tiles: [
+				{ name: 'Subtle', token: '--foreground-subtle' },
+				{ name: 'Muted', token: '--foreground-muted' },
+				{ name: 'Default', token: '--foreground-default' },
+				{ name: 'Strong', token: '--foreground-strong' },
 			],
 		},
 	];
@@ -68,11 +84,20 @@
 	);
 	const TILE = 4.5;
 	const GAP = 0.75;
-	/** Its row at full width, the measure the box's space above and below is worked out against. */
-	const ROW = ALL.length * TILE + (ALL.length - 1) * GAP;
+	/**
+	 * Two rows, the first the longer by one at most: a row at full width is the measure the box's
+	 * space above and below is worked out against.
+	 */
+	const ACROSS = Math.ceil(ALL.length / 2);
+	const ROW = ACROSS * TILE + (ACROSS - 1) * GAP;
 
-	/** A value in a group's terms, as CSS writes it: for the text, its alpha as a percentage. */
-	function readOf(value: string, reading: Reading): string {
+	/**
+	 * A value in a group's terms: as CSS writes it, for the text its alpha as a percentage, or for a
+	 * text tier its contrast, as APCA writes it.
+	 */
+	function readOf(token: string, theme: Theme, reading: Reading): string {
+		if (reading === 'contrast') return `Lc ${Math.round(contrastOf(token, theme))}`;
+		const value = valueOf(token, theme) ?? '';
 		const [l = '', c = '', h = '', alpha] =
 			/oklch\(([\d.]+) ([\d.]+) ([\d.]+)(?: \/ ([\d.]+))?\)/.exec(value)?.slice(1) ?? [];
 		if (reading === 'oklch') return `oklch(${l} ${c} ${h})`;
@@ -108,6 +133,8 @@
 		},
 		/** Every tile at one gap, no group told from another: what they are is the cards' below. */
 		all: { display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: `${GAP}rem` },
+		/** No wider than a row of `ACROSS`, so the tiles fall into two rows. */
+		rows: { maxWidth: 'var(--row)' },
 		/** A group's own card: each tile over its name and its value. */
 		named: { columnGap: '2rem', rowGap: '1.5rem' },
 		/** The tile, and under it its name and value, starting where the tile's color starts. */
@@ -139,9 +166,9 @@
 </svelte:head>
 
 <div class="flex flex-col gap-6">
-	<Card title="Every Gray" rule="A fixed set of grays makes up every neutral on a page." rfc="ic4cd">
+	<Card title="Every Gray" rule="All neutrals on a page come from this set of grays." rfc="ic4cd">
 		<Box row="{ROW}rem" ratio="2/3">
-			<div class={stylex.attrs(styles.all).class}>
+			<div class={stylex.attrs(styles.all, styles.rows).class} style:--row="{ROW}rem">
 				{#each ALL as tile (tile.token)}
 					<Swatch name={tile.name} token={tile.token} size="{TILE}rem" reach="{GAP / 2}rem" />
 				{/each}
@@ -159,7 +186,7 @@
 							<span class={stylex.attrs(styles.name).class}>{tile.name}</span>
 							{#if theme}
 								<span class={stylex.attrs(styles.value).class}>
-									{readOf(valueOf(tile.token, theme) ?? '', group.reading)}
+									{readOf(tile.token, theme, group.reading)}
 								</span>
 							{/if}
 						</div>

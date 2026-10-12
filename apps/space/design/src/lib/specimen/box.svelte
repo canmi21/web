@@ -19,8 +19,15 @@
 	let {
 		row,
 		ratio = '1/2',
+		ground = 'base',
 		children,
-	}: { row: string; ratio?: Ratio; children: Snippet } = $props();
+	}: {
+		row: string;
+		ratio?: Ratio;
+		/** What it stands on: the page's base, or the gray both themes share as space.md allows. */
+		ground?: 'base' | 'neutral';
+		children: Snippet;
+	} = $props();
 
 	/** The least the box keeps between the row and any of its edges, in rem. */
 	const SIDE = 2;
@@ -40,9 +47,13 @@
 			borderRadius: radius.lg,
 			backgroundColor: 'var(--background-base)',
 		},
+		neutral: { backgroundColor: 'var(--background-neutral)' },
 	});
 </script>
 
-<div class={stylex.attrs(styles.box).class} style:padding-block={block}>
+<div
+	class={stylex.attrs(styles.box, ground !== 'base' && styles[ground]).class}
+	style:padding-block={block}
+>
 	{@render children()}
 </div>

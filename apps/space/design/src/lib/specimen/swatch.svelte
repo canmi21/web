@@ -3,7 +3,8 @@
 	 * One of the style's colors as a tile: a well on the surface, ringed in a hairline, and the color
 	 * set into it, its corner the well's less the inset -- lib's spec/design/styles.md, "Of two
 	 * corners nested". Named by its tip where nothing beside it names it; a press copies its token
-	 * as code reads it and ticks it in the strongest text, each tick on its own clock.
+	 * as code reads it and ticks it in the strongest text, or on a text gray in the base's color, each
+	 * tick on its own clock.
 	 */
 	import * as stylex from '@stylexjs/stylex';
 	import { borderWidth, radius } from '@canmi/design/scale.stylex';
@@ -87,6 +88,8 @@
 			animationDuration: '150ms',
 			animationTimingFunction: 'ease-out',
 		},
+		/** On a text gray, which stands near the text, the tick takes the base's color instead. */
+		onText: { color: 'var(--background-base)' },
 	});
 </script>
 
@@ -102,7 +105,9 @@
 	>
 		<span class={stylex.attrs(styles.color).class} style:background-color="var({token})"></span>
 		{#if ticking}
-			<span class={stylex.attrs(styles.tick).class}>
+			<span
+				class={stylex.attrs(styles.tick, token.startsWith('--foreground-') && styles.onText).class}
+			>
 				<Icon icon={CheckIcon} size={18} stroke={3} />
 			</span>
 		{/if}

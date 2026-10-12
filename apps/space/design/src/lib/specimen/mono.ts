@@ -22,11 +22,11 @@ function rulesOf(css: string): { selectors: string[]; names: [string, string][] 
 
 /** What the root holds in `theme`: every rule that reaches a root carrying that theme's mark. */
 function declared(theme: Theme): Map<string, string> {
-	const marks = [':root', `[data-theme='${theme}']`];
+	const marks = new Set([':root', `[data-theme='${theme}']`]);
 	const held = new Map<string, string>();
 	// The palette first, as the style imports it.
 	for (const rule of [...rulesOf(palette), ...rulesOf(mono)])
-		if (rule.selectors.some((one) => marks.includes(one)))
+		if (rule.selectors.some((one) => marks.has(one)))
 			for (const [name, value] of rule.names) held.set(name, value);
 	return held;
 }

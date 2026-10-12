@@ -6,27 +6,26 @@
 	 * worked out from the style's files, so the page shows the system as it is.
 	 */
 	import * as stylex from '@stylexjs/stylex';
-	import { currentTheme, type Theme } from '@canmi/design/theme';
+	import type { Theme } from '@canmi/design/theme';
 	import { borderWidth, fontSize, fontWeight, radius } from '@canmi/design/scale.stylex';
 	import Icon from '@canmi/design/components/icon.svelte';
 	import ThemeScope from '@canmi/design/components/theme-scope.svelte';
 	import Tooltip from '@canmi/design/components/tooltip.svelte';
 	import CheckIcon from '@tabler/icons-svelte-runes/icons/check';
-	import MoonIcon from '@tabler/icons-svelte-runes/icons/moon';
-	import SunHighIcon from '@tabler/icons-svelte-runes/icons/sun-high';
-	import { page } from '$app/state';
-	import { untrack } from 'svelte';
 	import Box from '#lib/specimen/box.svelte';
 	import Card from '#lib/specimen/card.svelte';
 	import { lightnessOf, stepOf } from '#lib/specimen/lightness.ts';
+	import Scales from '#lib/specimen/scales.svelte';
+	import StepDial from '#lib/specimen/step-dial.svelte';
 	import Swatch from '#lib/specimen/swatch.svelte';
+	import { pageTheme } from '#lib/specimen/page-theme.svelte.ts';
 	import Relief from '#lib/specimen/relief.svelte';
 	import { Ticks } from '#lib/specimen/ticks.svelte.ts';
 
 	const THEMES = [
-		{ theme: 'light', label: 'Light', icon: SunHighIcon },
-		{ theme: 'dark', label: 'Dark', icon: MoonIcon },
-	] as const satisfies readonly { theme: Theme; label: string; icon: unknown }[];
+		{ theme: 'light', label: 'Light' },
+		{ theme: 'dark', label: 'Dark' },
+	] as const satisfies readonly { theme: Theme; label: string }[];
 
 	const GROUNDS = [
 		{ name: 'Base', token: '--background-base' },
@@ -56,12 +55,6 @@
 
 	/** The marks ticked, by their token and theme. */
 	const ticks = new Ticks();
-	/** Every step off a base, the surface's among them. */
-	const STEPS = ALL.slice(1);
-
-	/** The longest step in either theme, the length every bar is a share of. */
-	const LONGEST = Math.max(...STEPS.map(({ token }) => stepOf(token, 'dark')));
-	const percent = (value: number, of: number) => `${(value / of) * 100}%`;
 
 	/**
 	 * Every gray of both themes as it shows on its own base, and the neutral they share, lightest to
@@ -84,21 +77,11 @@
 			theme: undefined,
 			lightness: lightnessOf('--background-neutral', 'light'),
 		},
-	].sort((a, b) => b.lightness - a.lightness);
+	].toSorted((a, b) => b.lightness - a.lightness);
 
-	/**
-	 * The page's theme: the server's, from the reader's cookie, then the root's mark, followed as it
-	 * moves, so the ramp starts from the reader's own end in the first frame.
-	 */
-	let theme = $state<Theme | undefined>(untrack(() => page.data.theme));
-	$effect(() => {
-		const root = document.documentElement;
-		theme = currentTheme(root);
-		const watch = new MutationObserver(() => (theme = currentTheme(root)));
-		watch.observe(root, { attributes: true, attributeFilter: ['data-theme'] });
-		return () => watch.disconnect();
-	});
-	const ramp = $derived(theme === 'dark' ? FAMILY.toReversed() : FAMILY);
+	/** The page's theme, so the ramp starts from the reader's own end in the first frame. */
+	const theme = pageTheme();
+	const ramp = $derived(theme.current === 'dark' ? FAMILY.toReversed() : FAMILY);
 
 	/** A cell of the ramp at its widest, in rem. */
 	const CELL = 3;
@@ -158,22 +141,6 @@
 			backgroundColor: 'var(--background-base)',
 		},
 		row: { display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: `${GAP}rem` },
-		/** The two themes side by side. */
-		pair: {
-			display: 'grid',
-			gridTemplateColumns: { default: '1fr', '@container (min-width: 36rem)': '1fr 1fr' },
-			gap: '1rem',
-		},
-		/** Which theme a window is in, written in that theme, at its top. */
-		caption: {
-			display: 'flex',
-			alignItems: 'center',
-			gap: '0.375rem',
-			fontSize: fontSize.label,
-			fontWeight: fontWeight.medium,
-			color: 'var(--foreground-muted)',
-		},
-		stack: { display: 'flex', flexDirection: 'column', gap: '0.5rem' },
 		/** A theme's way from its base to its text, every ink on it in the order it steps. */
 		way: { flexDirection: 'column', alignItems: 'stretch', gap: '0.75rem' },
 		path: {
@@ -229,63 +196,6 @@
 				transform: 'translateY(-50%) rotate(45deg)',
 			},
 		},
-		name: {
-			fontSize: fontSize.label,
-			fontWeight: fontWeight.medium,
-			color: 'var(--foreground-strong)',
-		},
-		/** A step's row: its name, then a bar for each theme, as long as the step in L*. */
-		steps: {
-			display: 'grid',
-			gridTemplateColumns: 'minmax(8rem, auto) 1fr',
-			alignItems: 'center',
-			columnGap: '1.5rem',
-			rowGap: '0.875rem',
-		},
-		bars: { display: 'flex', flexDirection: 'column', gap: '0.25rem' },
-		bar: { display: 'flex', alignItems: 'center', gap: '0.5rem' },
-		fill: { height: '0.5rem', borderRadius: radius.full },
-		lightFill: { backgroundColor: 'var(--foreground-subtle)' },
-		darkFill: { backgroundColor: 'var(--foreground-strong)' },
-		value: {
-			fontFamily: 'var(--font-mono)',
-			fontSize: fontSize.caption,
-			color: 'var(--foreground-muted)',
-			wordSpacing: '-0.5ch',
-			whiteSpace: 'nowrap',
-		},
-		legend: { display: 'flex', gap: '1.25rem' },
-		/** A ruler of L*, black at its left and white at its right, a dot for each gray on it. */
-		ruler: { position: 'relative', height: '1.75rem' },
-		track: {
-			position: 'absolute',
-			insetInline: 0,
-			top: '50%',
-			height: borderWidth.hairline,
-			backgroundColor: 'var(--border-strong)',
-		},
-		dot: {
-			position: 'absolute',
-			top: '50%',
-			transform: 'translate(-50%, -50%)',
-		},
-		mark: {
-			display: 'block',
-			width: '0.75rem',
-			height: '0.75rem',
-			borderWidth: borderWidth.hairline,
-			borderStyle: 'solid',
-			borderColor: 'var(--border-strong)',
-			borderRadius: radius.full,
-			backgroundColor: 'var(--background-base)',
-		},
-		ticks: {
-			display: 'flex',
-			justifyContent: 'space-between',
-			fontFamily: 'var(--font-mono)',
-			fontSize: fontSize.caption,
-			color: 'var(--foreground-subtle)',
-		},
 	});
 
 	/** A gray as its theme lays it: its value over the base the tile is painted in. */
@@ -297,11 +207,7 @@
 </svelte:head>
 
 <div class="flex flex-col gap-6">
-	<Card
-		title="The Family"
-		rule="Both themes draw on one set of grays, each read from its own end."
-		rfc="trwdn"
-	>
+	<Card title="Both Themes" rule="Both themes use the same grays, one from each end." rfc="trwdn">
 		<Box row="{FAMILY.length * CELL}rem" ratio="2">
 			<div class={stylex.attrs(styles.ramp).class}>
 				{#each ramp as gray, index (gray.key)}
@@ -337,7 +243,7 @@
 
 	<Card
 		title="Side by Side"
-		rule="Each name holds a gray in either theme, laid on that theme's own base."
+		rule="A gray keeps its name in both themes, drawn on that theme's base."
 		rfc="trwdn"
 	>
 		<div class={stylex.attrs(styles.box, styles.neutral).class}>
@@ -356,8 +262,8 @@
 	</Card>
 
 	<Card
-		title="Opposite Ways"
-		rule="Grays other than the grounds lean toward the text, darker in the light and lighter in the dark."
+		title="Toward the Text"
+		rule="Ranks and borders move toward the text, darker in the light theme and lighter in the dark."
 		rfc="ic4cd"
 	>
 		<div class={stylex.attrs(styles.box, styles.neutral).class}>
@@ -404,7 +310,7 @@
 
 	<Card
 		title="The Grounds"
-		rule="The grounds alone rise alike, each surface brighter than its base in both themes."
+		rule="In both themes the surface stands above the base, one step lighter."
 		rfc="c656n"
 	>
 		<div class={stylex.attrs(styles.box, styles.neutral, styles.bleed).class}>
@@ -413,82 +319,18 @@
 	</Card>
 
 	<Card
-		title="The Step"
-		rule="Steps in the dark reach half again as far as the same steps in the light."
+		title="Step Ratio"
+		rule="Each step in the dark theme is 1.5 times the light's, in ΔL*."
 		rfc="trwdn"
 	>
-		<div class={stylex.attrs(styles.box).class}>
-			<div class={stylex.attrs(styles.legend).class}>
-				{#each THEMES as { theme, label, icon } (theme)}
-					<span class={stylex.attrs(styles.caption).class}>
-						<span
-							class={stylex.attrs(
-								styles.fill,
-								theme === 'light' ? styles.lightFill : styles.darkFill,
-							).class}
-							style:width="1rem"
-						></span>
-						<Icon {icon} size={14} />{label}
-					</span>
-				{/each}
-			</div>
-			<div class={stylex.attrs(styles.steps).class}>
-				{#each STEPS as gray (gray.token)}
-					{@const light = stepOf(gray.token, 'light')}
-					{@const dark = stepOf(gray.token, 'dark')}
-					<span class={stylex.attrs(styles.name).class}>{gray.name}</span>
-					<div class={stylex.attrs(styles.bars).class}>
-						{#each [{ theme: 'light', step: light }, { theme: 'dark', step: dark }] as one (one.theme)}
-							<div class={stylex.attrs(styles.bar).class}>
-								<span
-									class={stylex.attrs(
-										styles.fill,
-										one.theme === 'light' ? styles.lightFill : styles.darkFill,
-									).class}
-									style:width="calc(({percent(one.step, LONGEST)}) * 0.8)"
-								></span>
-								<span class={stylex.attrs(styles.value).class}>
-									ΔL* {one.step.toFixed(2)}{one.theme === 'dark'
-										? ` / ${(dark / light).toFixed(2)}x`
-										: ''}
-								</span>
-							</div>
-						{/each}
-					</div>
-				{/each}
-			</div>
-		</div>
+		<StepDial />
 	</Card>
 
 	<Card
-		title="Measured by Eye"
-		rule="Every step is measured in CIELAB lightness, the scale that stays even near black."
+		title="Lightness Scale"
+		rule="Steps are measured in CIELAB lightness, which keeps grays evenly spaced from black to white."
 		rfc="trwdn"
 	>
-		<div class={stylex.attrs(styles.box).class}>
-			{#each THEMES as { theme, label, icon } (theme)}
-				<div class={stylex.attrs(styles.stack).class}>
-					<span class={stylex.attrs(styles.caption).class}>
-						<Icon {icon} size={14} />{label}
-					</span>
-					<div class={stylex.attrs(styles.ruler).class}>
-						<span class={stylex.attrs(styles.track).class}></span>
-						{#each ALL as gray (gray.token)}
-							<span
-								class={stylex.attrs(styles.dot).class}
-								style:left="{lightnessOf(gray.token, theme)}%"
-							>
-								<Tooltip label="{gray.name}, L* {lightnessOf(gray.token, theme).toFixed(1)}">
-									<span class={stylex.attrs(styles.mark).class}></span>
-								</Tooltip>
-							</span>
-						{/each}
-					</div>
-				</div>
-			{/each}
-			<div class={stylex.attrs(styles.ticks).class}>
-				{#each [0, 25, 50, 75, 100] as tick (tick)}<span>{tick}</span>{/each}
-			</div>
-		</div>
+		<Scales />
 	</Card>
 </div>

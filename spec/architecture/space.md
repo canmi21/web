@@ -185,10 +185,13 @@ its corner the well's less the inset -- `src/lib/specimen/swatch.svelte`.
 shortest that says the rule, one where one will do, with commas and periods and no other stops: no
 colon, semicolon or dash. The derivation is the RFC's, not the sentence's. **It states the rule as
 it stands, in the present and objectively**: neither a command, no must or only, nor a reason, and
-with no count in it, only one or more; no two cards open on the same word. The RFC stands at the
-head's top right on every card, a link by its place and the pointer alone, with no underline.
-**No card takes its page's name**, the first least of all: a title names what its card shows,
-and the page's name is already over it in the sidebar and the tab.
+with no count in it, only one or more. **It is plain**: it says what was chosen in ordinary words,
+as one would say it aloud, with no flourish and no case made for it. **It carries at most one
+number, and only one that means something**: what a value was worked out from, an APCA Lc, a ratio
+of ΔL\*, never how many of a thing there are. No two cards on a page open on the same word. The RFC
+stands at the head's top right on every card, a link by its place and the pointer alone, with no
+underline. **No card takes its page's name**, the first least of all: a title names what its card
+shows as plainly, and the page's name is already over it in the sidebar and the tab.
 
 **A specimen is drawn in the page's theme.** Both themes stand side by side only where the rule
 is why the two differ, as a hue's pair does; light and dark themselves need no case made for them,
@@ -197,7 +200,9 @@ and a page drawn twice is hard on a reader in either.
 **Where both themes are drawn at once and a value needs its theme's ground to be read, the box
 stands on `--background-neutral`**, the one gray the two share, so neither window is the odd one out
 in the reader's own theme; what names a window is written inside it, in its theme. A bare value,
-whole on its own, needs no ground, and its box keeps the page's. The neutral is a box's alone, never
+whole on its own, needs no ground, and its box keeps the page's, **unless the values run to one
+end**, a stretch near black or near white, which the page's own ground would swallow in one theme;
+that box stands on the neutral too. The neutral is a box's alone, never
 a page's or a component's.
 
 **A value is written as CSS writes it, in the terms it was chosen in**: a ground's `oklch(0.145 0

@@ -159,7 +159,7 @@
 
 <Card
 	title="Regions"
-	rule="Regions rise onto the surface, while what sits inside them returns to the base."
+	rule="Regions use the surface, and what sits inside a region uses the base."
 	rfc="c656n"
 >
 	<div class={stylex.attrs(styles.box).class}>

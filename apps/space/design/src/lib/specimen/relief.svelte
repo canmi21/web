@@ -133,8 +133,8 @@
 	});
 
 	/** Build the scene in `canvas` and keep it drawn; what it returns takes it all down again. */
-	function stage(three: typeof Three, box: HTMLDivElement, canvas: HTMLCanvasElement) {
-		const renderer = new three.WebGLRenderer({ canvas, antialias: true, alpha: true });
+	function stage(three: typeof Three, box: HTMLDivElement, view: HTMLCanvasElement) {
+		const renderer = new three.WebGLRenderer({ canvas: view, antialias: true, alpha: true });
 		renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
 		const scene = new three.Scene();
 		/** Everything drawn, turned as one about the middle between the plates. */
@@ -152,18 +152,26 @@
 			owned.push(material);
 			return material;
 		};
-		function rounded({ width, depth, radius }: { width: number; depth: number; radius: number }) {
+		function rounded({
+			width,
+			depth,
+			radius: round,
+		}: {
+			width: number;
+			depth: number;
+			radius: number;
+		}) {
 			const [x, y] = [width / 2, depth / 2];
 			const path = new three.Shape();
-			path.moveTo(-x + radius, -y);
-			path.lineTo(x - radius, -y);
-			path.quadraticCurveTo(x, -y, x, -y + radius);
-			path.lineTo(x, y - radius);
-			path.quadraticCurveTo(x, y, x - radius, y);
-			path.lineTo(-x + radius, y);
-			path.quadraticCurveTo(-x, y, -x, y - radius);
-			path.lineTo(-x, -y + radius);
-			path.quadraticCurveTo(-x, -y, -x + radius, -y);
+			path.moveTo(-x + round, -y);
+			path.lineTo(x - round, -y);
+			path.quadraticCurveTo(x, -y, x, -y + round);
+			path.lineTo(x, y - round);
+			path.quadraticCurveTo(x, y, x - round, y);
+			path.lineTo(-x + round, y);
+			path.quadraticCurveTo(-x, y, -x, y - round);
+			path.lineTo(-x, -y + round);
+			path.quadraticCurveTo(-x, -y, -x + round, -y);
 			return path;
 		}
 		/** A shape stood up `height` from the floor, its top one gray and its sides that gray shaded. */
@@ -212,7 +220,7 @@
 			new three.Quaternion().setFromEuler(
 				new three.Euler((-pitch * Math.PI) / 180, (-yaw * Math.PI) / 180, 0, 'XYZ'),
 			);
-		const turns = VIEWS.map((view) => turnOf(view.pose));
+		const turns = VIEWS.map((each) => turnOf(each.pose));
 		const turn = turnOf(REST);
 		let glide: { from: Three.Quaternion; to: Three.Quaternion; start: number } | undefined;
 		let drag: { x: number; y: number; moved: boolean } | undefined;
@@ -267,14 +275,14 @@
 		};
 
 		function fit() {
-			const { width, height } = canvas.getBoundingClientRect();
+			const { width, height } = view.getBoundingClientRect();
 			renderer.setSize(width, height, false);
 			camera.aspect = width / height;
 			camera.updateProjectionMatrix();
 			kick();
 		}
 		const sized = new ResizeObserver(fit);
-		sized.observe(canvas);
+		sized.observe(view);
 		fit();
 
 		/** Well in sight, it waits and then tours; nearly out of sight, it goes back to rest. */
@@ -323,7 +331,7 @@
 			phase = 'free';
 			engaged = true;
 			drag = { x: event.clientX, y: event.clientY, moved: false };
-			canvas.setPointerCapture(event.pointerId);
+			view.setPointerCapture(event.pointerId);
 			grabbing = true;
 		}
 		const axis = new three.Vector3();
@@ -353,7 +361,7 @@
 		}
 		/** A press that did not turn the view copies the ground under it. */
 		function copy(event: PointerEvent) {
-			const rect = canvas.getBoundingClientRect();
+			const rect = view.getBoundingClientRect();
 			ray.setFromCamera(
 				new three.Vector2(
 					((event.clientX - rect.left) / rect.width) * 2 - 1,
@@ -370,10 +378,10 @@
 		}
 		box.addEventListener('pointerenter', enter);
 		box.addEventListener('focusin', enter);
-		canvas.addEventListener('pointerdown', down);
-		canvas.addEventListener('pointermove', move);
-		canvas.addEventListener('pointerup', up);
-		canvas.addEventListener('pointercancel', up);
+		view.addEventListener('pointerdown', down);
+		view.addEventListener('pointermove', move);
+		view.addEventListener('pointerup', up);
+		view.addEventListener('pointercancel', up);
 
 		return () => {
 			cancelAnimationFrame(frame);
@@ -383,10 +391,10 @@
 			go = undefined;
 			box.removeEventListener('pointerenter', enter);
 			box.removeEventListener('focusin', enter);
-			canvas.removeEventListener('pointerdown', down);
-			canvas.removeEventListener('pointermove', move);
-			canvas.removeEventListener('pointerup', up);
-			canvas.removeEventListener('pointercancel', up);
+			view.removeEventListener('pointerdown', down);
+			view.removeEventListener('pointermove', move);
+			view.removeEventListener('pointerup', up);
+			view.removeEventListener('pointercancel', up);
 			for (const thing of owned) thing.dispose();
 		};
 	}

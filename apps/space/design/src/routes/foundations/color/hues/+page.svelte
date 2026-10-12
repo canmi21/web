@@ -129,7 +129,7 @@
 
 <Card
 	title="Every Hue"
-	rule="Each hue keeps its purest saturation, its light a step above its dark."
+	rule="Each hue is at full saturation, a little lighter in the light theme."
 	rfc="b0i0r"
 >
 	<Box row={DRAWN} ratio="1/2">
