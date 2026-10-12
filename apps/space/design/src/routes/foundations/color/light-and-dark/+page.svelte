@@ -86,7 +86,7 @@
 	/** A cell of the ramp at its widest, in rem. */
 	const CELL = 3;
 
-	/** The tile and the gap of the windows side by side, in rem: the materials page's first card's. */
+	/** The tile and the gap of the windows side by side, in rem, the materials' first card's. */
 	const TILE = 4.5;
 	const GAP = 0.75;
 
@@ -109,7 +109,7 @@
 			borderRadius: radius.lg,
 			boxShadow: `0 0 0 ${borderWidth.hairline} var(--border-default)`,
 		},
-		/** A cell takes its share of the card as it is, of nine grays a theme and the neutral, at most `CELL`. */
+		/** A cell's share of the card, nine grays a theme and the neutral, at most `CELL`. */
 		cell: {
 			display: 'flex',
 			alignItems: 'center',
@@ -126,7 +126,7 @@
 		last: { borderStartEndRadius: radius.lg, borderEndEndRadius: radius.lg },
 		/** A box a scene fills to its edge, cut off there as a window onto it would be. */
 		bleed: { padding: 0, overflow: 'hidden' },
-		/** A box both themes stand in at once, on the one gray they share, so neither is the odd one. */
+		/** A box both themes stand in at once, on the gray they share, so neither is the odd one. */
 		neutral: { backgroundColor: 'var(--background-neutral)' },
 		/** A window held in one theme, painted in its base. */
 		window: {

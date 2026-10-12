@@ -29,7 +29,7 @@ export function stepOf(token: string, theme: Theme): number {
 	return Math.abs(lightnessOf(token, theme) - lightnessOf('--background-base', theme));
 }
 
-/** The sRGB level, 0 to 1, of a gray at CIELAB lightness `l`: what a canvas is given to paint it. */
+/** The sRGB level, 0 to 1, of a gray at CIELAB lightness `l`, as a canvas is given it. */
 export function levelOf(l: number): number {
 	const y = l > 8 ? ((l + 16) / 116) ** 3 : (l * 27) / 24389;
 	return Math.min(1, Math.max(0, encode(y)));

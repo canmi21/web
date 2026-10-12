@@ -1,13 +1,10 @@
 <script lang="ts">
 	/**
-	 * The grounds of both themes drawn in 3D, each region lifted one level off its base, the same in
-	 * both, with a field set into it back down at the base: a level, not how far apart the grays
-	 * are, which the step's card shows. It rests seen from straight
-	 * above, the flat plan the server draws, where the two look alike. In sight a while, it tours
-	 * the menu's views one after another, and the relief shows; the pointer coming onto it stops the
-	 * tour where it is and leaves it to the reader, a drag turning it anywhere and the menu bringing
-	 * it to a set view; and nearly scrolled out of sight it goes back to rest, to tour again. Every color is the token's own, worked out from the style's files: a top is
-	 * unlit, and a side is the same gray at a share of its light.
+	 * Both themes' grounds in 3D, each region one level over its base and a field in it back at the
+	 * base: a level, not a step, which the step's card shows. It rests flat, the server's plan, then
+	 * tours the menu's views; a pointer on it stops the tour for the reader, and nearly out of sight
+	 * it rests again -- spec/architecture/space.md. A top is the token's own gray, unlit, and a side
+	 * that gray at a share of its light.
 	 */
 	import * as stylex from '@stylexjs/stylex';
 	import { borderWidth, radius } from '@canmi/design/scale.stylex';
@@ -174,7 +171,7 @@
 			path.quadraticCurveTo(-x, -y, -x + round, -y);
 			return path;
 		}
-		/** A shape stood up `height` from the floor, its top one gray and its sides that gray shaded. */
+		/** A shape stood `height` up from the floor, its top a gray and its sides that gray shaded. */
 		function solid(shape: Three.Shape, height: number, l: number, edge: number, token: string) {
 			const geometry = new three.ExtrudeGeometry(shape, {
 				depth: height,

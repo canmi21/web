@@ -3,8 +3,8 @@
 	 * One of the style's colors as a tile: a well on the surface, ringed in a hairline, and the color
 	 * set into it, its corner the well's less the inset -- lib's spec/design/styles.md, "Of two
 	 * corners nested". Named by its tip where nothing beside it names it; a press copies its token
-	 * as code reads it and ticks it in the strongest text, or on a text gray in the base's color, each
-	 * tick on its own clock.
+	 * as code reads it and ticks it in the strongest text, or the base's on a text gray, each tick
+	 * on its own clock.
 	 */
 	import * as stylex from '@stylexjs/stylex';
 	import { borderWidth, radius } from '@canmi/design/scale.stylex';
