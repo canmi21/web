@@ -6,4 +6,8 @@
  */
 import * as stylex from '@stylexjs/stylex';
 
-export const frame = stylex.defineConsts({ inset: '1.25rem' });
+export const frame = stylex.defineConsts({
+	inset: '1.25rem',
+	/** How far a swatch's color sits inside its well, which a caption under it starts from too. */
+	well: '0.25rem',
+});

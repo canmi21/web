@@ -10,6 +10,7 @@
 	import Icon from '@canmi/design/components/icon.svelte';
 	import Tooltip from '@canmi/design/components/tooltip.svelte';
 	import CheckIcon from '@tabler/icons-svelte-runes/icons/check';
+	import { frame } from './frame.stylex.ts';
 
 	let {
 		name,
@@ -35,8 +36,6 @@
 		ticking = setTimeout(() => (ticking = undefined), 1200);
 	}
 
-	const INSET = '0.25rem';
-
 	const appear = stylex.keyframes({
 		from: { opacity: 0, transform: 'scale(0.6)' },
 		to: { opacity: 1, transform: 'scale(1)' },
@@ -46,7 +45,7 @@
 		well: {
 			position: 'relative',
 			display: 'flex',
-			padding: INSET,
+			padding: frame.well,
 			borderWidth: 0,
 			borderRadius: radius.lg,
 			backgroundColor: 'var(--background-surface)',
@@ -70,7 +69,7 @@
 		/** The color, ringed inside its own edge so one close to the well still has one. */
 		color: {
 			flexGrow: 1,
-			borderRadius: `calc(${radius.lg} - ${INSET})`,
+			borderRadius: `calc(${radius.lg} - ${frame.well})`,
 			outlineWidth: borderWidth.hairline,
 			outlineStyle: 'solid',
 			outlineColor: 'var(--border-default)',

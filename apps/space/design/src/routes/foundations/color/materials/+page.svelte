@@ -13,6 +13,7 @@
 	import Box from '#lib/specimen/box.svelte';
 	import Card from '#lib/specimen/card.svelte';
 	import { valueOf } from '#lib/specimen/mono.ts';
+	import { frame } from '#lib/specimen/frame.stylex.ts';
 	import Swatch from '#lib/specimen/swatch.svelte';
 
 	/** What a group's values are read as: a ground's oklch, or the text's and how much is laid. */
@@ -109,9 +110,15 @@
 		all: { display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: `${GAP}rem` },
 		/** A group's own card: each tile over its name and its value. */
 		named: { columnGap: '2rem', rowGap: '1.5rem' },
+		/** The tile, and under it its name and value, starting where the tile's color starts. */
 		item: { display: 'flex', flexDirection: 'column', gap: '0.625rem' },
 		/** A tile's name and its value, closer to each other than to the tile. */
-		caption: { display: 'flex', flexDirection: 'column', gap: '0.25rem' },
+		caption: {
+			display: 'flex',
+			flexDirection: 'column',
+			gap: '0.125rem',
+			paddingInlineStart: frame.well,
+		},
 		name: {
 			fontSize: fontSize.body,
 			fontWeight: fontWeight.medium,
@@ -147,7 +154,7 @@
 			<div class={stylex.attrs(styles.box, styles.named).class}>
 				{#each group.tiles as tile (tile.token)}
 					<div class={stylex.attrs(styles.item).class}>
-						<Swatch name={tile.name} token={tile.token} size="6.5rem" tip={false} />
+						<Swatch name={tile.name} token={tile.token} size="8.5rem" tip={false} />
 						<div class={stylex.attrs(styles.caption).class}>
 							<span class={stylex.attrs(styles.name).class}>{tile.name}</span>
 							{#if theme}
