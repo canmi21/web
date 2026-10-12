@@ -11,21 +11,34 @@
 			else to load. Its colors are mono's and its address @canmi/me's support box, written out.
 			See spec/architecture/space.md, "Errors are the console's".
 		-->
+		<!-- The theme as every page settles it, @canmi/design/theme's script written out: the
+			reader's cookie, else their system. -->
+		<script>
+			(function () {
+				var c = document.cookie.match(/\btheme=(light|dark)\b/);
+				var m = c
+					? c[1]
+					: window.matchMedia('(prefers-color-scheme:dark)').matches
+						? 'dark'
+						: 'light';
+				document.documentElement.setAttribute('data-theme', m);
+				if (!c) document.cookie = 'theme=' + m + ';path=/;max-age=31536000;SameSite=Lax';
+			})();
+		</script>
 		<style>
 			:root {
-				color-scheme: light dark;
+				color-scheme: light;
 				--ground: oklch(0.985 0 0);
 				--text: oklch(0.178 0 0);
 				--muted: oklch(0.387 0 0);
 				--line: oklch(0 0 0 / 0.08);
 			}
-			@media (prefers-color-scheme: dark) {
-				:root {
-					--ground: oklch(0 0 0);
-					--text: oklch(0.937 0 0);
-					--muted: oklch(0.706 0 0);
-					--line: oklch(1 0 0 / 0.09);
-				}
+			[data-theme='dark'] {
+				color-scheme: dark;
+				--ground: oklch(0 0 0);
+				--text: oklch(0.937 0 0);
+				--muted: oklch(0.706 0 0);
+				--line: oklch(1 0 0 / 0.09);
 			}
 			body {
 				margin: 0;
@@ -73,6 +86,20 @@
 				text-decoration: none;
 			}
 		</style>
+		<!-- With no script to read the cookie, the system's preference alone. -->
+		<noscript>
+			<style>
+				@media (prefers-color-scheme: dark) {
+					:root {
+						color-scheme: dark;
+						--ground: oklch(0 0 0);
+						--text: oklch(0.937 0 0);
+						--muted: oklch(0.706 0 0);
+						--line: oklch(1 0 0 / 0.09);
+					}
+				}
+			</style>
+		</noscript>
 	</head>
 	<body>
 		<main>
