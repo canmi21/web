@@ -10,6 +10,7 @@ import BordersIcon from '@tabler/icons-svelte-runes/icons/border-outer';
 import ColorIcon from '@tabler/icons-svelte-runes/icons/palette';
 import GroundsIcon from '@tabler/icons-svelte-runes/icons/stack-2';
 import HomeIcon from '@tabler/icons-svelte-runes/icons/home';
+import LightAndDarkIcon from '@tabler/icons-svelte-runes/icons/contrast';
 import HuesIcon from '@tabler/icons-svelte-runes/icons/color-swatch';
 import MaterialsIcon from '@tabler/icons-svelte-runes/icons/texture';
 import InteractionIcon from '@tabler/icons-svelte-runes/icons/pointer';
@@ -40,6 +41,11 @@ const COLOR: readonly Page[] = [
 	{ label: 'Text', icon: TextIcon },
 	{ label: 'Borders', icon: BordersIcon },
 	{ label: 'Interaction', icon: InteractionIcon },
+	{
+		href: resolve('/foundations/color/light-and-dark'),
+		label: 'Light and Dark',
+		icon: LightAndDarkIcon,
+	},
 	{ href: resolve('/foundations/color/hues'), label: 'Hues', icon: HuesIcon },
 ];
 

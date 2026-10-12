@@ -158,7 +158,7 @@
 </svelte:head>
 
 <Card
-	title="Grounds"
+	title="Regions"
 	rule="Regions rise onto the surface, while what sits inside them returns to the base."
 	rfc="c656n"
 >

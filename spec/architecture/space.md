@@ -154,10 +154,17 @@ card keeps the console's card's `radius.xl`, and the box, standing further in th
 reaches, holds `lg` of its own -- lib's `spec/design/styles.md`, "Of two corners nested". Decided
 with the author on 2026-10-11, after a page with nothing under its specimens read as no page at all.
 
-**A box stands its row in a proportion, not at a height**: the space above and below the row is a
-share of the space the row leaves either side, `1`, `2/3`, `1/2` or `1/3` and no other, worked out
-from the card's width as it is, so the row keeps its proportion at any width; never less than 2rem
--- `src/lib/specimen/box.svelte`. The hues stand at `1/2` and the materials at `2/3`.
+**A box stands its row in a proportion, not at a height**: the space either side is what the row
+leaves, never less than 2rem, and the space above and below is that times `2`, `1`, `2/3`, `1/2` or
+`1/3` and no other, never less than 2rem itself. The sides are the measure and are never moved for
+the proportion. It is worked out from the card's width as it is, so the row keeps its proportion at
+any width -- `src/lib/specimen/box.svelte`. The hues stand at `1/2`, the materials at `2/3` and the
+grays of both themes at `2`.
+
+**Every mark of a color copies its token on a press**, `var(--token)` as code reads it, and ticks
+the mark it was pressed on, each tick on its own clock: a swatch, a ramp's cell, a stop on a way,
+wherever a color stands to be looked at -- `src/lib/specimen/ticks.svelte.ts`. A mark that stands
+for a gray in the other theme copies the same token, which is that gray's name in either.
 
 **A page opens on everything it shows together, with nothing said**: its first card holds every
 specimen at one gap, in no groups, and no label, no value and no word beside them, only a name in a
@@ -171,10 +178,18 @@ colon, semicolon or dash. The derivation is the RFC's, not the sentence's. **It 
 it stands, in the present and objectively**: neither a command, no must or only, nor a reason, and
 with no count in it, only one or more; no two cards open on the same word. The RFC stands at the
 head's top right on every card, a link by its place and the pointer alone, with no underline.
+**No card takes its page's name**, the first least of all: a title names what its card shows,
+and the page's name is already over it in the sidebar and the tab.
 
 **A specimen is drawn in the page's theme.** Both themes stand side by side only where the rule
 is why the two differ, as a hue's pair does; light and dark themselves need no case made for them,
 and a page drawn twice is hard on a reader in either.
+
+**Where both themes are drawn at once and a value needs its theme's ground to be read, the box
+stands on `--background-neutral`**, the one gray the two share, so neither window is the odd one out
+in the reader's own theme; what names a window is written inside it, in its theme. A bare value,
+whole on its own, needs no ground, and its box keeps the page's. The neutral is a box's alone, never
+a page's or a component's.
 
 **A value is written as CSS writes it, in the terms it was chosen in**: a ground's `oklch(0.145 0
 0)`, a rank's or a border's the text's color and how much of it is laid, `oklch(1 0 0 / 4.9%)`. It

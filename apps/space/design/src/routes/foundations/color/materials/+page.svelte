@@ -29,7 +29,7 @@
 	}[] = [
 		{
 			label: 'Background',
-			rule: 'The page rests on the base, and each region on the surface a step above it.',
+			rule: 'Lightness alone sets the base and the surface apart, the surface a step brighter in either theme.',
 			rfc: 'c656n',
 			reading: 'oklch',
 			tiles: [
@@ -39,7 +39,7 @@
 		},
 		{
 			label: 'Interaction',
-			rule: 'Hover, selection and fill are ranks of the text, laid thin over a ground.',
+			rule: "Ranks take the text's color at their own opacity, laid over whatever ground lies beneath.",
 			rfc: 'ic4cd',
 			reading: 'text',
 			tiles: [
@@ -51,7 +51,7 @@
 		},
 		{
 			label: 'Border',
-			rule: "Borders set one thing apart from the next, each the text's own color laid thin.",
+			rule: "Borders draw on the same opacity of the text's color, a little heavier than the ranks.",
 			rfc: 'h27v0',
 			reading: 'text',
 			tiles: [
@@ -139,7 +139,7 @@
 </svelte:head>
 
 <div class="flex flex-col gap-6">
-	<Card title="Materials" rule="A fixed set of grays makes up every neutral on a page." rfc="ic4cd">
+	<Card title="Every Gray" rule="A fixed set of grays makes up every neutral on a page." rfc="ic4cd">
 		<Box row="{ROW}rem" ratio="2/3">
 			<div class={stylex.attrs(styles.all).class}>
 				{#each ALL as tile (tile.token)}

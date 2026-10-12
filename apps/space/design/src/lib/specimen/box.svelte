@@ -1,8 +1,8 @@
 <script lang="ts" module>
-	/** How far the box stands above and below its row, as a share of what is left either side. */
-	export type Ratio = '1' | '2/3' | '1/2' | '1/3';
+	/** How far the box stands above and below its row, as a multiple of what is left either side. */
+	export type Ratio = '2' | '1' | '2/3' | '1/2' | '1/3';
 
-	const SHARE: Record<Ratio, number> = { '1': 1, '2/3': 2 / 3, '1/2': 1 / 2, '1/3': 1 / 3 };
+	const SHARE: Record<Ratio, number> = { '2': 2, '1': 1, '2/3': 2 / 3, '1/2': 1 / 2, '1/3': 1 / 3 };
 </script>
 
 <script lang="ts">
@@ -25,7 +25,9 @@
 	/** The least the box keeps between the row and any of its edges, in rem. */
 	const SIDE = 2;
 
-	const block = $derived(`max(${SIDE}rem, calc((100cqw - ${row}) / 2 * ${SHARE[ratio]}))`);
+	/** The space either side as it stands, `SIDE` where the row is as wide as the box lets it be. */
+	const side = $derived(`max(${SIDE}rem, (100cqw - ${row}) / 2)`);
+	const block = $derived(`max(${SIDE}rem, ${side} * ${SHARE[ratio]})`);
 
 	const styles = stylex.create({
 		box: {

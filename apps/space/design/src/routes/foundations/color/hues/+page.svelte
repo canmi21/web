@@ -11,8 +11,8 @@
 	import Tooltip from '@canmi/design/components/tooltip.svelte';
 	import Box from '#lib/specimen/box.svelte';
 	import Card from '#lib/specimen/card.svelte';
+	import { Ticks } from '#lib/specimen/ticks.svelte.ts';
 	import CheckIcon from '@tabler/icons-svelte-runes/icons/check';
-	import { SvelteMap } from 'svelte/reactivity';
 
 	/** The interaction's own hue alone, then the statuses together. */
 	const GROUPS = [
@@ -45,18 +45,8 @@
 	const DRAWN = `min(${ROW}rem, calc(100cqw - ${2 * SIDE}rem))`;
 	const share = (rem: number) => `calc(${DRAWN} * ${rem / ROW})`;
 
-	/** The capsules ticked, each with its own clock: a copy ticks one without clearing another. */
-	const ticked = new SvelteMap<string, ReturnType<typeof setTimeout>>();
-
-	/** Copy a capsule's token as code reads it, and tick it for a while from this copy. */
-	async function copy(token: string, key: string) {
-		await navigator.clipboard.writeText(`var(${token})`);
-		clearTimeout(ticked.get(key));
-		ticked.set(
-			key,
-			setTimeout(() => ticked.delete(key), 1200),
-		);
-	}
+	/** The capsules ticked, by their token and theme. */
+	const ticks = new Ticks();
 
 	const appear = stylex.keyframes({
 		from: { opacity: 0, transform: 'scale(0.6)' },
@@ -138,7 +128,7 @@
 </svelte:head>
 
 <Card
-	title="Hues"
+	title="Every Hue"
 	rule="Each hue keeps its purest saturation, its light a step above its dark."
 	rfc="b0i0r"
 >
@@ -154,7 +144,7 @@
 								aria-label="Copy {hue.token}, {hue.name} in the {theme}"
 								class={stylex.attrs(styles.well, styles.reach, index > 0 && styles.reachAfter)
 									.class}
-								onclick={() => copy(hue.token, key)}
+								onclick={() => ticks.copy(hue.token, key)}
 							>
 								<ThemeScope {theme}>
 									<span
@@ -162,7 +152,7 @@
 										style:background-color="var({hue.token})"
 									></span>
 								</ThemeScope>
-								{#if ticked.has(key)}
+								{#if ticks.has(key)}
 									<ThemeScope theme="dark">
 										<span class={stylex.attrs(styles.tick).class}>
 											<Icon icon={CheckIcon} size={16} stroke={3} />
