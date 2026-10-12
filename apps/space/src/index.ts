@@ -6,7 +6,7 @@
 import { Hono } from 'hono';
 import { pickUrls } from '@monoflake/sdk';
 import { followSymlink, symlinkOf } from '@monoflake/sdk/symlink';
-import { PARTS, type Binding } from './parts.ts';
+import { PARTS, reached, type Binding } from './parts.ts';
 
 type Env = {
 	Bindings: Record<Binding, Fetcher> & {
@@ -37,7 +37,7 @@ app.get('/:mark', (c, next) => {
 
 for (const [segment, part] of Object.entries(PARTS)) {
 	const send = (c: { env: Env['Bindings']; req: { raw: Request } }) =>
-		'development' in part && c.env.DEV !== '1'
+		!reached(part, c.env.DEV === '1')
 			? new Response('Not Found', { status: 404 })
 			: c.env[part.binding].fetch(c.req.raw);
 	app.all(`/${segment}`, send);

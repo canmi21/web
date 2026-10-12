@@ -12,12 +12,12 @@
 	import { duration, fontWeight, radius } from '@canmi/design/scale.stylex';
 	import MenuContent from './menu/menu-content.svelte';
 	import MenuRow from './menu/menu-row.svelte';
-	import { PARTS, type Part } from './parts.ts';
+	import { PARTS, reached, type Part } from './parts.ts';
 
 	let { part, dev }: { part: Part; dev: boolean } = $props();
 
-	/** The parts a reader can reach here: one reached in development alone is left out elsewhere. */
-	const reachable = $derived(PARTS.filter((one) => dev || !('development' in one)));
+	/** The parts a reader can reach here, every other left out. */
+	const reachable = $derived(PARTS.filter((one) => reached(one.key, dev)));
 
 	const here = $derived(PARTS.find((one) => one.key === part)!);
 	let corner: HTMLElement | undefined = $state();

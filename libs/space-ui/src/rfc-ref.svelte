@@ -1,12 +1,13 @@
 <script lang="ts">
 	/**
 	 * An RFC cited by its id, as a rule cites the reasons behind it: a link where the RFCs are read,
-	 * which is development alone until they are published, and the id as words everywhere else.
+	 * which is nowhere until their pages are drawn, and the id as words everywhere else.
 	 * Only the id names it, so the link asks the RFCs for the id and they send the reader on. `RFC`
 	 * is in the mono and the id in the sans. See spec/architecture/space.md.
 	 */
 	import * as stylex from '@stylexjs/stylex';
 	import { fontSize, fontWeight } from '@canmi/design/scale.stylex';
+	import { reached } from './parts.ts';
 
 	let { id, dev }: { id: string; dev: boolean } = $props();
 
@@ -31,7 +32,7 @@
 	<span><span class={stylex.attrs(styles.kind).class}>RFC</span> {id}</span>
 {/snippet}
 
-{#if dev}
+{#if reached('rfcs', dev)}
 	<a href="/rfcs/{id}" class={stylex.attrs(styles.ref, styles.link).class}>{@render cited()}</a>
 {:else}
 	<span class={stylex.attrs(styles.ref).class}>{@render cited()}</span>

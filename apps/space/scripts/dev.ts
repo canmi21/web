@@ -7,17 +7,22 @@ import { spawn, type ChildProcess } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 import * as esbuild from 'esbuild';
 import { Miniflare, type MiniflareOptions } from 'miniflare';
-import { PARTS } from '../src/parts.ts';
+import { PARTS, reached } from '../src/parts.ts';
 
 const HERE = fileURLToPath(new URL('..', import.meta.url));
 /** Each part's pinned development port, as its own vite.config.ts pins it. */
 const PORTS: Record<keyof typeof PARTS, number> = { design: 26550, rfcs: 26551 };
 const PORT = 26528;
 
-/** Each in a process group of its own, so stopping it stops the server pnpm started too. */
-const servers: ChildProcess[] = Object.keys(PARTS).map((part) =>
-	spawn('pnpm', ['run', 'dev'], { cwd: `${HERE}${part}`, stdio: 'inherit', detached: true }),
-);
+/**
+ * Each part reached in development, in a process group of its own, so stopping it stops the server
+ * pnpm started too. A part reached nowhere is not started.
+ */
+const servers: ChildProcess[] = Object.entries(PARTS)
+	.filter(([, part]) => reached(part, true))
+	.map(([part]) =>
+		spawn('pnpm', ['run', 'dev'], { cwd: `${HERE}${part}`, stdio: 'inherit', detached: true }),
+	);
 const stop = () => {
 	for (const server of servers) if (server.pid) process.kill(-server.pid, 'SIGTERM');
 	process.exit();

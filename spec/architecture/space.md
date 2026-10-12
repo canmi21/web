@@ -28,10 +28,12 @@ menu opens out of its title". Both are `@canmi/space-ui`'s, `part-switch.svelte`
 drawn with.
 
 **The RFCs' pages are slop until the design system settles**: a consumer of the system and never a
-voice in deciding it, drawn however serves for now -- a page that looks wrong is no defect -- and
-not published: the router reaches them in development alone, and a rule's citation of one, drawn
-by `@canmi/space-ui`'s `rfc-ref.svelte`, is a link there and the id as words elsewhere -- RFC
-43im3. What they are made of is migrated onto the system once it stands.
+voice in deciding it, and reached nowhere, development included. **A part not yet published reaches
+development alone or nowhere** -- `reach` in `src/parts.ts` and `@canmi/space-ui`'s `parts.ts` --
+and one reached nowhere answers 404, is left out of the corner's menu and is not started in
+development. A rule's citation of an RFC, drawn by `@canmi/space-ui`'s `rfc-ref.svelte`, is a link
+only where the RFCs are reached, and the id as words until then -- RFC ggry5. What their pages are
+made of is migrated onto the system once it stands.
 
 **The RFCs are a repository of their own and their app stays here**, reading them from the
 sibling checkout and holding them to their format -- RFC 7f4xx, and the workspace's `spec/rfcs.md`.
@@ -79,8 +81,9 @@ taken**: the sidebar with its account, the top bar, and the overview's map and t
 a component the rest of the console uses is not the system's until that part is polished too.
 
 **A component space needs and nothing has is made in space first**, used there as it is, and only
-then split into its layers and moved into the system, which space then reads it back from. The site and the CMS each keep a style of their own until there is time to
-move them -- RFC 4fnln and RFC ei71f.
+then split into its layers and moved into the system, which space then reads it back from. The site
+and the CMS each keep a style of their own until there is time to move them -- RFC 4fnln and RFC
+ei71f.
 
 ## The shell is the console's
 
@@ -110,8 +113,8 @@ holding the page being read in the strong tone; a layer with no page yet is name
 in the subtle tone, the pointer over it showing `not-allowed`.
 Where a page is is the sidebar's to show, so the top bar carries no trail.
 
-**A group's heading is half a link tall**, and its words sit at the bottom of that half, against the links it names below. `nav-heading.svelte`
-takes `align`, `bottom` unless `top` is given.
+**A group's heading is half a link tall**, and its words sit at the bottom of that half, against the
+links it names below. `nav-heading.svelte` takes `align`, `bottom` unless `top` is given.
 
 **Every ground past the page and a card is an interaction rank** -- lib's `spec/design/styles.md`,
 "Two grounds, and every other ground an interaction rank". Space's sidebar takes the nav link's
@@ -153,13 +156,14 @@ longest. RFC 73ol5.
 or value under each specimen hangs into the space below. It pushes the foot down only where the box
 is too short to hold it, never nearer the edge than 1rem -- `hang` in `box.svelte`. RFC 73ol5.
 
-**A specimen drawn in 3D rests seen from straight above**, the flat plan the server draws. A while in sight it tours its menu's views; the pointer or the
-keyboard coming on stops the tour where it stands and hands it to the reader, and nothing takes it
-back when they leave. Nearly out of sight it goes back to rest, to tour again. A drag turns what is
-drawn, not the camera, about the line square to the drag, the point held following the pointer;
-the menu, there from the first movement until that rest, brings it to a set view. It fills its box
-to the edge and is cut off there. What it shows is a relation, one level for the grounds in both
-themes, not the size of a step, which its own card draws -- `src/lib/specimen/relief.svelte`.
+**A specimen drawn in 3D rests seen from straight above**, the flat plan the server draws. A while
+in sight it tours its menu's views; the pointer or the keyboard coming on stops the tour where it
+stands and hands it to the reader, and nothing takes it back when they leave. Nearly out of sight it
+goes back to rest, to tour again. A drag turns what is drawn, not the camera, about the line square
+to the drag, the point held following the pointer; the menu, there from the first movement until
+that rest, brings it to a set view. It fills its box to the edge and is cut off there. What it shows
+is a relation, one level for the grounds in both themes, not the size of a step, which its own card
+draws -- `src/lib/specimen/relief.svelte`.
 
 **Every mark of a color copies its token on a press**, `var(--token)` as code reads it, and ticks
 the mark it was pressed on, each tick on its own clock: a swatch, a ramp's cell, a stop on a way,
@@ -174,15 +178,15 @@ its corner the well's less the inset -- `src/lib/specimen/swatch.svelte`.
 
 **A card's head is its title, one sentence of the rule, and the RFC behind it.** The sentence is the
 shortest that says the rule, one where one will do, with commas and periods and no other stops: no
-colon, semicolon or dash, and no derivation, which is the RFC's. **It states the rule as
-it stands, in the present and objectively**: neither a command, no must or only, nor a reason, and
-with no count in it, only one or more. **It is plain**: it says what was chosen in ordinary words,
-as one would say it aloud, with no flourish and no case made for it. **It carries at most one
-number, and only one that means something**: what a value was worked out from, an APCA Lc, a ratio
-of ΔL\*, never how many of a thing there are. No two cards on a page open on the same word. The RFC
-stands at the head's top right on every card, a link by its place and the pointer alone, with no
-underline. **No card takes its page's name**, the first least of all: a title names what its card
-shows, plainly. RFC 5j1bf.
+colon, semicolon or dash, and no derivation, which is the RFC's. **It states the rule as it stands,
+in the present and objectively**: neither a command, no must or only, nor a reason, and with no
+count in it, only one or more. **It is plain**: it says what was chosen in ordinary words, as one
+would say it aloud, with no flourish and no case made for it. **It carries at most one number, and
+only one that means something**: what a value was worked out from, an APCA Lc, a ratio of ΔL\*,
+never how many of a thing there are. No two cards on a page open on the same word. The RFC stands at
+the head's top right on every card, a link by its place and the pointer alone, with no underline,
+once the RFCs are reached. **No card takes its page's name**, the first least of all: a title names
+what its card shows, plainly. RFC 5j1bf.
 
 **A specimen is drawn in the page's theme.** Both themes stand side by side only where the rule
 is why the two differ, as a hue's pair does, or on the page about light and dark itself.

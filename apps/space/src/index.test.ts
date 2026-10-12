@@ -16,8 +16,9 @@ describe('the router', () => {
 		expect((await app.request('/rfcs/2ut6h', {}, env(false))).status).toBe(404);
 	});
 
-	it('sends every part on in development', async () => {
-		expect(await (await app.request('/rfcs/', {}, env(true))).text()).toBe('rfcs');
+	it('keeps a part reached nowhere out in development too', async () => {
+		expect(await (await app.request('/design/color', {}, env(true))).text()).toBe('design');
+		expect((await app.request('/rfcs/', {}, env(true))).status).toBe(404);
 	});
 
 	it('sends the root to the site, saying where from', async () => {
