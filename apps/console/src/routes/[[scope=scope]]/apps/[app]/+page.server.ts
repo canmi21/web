@@ -1,6 +1,8 @@
 import { redirect } from '@sveltejs/kit';
 import { DATABASE } from '#lib/apps/health.js';
 import { appReadsBeside, healthReads } from '#lib/apps/read.js';
+import { appViewOf } from '#lib/apps/view.js';
+import { resourceRead } from '#lib/kinds/server.js';
 import { scopeOf, viewOf, within } from '#lib/scope/scope.js';
 import { ALL } from '#lib/server/fleet.js';
 import { edgeOf } from '#lib/server/platform.js';
@@ -36,5 +38,7 @@ export const load: PageServerLoad = async (event) => {
 		span,
 		reads: appReadsBeside(edge, held, app, span),
 		health: app === DATABASE ? healthReads(edge, app) : undefined,
+		spec:
+			appViewOf(event.url.searchParams).tab === 'spec' ? resourceRead(edge, 'app', app) : undefined,
 	};
 };

@@ -23,7 +23,8 @@
 	},
 	"dependencies": {
 		"@twemoji/svg": "15.0.0",
-		"hono": "^4.13.12"
+		"hono": "^4.13.12",
+		"valibot": "^1.5.0"
 	},
 	"devDependencies": {
 		"@canmi/addresses": "workspace:*",

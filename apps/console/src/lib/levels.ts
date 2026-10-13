@@ -1,17 +1,22 @@
 /**
- * Where the reader is in the console, as a level of one tree: a view at the root, and a node or an
- * app inside it. A level carries the pages the sidebar lists, the way back up, and the trail the
- * top bar writes, so the shell is drawn from one answer. A record with a page and nothing under it
- * -- a run -- is no level, and keeps the level it was opened from. See spec/console/navigation.md.
+ * Where the reader is in the console, as a level of one tree: a view at the root, and a node, an
+ * app, an account or a domain inside it. A level carries the pages the sidebar lists, the way back
+ * up, and the trail the top bar writes, so the shell is drawn from one answer. A record with a page
+ * and nothing under it -- a run, a task, a resource of a kind under `/kinds` -- is no level, and
+ * keeps the level it was opened from. See spec/console/navigation.md.
  */
 import type { IconComponent } from '@canmi/design/components/icon';
 import ActivityIcon from '@tabler/icons-svelte-runes/icons/activity';
 import ChartLineIcon from '@tabler/icons-svelte-runes/icons/chart-line';
 import DatabaseIcon from '@tabler/icons-svelte-runes/icons/database';
+import FileCodeIcon from '@tabler/icons-svelte-runes/icons/file-code';
+import GitCompareIcon from '@tabler/icons-svelte-runes/icons/git-compare';
 import HistoryIcon from '@tabler/icons-svelte-runes/icons/history';
 import LayoutDashboardIcon from '@tabler/icons-svelte-runes/icons/layout-dashboard';
 import PackagesIcon from '@tabler/icons-svelte-runes/icons/packages';
+import ServerIcon from '@tabler/icons-svelte-runes/icons/server-2';
 import { TABS as APP_TABS, appQuery, appViewOf } from './apps/view.ts';
+import { TABS as RECORD_TABS, pluralLabel, recordQuery, recordViewOf } from './kinds/view.ts';
 import { nameOf } from './map/places.ts';
 import { TABS as NODE_TABS, hrefOf as nodeQuery, viewOf as nodeViewOf } from './nodes/view.ts';
 import { type View, appHref, displayOf, nodeHref, within } from './scope/scope.ts';
@@ -36,7 +41,7 @@ export interface Crumb {
 }
 
 export interface Level {
-	/** How deep in the tree: a view's root is 0, a node or an app inside it 1. */
+	/** How deep in the tree: a view's root is 0, a thing inside it 1. */
 	readonly depth: number;
 	/** The level's name, at the head of its pages; absent at a view's root. */
 	readonly name?: string;
@@ -56,12 +61,20 @@ const NODE_ICONS: Record<(typeof NODE_TABS)[number]['key'], Item['icon']> = {
 	apps: PackagesIcon,
 	events: ActivityIcon,
 	disk: DatabaseIcon,
+	spec: FileCodeIcon,
+	drift: GitCompareIcon,
 };
 
 const APP_ICONS: Record<(typeof APP_TABS)[number]['key'], Item['icon']> = {
 	overview: LayoutDashboardIcon,
 	usage: ChartLineIcon,
 	history: HistoryIcon,
+	spec: FileCodeIcon,
+};
+
+const RECORD_ICONS: Record<(typeof RECORD_TABS)[number]['key'], Item['icon']> = {
+	overview: LayoutDashboardIcon,
+	nodes: ServerIcon,
 };
 
 /** What a query is read with: `page.url`'s is read-only, a server's is not. */
@@ -74,6 +87,13 @@ export interface Where {
 	readonly node?: string;
 	readonly app?: string;
 	readonly run?: string;
+	readonly account?: string;
+	readonly domain?: string;
+	/** A task of the ledger, which its service and its id name together. */
+	readonly task?: { readonly service: string; readonly id: string };
+	/** A kind with no page of its own, by its plural, and one of its resources. */
+	readonly kind?: string;
+	readonly resource?: string;
 }
 
 /** The trail's step for the open item of an object's level, unless it is the first. */
@@ -84,7 +104,39 @@ function opened(items: readonly Item[], current: string, href: string, name: Cru
 	return [{ ...name, href }, { label: item.label }];
 }
 
-export function levelOf({ url, view, node, app, run }: Where): Level {
+/** An account's or a domain's level, under the root's section that lists them. */
+function recordLevel(
+	url: Where['url'],
+	view: View,
+	path: '/accounts' | '/domains',
+	name: string,
+): Level {
+	const query = recordViewOf(url.searchParams);
+	const base = within(view, `${path}/${encodeURIComponent(name)}`);
+	const section = sectionOf(path);
+	const label = section?.label ?? path;
+	const items = RECORD_TABS.map((tab) => ({
+		key: tab.key,
+		label: tab.label,
+		icon: RECORD_ICONS[tab.key],
+		href: `${base}${recordQuery({ tab: tab.key })}`,
+	}));
+	return {
+		depth: 1,
+		name,
+		items,
+		current: query.tab,
+		up: { label, href: within(view, path) },
+		trail: [
+			{ label, href: within(view, path) },
+			...opened(items, query.tab, base, { label: name }),
+		],
+		section,
+	};
+}
+
+export function levelOf(where: Where): Level {
+	const { url, view, node, app, account, domain } = where;
 	if (node !== undefined) {
 		const query = nodeViewOf(url.searchParams);
 		const base = nodeHref(view, node);
@@ -135,6 +187,8 @@ export function levelOf({ url, view, node, app, run }: Where): Level {
 			section: sectionOf('/apps'),
 		};
 	}
+	if (account !== undefined) return recordLevel(url, view, '/accounts', account);
+	if (domain !== undefined) return recordLevel(url, view, '/domains', domain);
 	const shown = sectionsIn(view);
 	const found = sectionOf(url.pathname);
 	// None for a section the view does not show, as Nodes in Services, whose page is a 404.
@@ -145,20 +199,34 @@ export function levelOf({ url, view, node, app, run }: Where): Level {
 		icon: one.icon,
 		href: within(view, one.path),
 	}));
-	const trail: Crumb[] =
-		section === undefined
-			? []
-			: run === undefined
-				? [{ label: section.label }]
-				: [
-						{ label: section.label, href: within(view, section.path) },
-						{ label: `#${run}`, mono: true },
-					];
-	return { depth: 0, items, current: section?.path, trail, section };
+	return { depth: 0, items, current: section?.path, trail: rootTrail(where, section), section };
+}
+
+/** The trail at a view's root: its section, then the record opened from it, if one is. */
+function rootTrail({ view, run, task, kind, resource }: Where, section?: Section): Crumb[] {
+	if (kind !== undefined) {
+		const label = pluralLabel(kind);
+		if (resource === undefined) return [{ label }];
+		return [
+			{ label, href: within(view, `/kinds/${encodeURIComponent(kind)}`) },
+			{ label: resource },
+		];
+	}
+	if (section === undefined) return [];
+	const record: Crumb | undefined =
+		run !== undefined
+			? { label: `#${run}`, mono: true }
+			: task !== undefined
+				? { label: task.id, code: task.service, mono: true }
+				: undefined;
+	if (record === undefined) return [{ label: section.label }];
+	return [{ label: section.label, href: within(view, section.path) }, record];
 }
 
 /** The `<title>`: the one name the page is about. See spec/architecture/console.md. */
-export function titleOf(level: Level, { node, app, run }: Where): string {
+export function titleOf(level: Level, where: Where): string {
+	const { node, app, run, account, domain, task, kind, resource } = where;
 	if (run !== undefined) return `#${run}`;
-	return node ?? app ?? level.section?.label ?? 'Console';
+	if (kind !== undefined) return resource ?? pluralLabel(kind);
+	return node ?? app ?? account ?? domain ?? task?.id ?? level.section?.label ?? 'Console';
 }

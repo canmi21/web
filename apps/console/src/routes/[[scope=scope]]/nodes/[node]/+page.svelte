@@ -1,6 +1,8 @@
 <script lang="ts">
 	import { untrack } from 'svelte';
 	import Card from '#lib/card.svelte';
+	import NodeDrift from '#lib/kinds/node-drift.svelte';
+	import ResourcePage from '#lib/kinds/resource-page.svelte';
 	import { live } from '#lib/live.svelte.js';
 	import { Clock } from '#lib/nodes/clock.svelte.js';
 	import { machineFor, nodeRow } from '#lib/nodes/machine.js';
@@ -13,6 +15,7 @@
 	import { Landed } from '#lib/ui/landed.svelte.js';
 	import Segmented, { RANGES } from '#lib/ui/segmented.svelte';
 	import Skeleton from '#lib/ui/skeleton.svelte';
+	import Unpolished from '#lib/ui/unpolished.svelte';
 	import Unread from '#lib/unread.svelte';
 	import type { PageProps } from './$types';
 
@@ -37,78 +40,85 @@
 	);
 </script>
 
-<NodeHeader {row} info={machine?.info} now={clock.now}>
-	{#snippet actions()}
-		{#if data.view.tab === 'overview'}
-			<Segmented options={ranges} value={data.view.range} label="Time range" />
-		{/if}
-	{/snippet}
-</NodeHeader>
+<Unpolished rfc="8pqao">
+	<NodeHeader {row} info={machine?.info} now={clock.now}>
+		{#snippet actions()}
+			{#if data.view.tab === 'overview'}
+				<Segmented options={ranges} value={data.view.range} label="Time range" />
+			{/if}
+		{/snippet}
+	</NodeHeader>
 
-{#if read.value && !read.value.ok}
-	<Unread what="The machine" failure={read.value.failure} />
-{/if}
-
-<!-- The page open is the sidebar's; see spec/console/navigation.md. -->
-<div>
-	{#if data.view.tab === 'overview' && data.overview}
-		<div class="flex flex-col gap-4">
-			<NodeOverview
-				{machine}
-				waiting={machine === undefined && read.value === undefined}
-				read={data.overview}
-				span={data.span}
-				reveal={data.view.range}
-			/>
-		</div>
-	{:else if data.view.tab === 'apps' && data.apps}
-		{#await data.apps}
-			<Card title="Apps" flush><div class="px-5 pb-5"><Skeleton height={TABLE} /></div></Card>
-		{:then apps}
-			{#if apps.ok}
-				<Card title="{apps.data.length} apps" flush>
-					<NodeApps apps={apps.data} now={clock.now} />
-				</Card>
-			{:else}
-				<Unread what="The apps" failure={apps.failure} />
-			{/if}
-		{/await}
-	{:else if data.view.tab === 'events' && data.events}
-		{#await data.events}
-			<Card title="Events" flush><div class="px-5 pb-5"><Skeleton height={TABLE} /></div></Card>
-		{:then events}
-			{#if events.read.ok}
-				<Card title="Events" flush>
-					<NodeEvents
-						events={events.read.data}
-						newer={data.view.before === undefined
-							? undefined
-							: hrefOf({ ...data.view, before: undefined })}
-						older={events.older === undefined
-							? undefined
-							: hrefOf({ ...data.view, before: events.older })}
-					/>
-				</Card>
-			{:else}
-				<Unread what="The events" failure={events.read.failure} />
-			{/if}
-		{/await}
-	{:else if data.view.tab === 'disk' && data.disk}
-		{#await data.disk}
-			<div class="flex flex-col gap-4">
-				<div class="grid gap-4 xl:grid-cols-[minmax(0,2fr)_minmax(0,3fr)]">
-					<Card title="Mounts"><Skeleton height={160} /></Card>
-					<Card title="By app"><Skeleton height={160} chart /></Card>
-				</div>
-				<Card title="Snapshots" flush><div class="px-5 pb-5"><Skeleton height={TABLE} /></div></Card
-				>
-			</div>
-		{:then disk}
-			{#if disk.ok}
-				<div class="flex flex-col gap-4"><NodeDisk disk={disk.data} /></div>
-			{:else}
-				<Unread what="The disk" failure={disk.failure} />
-			{/if}
-		{/await}
+	{#if read.value && !read.value.ok}
+		<Unread what="The machine" failure={read.value.failure} />
 	{/if}
-</div>
+
+	<!-- The page open is the sidebar's; see spec/console/navigation.md. -->
+	<div>
+		{#if data.view.tab === 'overview' && data.overview}
+			<div class="flex flex-col gap-4">
+				<NodeOverview
+					{machine}
+					waiting={machine === undefined && read.value === undefined}
+					read={data.overview}
+					span={data.span}
+					reveal={data.view.range}
+				/>
+			</div>
+		{:else if data.view.tab === 'apps' && data.apps}
+			{#await data.apps}
+				<Card title="Apps" flush><div class="px-5 pb-5"><Skeleton height={TABLE} /></div></Card>
+			{:then apps}
+				{#if apps.ok}
+					<Card title="{apps.data.length} apps" flush>
+						<NodeApps apps={apps.data} now={clock.now} />
+					</Card>
+				{:else}
+					<Unread what="The apps" failure={apps.failure} />
+				{/if}
+			{/await}
+		{:else if data.view.tab === 'events' && data.events}
+			{#await data.events}
+				<Card title="Events" flush><div class="px-5 pb-5"><Skeleton height={TABLE} /></div></Card>
+			{:then events}
+				{#if events.read.ok}
+					<Card title="Events" flush>
+						<NodeEvents
+							events={events.read.data}
+							newer={data.view.before === undefined
+								? undefined
+								: hrefOf({ ...data.view, before: undefined })}
+							older={events.older === undefined
+								? undefined
+								: hrefOf({ ...data.view, before: events.older })}
+						/>
+					</Card>
+				{:else}
+					<Unread what="The events" failure={events.read.failure} />
+				{/if}
+			{/await}
+		{:else if data.view.tab === 'disk' && data.disk}
+			{#await data.disk}
+				<div class="flex flex-col gap-4">
+					<div class="grid gap-4 xl:grid-cols-[minmax(0,2fr)_minmax(0,3fr)]">
+						<Card title="Mounts"><Skeleton height={160} /></Card>
+						<Card title="By app"><Skeleton height={160} chart /></Card>
+					</div>
+					<Card title="Snapshots" flush
+						><div class="px-5 pb-5"><Skeleton height={TABLE} /></div></Card
+					>
+				</div>
+			{:then disk}
+				{#if disk.ok}
+					<div class="flex flex-col gap-4"><NodeDisk disk={disk.data} /></div>
+				{:else}
+					<Unread what="The disk" failure={disk.failure} />
+				{/if}
+			{/await}
+		{:else if data.view.tab === 'spec' && data.spec}
+			<Unpolished rfc="ott7y"><ResourcePage read={data.spec} /></Unpolished>
+		{:else if data.view.tab === 'drift' && data.drift}
+			<Unpolished rfc="ott7y"><NodeDrift read={data.drift} /></Unpolished>
+		{/if}
+	</div>
+</Unpolished>

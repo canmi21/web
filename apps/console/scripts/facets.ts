@@ -10,6 +10,7 @@ import { contractAddress } from '@canmi/addresses/build';
 import ts from 'typescript';
 
 const FILE = fileURLToPath(new URL('../src/lib/server/facets.ts', import.meta.url));
+const COMMANDS_FILE = fileURLToPath(new URL('../src/lib/server/commands.ts', import.meta.url));
 
 const OPTIONS: ts.CompilerOptions = {
 	target: ts.ScriptTarget.ESNext,
@@ -99,19 +100,24 @@ function fieldOf(checker: ts.TypeChecker, source: ts.SourceFile, entry: ts.Symbo
 }
 
 /**
- * Each facet's parameters and answer, and each stream's message, as data, by name: `FACETS` and
- * `STREAMS` read off `file`.
+ * Each facet's parameters and answer, each stream's message, and each command's body and answer,
+ * as data, by name: `FACETS` and `STREAMS` read off `file`, `COMMANDS` off `commands`.
  */
-export function contracts(file = FILE): Record<string, { revision: number; contract: unknown }> {
-	const program = ts.createProgram([file], OPTIONS);
+export function contracts(
+	file = FILE,
+	commands = COMMANDS_FILE,
+): Record<string, { revision: number; contract: unknown }> {
+	const program = ts.createProgram([file, commands], OPTIONS);
 	const checker = program.getTypeChecker();
-	const source = program.getSourceFile(file);
-	const module = source && checker.getSymbolAtLocation(source);
-	const table = (name: string) => {
+	const tableIn = (path: string, name: string) => {
+		const source = program.getSourceFile(path);
+		const module = source && checker.getSymbolAtLocation(source);
 		const found = module && checker.getExportsOfModule(module).find((one) => one.name === name);
-		if (!source || !found) throw new Error(`no ${name} in ${file}`);
-		return checker.getTypeOfSymbolAtLocation(found, source).getProperties();
+		if (!source || !found) throw new Error(`no ${name} in ${path}`);
+		return { source, entries: checker.getTypeOfSymbolAtLocation(found, source).getProperties() };
 	};
+	const table = (name: string) => tableIn(file, name).entries;
+	const source = program.getSourceFile(file);
 	if (!source) throw new Error(`no ${file}`);
 	const facets = table('FACETS').map((entry) => {
 		const signature = fieldOf(checker, source, entry, 'read')?.getCallSignatures()[0];
@@ -130,7 +136,19 @@ export function contracts(file = FILE): Record<string, { revision: number; contr
 		const contract = { message: shapeOf(checker, checker.getNonNullableType(message)) };
 		return [entry.name, { revision: revisionOf(entry), contract }] as const;
 	});
-	return Object.fromEntries([...facets, ...streams]);
+	const written = tableIn(commands, 'COMMANDS');
+	const ordered = written.entries.map((entry) => {
+		const reading = fieldOf(checker, written.source, entry, 'body')?.getCallSignatures()[0];
+		const running = fieldOf(checker, written.source, entry, 'run')?.getCallSignatures()[0];
+		if (!reading || !running) throw new Error(`the ${entry.name} command has no body or run`);
+		const answer = running.getReturnType();
+		const contract = {
+			body: shapeOf(checker, checker.getNonNullableType(reading.getReturnType())),
+			answer: shapeOf(checker, checker.getAwaitedType(answer) ?? answer),
+		};
+		return [entry.name, { revision: revisionOf(entry), contract }] as const;
+	});
+	return Object.fromEntries([...facets, ...streams, ...ordered]);
 }
 
 /** Every facet's and stream's address, as the build states it to the pages and the Worker alike. */

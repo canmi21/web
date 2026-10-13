@@ -94,12 +94,21 @@
 
 	/** Where the reader is, which the sidebar, the trail and the title are drawn from. */
 	// An error's page drills into nothing: a node, app or run the address names may not exist.
-	const where = $derived({
-		url: page.url,
-		view,
-		node: page.error ? undefined : page.params.node,
-		app: page.error ? undefined : page.params.app,
-		run: page.error ? undefined : page.params.run,
+	const where = $derived.by(() => {
+		const params: Partial<Record<string, string>> = page.error ? {} : page.params;
+		const { service, task } = params;
+		return {
+			url: page.url,
+			view,
+			node: params.node,
+			app: params.app,
+			run: params.run,
+			account: params.account,
+			domain: params.domain,
+			task: service !== undefined && task !== undefined ? { service, id: task } : undefined,
+			kind: params.kind,
+			resource: params.resource,
+		};
 	});
 	const level = $derived(levelOf(where));
 	/** An error's page is named as the protocol names its status, or the failure it has none for. */

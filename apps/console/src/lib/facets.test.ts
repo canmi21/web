@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { NAMES } from './facets.ts';
+import { COMMANDS } from './server/commands.ts';
 import { FACETS, STREAMS } from './server/facets.ts';
 import { order } from './server/nodes.ts';
 import { Sources } from './server/sources.ts';
@@ -9,9 +10,9 @@ import { UTC } from './chart/series.ts';
 const OSAKA = { latitude: '34.6937', longitude: '135.5023' };
 
 describe('the facets the browser asks', () => {
-	it('are the facets and streams the server answers, every one', () => {
+	it('are the facets, streams and commands the server answers, every one', () => {
 		expect([...NAMES].toSorted()).toEqual(
-			[...Object.keys(FACETS), ...Object.keys(STREAMS)].toSorted(),
+			[...Object.keys(FACETS), ...Object.keys(STREAMS), ...Object.keys(COMMANDS)].toSorted(),
 		);
 	});
 

@@ -22,6 +22,7 @@
 	import PageHeader from '#lib/ui/page-header.svelte';
 	import Skeleton from '#lib/ui/skeleton.svelte';
 	import { timeZone } from '#lib/ui/time-zone.js';
+	import Unpolished from '#lib/ui/unpolished.svelte';
 	import type { PageProps } from './$types';
 
 	let { data }: PageProps = $props();
@@ -66,63 +67,65 @@
 	const failures = $derived(run?.placements.filter((one) => one.outcome === 'failed') ?? []);
 </script>
 
-<PageHeader title="Run #{data.run}" description={summary}>
-	{#snippet meta()}
-		{#if state}<Badge tone={TONE[state]}>{said(state)}</Badge>{/if}
-	{/snippet}
-</PageHeader>
+<Unpolished rfc="8pqao">
+	<PageHeader title="Run #{data.run}" description={summary}>
+		{#snippet meta()}
+			{#if state}<Badge tone={TONE[state]}>{said(state)}</Badge>{/if}
+		{/snippet}
+	</PageHeader>
 
-<Silent nodes={missing.map((node) => ({ node }))} />
+	<Silent nodes={missing.map((node) => ({ node }))} />
 
-{#if !read.value}
-	<Card title="Where each app got to" flush>
-		<div class="px-5 pb-5"><Skeleton height={(data.nodes.length + 1) * 44} /></div>
-	</Card>
-	<Card title="Timeline"><Skeleton height={200} chart /></Card>
-	<Card title="Events" flush><div class="px-5 pb-5"><Skeleton height={TABLE} /></div></Card>
-{:else if !run}
-	<p class="p-4 {stylex.attrs(surfaces.empty, type.soft).class}">
-		No node holds an event from run #{data.run}. The relays keep each node's last 30 days, so an
-		older run is no longer seen.
-	</p>
-{:else}
-	<Card title="Where each app got to" flush>
-		<Matrix rows={matrix(run, data.nodes, unknown)} nodes={data.nodes} />
-	</Card>
+	{#if !read.value}
+		<Card title="Where each app got to" flush>
+			<div class="px-5 pb-5"><Skeleton height={(data.nodes.length + 1) * 44} /></div>
+		</Card>
+		<Card title="Timeline"><Skeleton height={200} chart /></Card>
+		<Card title="Events" flush><div class="px-5 pb-5"><Skeleton height={TABLE} /></div></Card>
+	{:else if !run}
+		<p class="p-4 {stylex.attrs(surfaces.empty, type.soft).class}">
+			No node holds an event from run #{data.run}. The relays keep each node's last 30 days, so an
+			older run is no longer seen.
+		</p>
+	{:else}
+		<Card title="Where each app got to" flush>
+			<Matrix rows={matrix(run, data.nodes, unknown)} nodes={data.nodes} />
+		</Card>
 
-	<Card title="Timeline">
-		<Timeline
-			tracks={tracks(run, data.nodes)}
-			stages={STAGE_KEYS}
-			until={run.running ? fresh.now / 1000 : undefined}
-			label="Each deploy of run #{data.run} over time"
-		/>
-	</Card>
+		<Card title="Timeline">
+			<Timeline
+				tracks={tracks(run, data.nodes)}
+				stages={STAGE_KEYS}
+				until={run.running ? fresh.now / 1000 : undefined}
+				label="Each deploy of run #{data.run} over time"
+			/>
+		</Card>
 
-	{#if failures.length}
-		<Card title="Failures" flush>
-			<ul>
-				{#each failures as one (`${one.node}/${one.app}`)}
-					<li class="flex flex-col gap-1 px-5 py-3 {stylex.attrs(surfaces.listRule).class}">
-						<span class="flex flex-wrap items-center gap-2 {stylex.attrs(type.name).class}">
-							<AppName app={one.app} /> on
-							<a href={toNode(one.node)}><NodeName code={one.node} /></a>
-							<span class={stylex.attrs(tone.bad).class}>{said('failed', one.stage)}</span>
-						</span>
-						<span class="whitespace-pre-wrap {stylex.attrs(type.soft).class}"
-							>{one.detail ?? 'host recorded no reason.'}</span
-						>
-					</li>
-				{/each}
-			</ul>
+		{#if failures.length}
+			<Card title="Failures" flush>
+				<ul>
+					{#each failures as one (`${one.node}/${one.app}`)}
+						<li class="flex flex-col gap-1 px-5 py-3 {stylex.attrs(surfaces.listRule).class}">
+							<span class="flex flex-wrap items-center gap-2 {stylex.attrs(type.name).class}">
+								<AppName app={one.app} /> on
+								<a href={toNode(one.node)}><NodeName code={one.node} /></a>
+								<span class={stylex.attrs(tone.bad).class}>{said('failed', one.stage)}</span>
+							</span>
+							<span class="whitespace-pre-wrap {stylex.attrs(type.soft).class}"
+								>{one.detail ?? 'host recorded no reason.'}</span
+							>
+						</li>
+					{/each}
+				</ul>
+			</Card>
+		{/if}
+
+		<Card title="Events" flush>
+			<Events
+				events={read.value.events}
+				label="Every event of run #{data.run}, newest first"
+				empty="No events."
+			/>
 		</Card>
 	{/if}
-
-	<Card title="Events" flush>
-		<Events
-			events={read.value.events}
-			label="Every event of run #{data.run}, newest first"
-			empty="No events."
-		/>
-	</Card>
-{/if}
+</Unpolished>

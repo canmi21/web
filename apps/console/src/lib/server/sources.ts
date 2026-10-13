@@ -5,7 +5,9 @@
  */
 import { runsIn } from '../scope/runs.ts';
 import type { View } from '../scope/scope.ts';
+import type { Catalog } from '../control/catalog.gen.ts';
 import type { Cluster, History } from '../wire.ts';
+import { catalog } from './control.ts';
 import { type Bounded, type Edge, type Read, cluster, history } from './read.ts';
 import type { Runs } from './runs.ts';
 
@@ -30,6 +32,11 @@ export class Sources {
 	/** Every node's history over `span` seconds in slots of `slot` seconds. */
 	history(span: number, slot: number): Promise<Read<History>> {
 		return this.#once(`history ${span} ${slot}`, () => history(this.edge, span, slot));
+	}
+
+	/** Every kind the registry holds, read through its generated schema. */
+	catalog(): Promise<Read<Catalog>> {
+		return this.#once('catalog', () => catalog(this.edge));
 	}
 
 	/** The runs of `view`: the mirror's 30 days, or from `ask.since`, lean where it asks. */

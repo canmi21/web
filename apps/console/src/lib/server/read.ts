@@ -177,7 +177,7 @@ export function isNode(name: string): name is Node {
  * The envelope's data, or its failure; anything else that is not an envelope is the node's fault,
  * but a 404 is a path nothing on the node answers yet, as a route host has not deployed.
  */
-async function opened<T>(node: Node, answer: Response): Promise<Read<T>> {
+export async function opened<T>(node: Node, answer: Response): Promise<Read<T>> {
 	const body = (await answer.json().catch(() => undefined)) as
 		| { status: 'success'; data: T }
 		| { status: 'error'; code: Code; message: string }
@@ -192,6 +192,6 @@ async function opened<T>(node: Node, answer: Response): Promise<Read<T>> {
 	return failed(502, 'upstream_unavailable', `${node} answered outside the envelope.`);
 }
 
-function failed(status: number, code: Code, message: string): Read<never> {
+export function failed(status: number, code: Code, message: string): Read<never> {
 	return { ok: false, failure: { status, code, message } };
 }

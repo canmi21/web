@@ -33,6 +33,14 @@
 		{ "binding": "SIN", "service_id": "01a132e1-0685-7c03-9e75-1491cc178d93", "remote": true },
 	],
 
+	// Access's application for console.canmi.app: its team's domain and audience tag, both public,
+	// which a write's identity is verified against. The registry's write token is a secret, never
+	// here. See src/lib/server/access.ts.
+	"vars": {
+		"ACCESS_TEAM": "canmi.cloudflareaccess.com",
+		"ACCESS_AUD": "7ebd7ca98d9e53879d7ad2f26ec30c42e7c2967649d1f99613e2ea9fa2de7284",
+	},
+
 	"observability": { "logs": { "enabled": true } },
 	"workers_dev": false,
 	"preview_urls": false,

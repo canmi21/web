@@ -10,10 +10,17 @@ import { type Node, type Whereabouts, order } from './nodes.ts';
 
 /**
  * Each node's Caddy, through that node's tunnel, bound by its name in capitals, and the read-only
- * token every node's host takes for its `GET` routes; see wrangler.jsonc.
+ * token every node's host takes for its `GET` routes; see wrangler.jsonc. The registry's write
+ * token is the Worker's secret alone, and the Access team and audience its writes are signed for;
+ * see ./control.ts and ./access.ts.
  */
 export type Env = Readonly<
-	Partial<Record<Uppercase<Node>, Fetcher>> & { HOST_READ_TOKEN?: string }
+	Partial<Record<Uppercase<Node>, Fetcher>> & {
+		HOST_READ_TOKEN?: string;
+		REGISTRY_TOKEN?: string;
+		ACCESS_TEAM?: string;
+		ACCESS_AUD?: string;
+	}
 >;
 
 /** The relay's interface on a node; VPC sends it as the `Host` Caddy routes on. See platform's

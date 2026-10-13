@@ -9,6 +9,8 @@ export const TABS = [
 	{ key: 'apps', label: 'Apps' },
 	{ key: 'events', label: 'Events' },
 	{ key: 'disk', label: 'Disk' },
+	{ key: 'spec', label: 'Spec' },
+	{ key: 'drift', label: 'Drift' },
 ] as const;
 
 export type Tab = (typeof TABS)[number]['key'];

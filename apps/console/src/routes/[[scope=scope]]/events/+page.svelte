@@ -17,6 +17,7 @@
 	import PageHeader from '#lib/ui/page-header.svelte';
 	import Skeleton from '#lib/ui/skeleton.svelte';
 	import { timeZone } from '#lib/ui/time-zone.js';
+	import Unpolished from '#lib/ui/unpolished.svelte';
 	import type { PageProps } from './$types';
 
 	let { data }: PageProps = $props();
@@ -70,81 +71,84 @@
 	const LOG = 11 * 44;
 </script>
 
-<PageHeader title="Events" />
+<Unpolished rfc="8pqao">
+	<PageHeader title="Events" />
 
-{#await data.read then read}
-	<Silent
-		nodes={Object.entries(read.failures).map(([node, failure]) => ({
-			node,
-			message: failure.message,
-		}))}
-	/>
-{/await}
+	{#await data.read then read}
+		<Silent
+			nodes={Object.entries(read.failures).map(([node, failure]) => ({
+				node,
+				message: failure.message,
+			}))}
+		/>
+	{/await}
 
-{#if nothing}
-	<Empty view={data.view} />
-{:else}
-	<div class="mb-4">
-		{#await data.read}
-			<Filters query={data.query} nodes={data.nodes} options={chosen} />
-		{:then read}
-			<Filters query={data.query} nodes={data.nodes} options={read.options} />
-		{/await}
-	</div>
-
-	<div class="mb-4 grid gap-4 xl:grid-cols-2">
-		<Card title="Events per hour">
+	{#if nothing}
+		<Empty view={data.view} />
+	{:else}
+		<div class="mb-4">
 			{#await data.read}
-				<Skeleton height={HEAT} chart />
+				<Filters query={data.query} nodes={data.nodes} options={chosen} />
+			{:then read}
+				<Filters query={data.query} nodes={data.nodes} options={read.options} />
+			{/await}
+		</div>
+
+		<div class="mb-4 grid gap-4 xl:grid-cols-2">
+			<Card title="Events per hour">
+				{#await data.read}
+					<Skeleton height={HEAT} chart />
+				{:then { charts }}
+					<Heatmap
+						rows={data.nodes.map((node) => ({ key: node, label: nodeLabel(node, 'lead') }))}
+						times={charts.hours.times}
+						values={charts.hours.values}
+						steps={5}
+						low={0}
+						label="Events per hour per node over the last 24 hours"
+					/>
+				{/await}
+			</Card>
+			<Card title="Outcomes per day">
+				{#await data.read}
+					<Skeleton height={220} chart />
+				{:then { charts }}
+					<StackedBar
+						categories={charts.days.times.map((at) => written(at * 1000, zone, 'day'))}
+						series={bars(charts)}
+						label="Event outcomes per day over the last 7 days"
+					/>
+				{/await}
+			</Card>
+		</div>
+		<p class="mb-4 {stylex.attrs(type.soft).class}">
+			{#await data.read}
+				The charts count the newest events loaded, matching the filters.
 			{:then { charts }}
-				<Heatmap
-					rows={data.nodes.map((node) => ({ key: node, label: nodeLabel(node, 'lead') }))}
-					times={charts.hours.times}
-					values={charts.hours.values}
-					steps={5}
-					low={0}
-					label="Events per hour per node over the last 24 hours"
-				/>
+				{counted(charts)}
+			{/await}
+		</p>
+
+		<Card title="Log" flush>
+			{#await data.read}
+				<div class="px-5 pb-5"><Skeleton height={LOG} /></div>
+			{:then read}
+				{@const range = rangeOf(read.events)}
+				<EventsTable events={read.events} />
+				<footer
+					class="flex flex-wrap items-center justify-between gap-3 px-5 py-2.5 {stylex.attrs(
+						type.soft,
+					).class}"
+				>
+					<span>{read.events.length} events{range ? `, ${range}` : ''}</span>
+					<span class="flex items-center gap-4">
+						{#if paged}<a href={to(`/events${search(data.query, {})}`)}>Newest</a>{/if}
+						{#if read.more}<a href={to(`/events${search(data.query, read.next)}`)} rel="next"
+								>Older</a
+							>{/if}
+					</span>
+				</footer>
 			{/await}
 		</Card>
-		<Card title="Outcomes per day">
-			{#await data.read}
-				<Skeleton height={220} chart />
-			{:then { charts }}
-				<StackedBar
-					categories={charts.days.times.map((at) => written(at * 1000, zone, 'day'))}
-					series={bars(charts)}
-					label="Event outcomes per day over the last 7 days"
-				/>
-			{/await}
-		</Card>
-	</div>
-	<p class="mb-4 {stylex.attrs(type.soft).class}">
-		{#await data.read}
-			The charts count the newest events loaded, matching the filters.
-		{:then { charts }}
-			{counted(charts)}
-		{/await}
-	</p>
-
-	<Card title="Log" flush>
-		{#await data.read}
-			<div class="px-5 pb-5"><Skeleton height={LOG} /></div>
-		{:then read}
-			{@const range = rangeOf(read.events)}
-			<EventsTable events={read.events} />
-			<footer
-				class="flex flex-wrap items-center justify-between gap-3 px-5 py-2.5 {stylex.attrs(
-					type.soft,
-				).class}"
-			>
-				<span>{read.events.length} events{range ? `, ${range}` : ''}</span>
-				<span class="flex items-center gap-4">
-					{#if paged}<a href={to(`/events${search(data.query, {})}`)}>Newest</a>{/if}
-					{#if read.more}<a href={to(`/events${search(data.query, read.next)}`)} rel="next">Older</a
-						>{/if}
-				</span>
-			</footer>
-		{/await}
-	</Card>
-{/if}
+	{/if}
+</Unpolished>

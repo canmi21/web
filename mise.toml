@@ -238,6 +238,17 @@ description = "Type check the service domains' pages, a SvelteKit application of
 dir = "apps/landing"
 run = 'pnpm run check ${AUDIT:+--fail-on-warnings}'
 
+# A reader of another repository's contract is generated from the schema its producer commits,
+# found beside this checkout; one not cloned is passed over, named. See the workspace's
+# spec/json.md, "A contract across languages is the producer's type".
+[tasks.contracts]
+description = "Write each contract's TypeScript reader again from its producer's schema"
+run = "node apps/console/scripts/contracts.ts"
+
+[tasks.check-contracts]
+description = "Fail where a contract's committed reader differs from what its producer's schema makes"
+run = "node apps/console/scripts/contracts.ts --check"
+
 [tasks.check-console]
 description = "Type check the console, a SvelteKit application of its own"
 dir = "apps/console"

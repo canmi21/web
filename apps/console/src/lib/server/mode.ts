@@ -6,4 +6,15 @@
  */
 declare const CONSOLE_MOCK: boolean | undefined;
 
-export const MOCKED = typeof CONSOLE_MOCK === 'boolean' && CONSOLE_MOCK;
+/**
+ * Whether mock mode is on: only in development, whatever was stated. Vite writes
+ * `import.meta.env.DEV` as `false` into a production build, so a build is never mocked, and never
+ * writes as the made-up `developer` ./api.ts writes as there, even were `CONSOLE_MOCK` defined.
+ */
+export const mockedIn = (development: boolean, stated: unknown): boolean =>
+	development && stated === true;
+
+export const MOCKED = mockedIn(
+	import.meta.env.DEV,
+	typeof CONSOLE_MOCK === 'boolean' ? CONSOLE_MOCK : undefined,
+);

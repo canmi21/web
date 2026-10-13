@@ -23,6 +23,7 @@ import { VIEWS, type View, shows } from '../scope/scope.ts';
 import { offsetIn } from '../ui/time-zone.ts';
 import type { Zone } from '../chart/series.ts';
 import type { Cluster, Entry, History, Live } from '../wire.ts';
+import { CONTROL_FACETS } from './control-facets.ts';
 import { type Env, openLive } from './edge.ts';
 import { order } from './nodes.ts';
 import { type Read, minuteOf } from './read.ts';
@@ -212,6 +213,8 @@ export const FACETS = {
 			);
 		},
 	}),
+
+	...CONTROL_FACETS,
 };
 
 export type Facets = typeof FACETS;

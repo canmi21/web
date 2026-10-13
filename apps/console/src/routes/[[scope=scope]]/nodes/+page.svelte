@@ -19,6 +19,7 @@
 	import { Landed } from '#lib/ui/landed.svelte.js';
 	import PageHeader from '#lib/ui/page-header.svelte';
 	import Skeleton from '#lib/ui/skeleton.svelte';
+	import Unpolished from '#lib/ui/unpolished.svelte';
 	import Unread from '#lib/unread.svelte';
 	import type { PageProps } from './$types';
 
@@ -70,82 +71,89 @@
 	const percentOf = (value: number) => `${Math.round(value)}%`;
 </script>
 
-<PageHeader title="Nodes" range={data.range} query={page.url.search}>
-	{#snippet meta()}
-		<Heard live={held} cluster={data.cluster}>
-			{#each counts as { state, count } (state)}
-				{#if count}<Badge tone={STATES[state].tone}>{count} {STATES[state].word}</Badge>{/if}
-			{/each}
-		</Heard>
-	{/snippet}
-</PageHeader>
+<Unpolished rfc="8pqao">
+	<PageHeader title="Nodes" range={data.range} query={page.url.search}>
+		{#snippet meta()}
+			<Heard live={held} cluster={data.cluster}>
+				{#each counts as { state, count } (state)}
+					{#if count}<Badge tone={STATES[state].tone}>{count} {STATES[state].word}</Badge>{/if}
+				{/each}
+			</Heard>
+		{/snippet}
+	</PageHeader>
 
-{#await data.cluster then read}
-	{#if !read.ok}<Unread what="The cluster" failure={read.failure} />{/if}
-{/await}
+	{#await data.cluster then read}
+		{#if !read.ok}<Unread what="The cluster" failure={read.failure} />{/if}
+	{/await}
 
-<div class="grid gap-4 lg:grid-cols-[minmax(0,5fr)_minmax(0,4fr)]">
-	<Card title="Where they are">
+	<div class="grid gap-4 lg:grid-cols-[minmax(0,5fr)_minmax(0,4fr)]">
+		<Card title="Where they are">
+			<Heard live={held} cluster={data.cluster}>
+				<WorldMap states={held.view.nodes} now={clock.now} compact />
+				{#snippet pending()}<Skeleton ratio="{WIDTH} / {HEIGHT}" />{/snippet}
+			</Heard>
+		</Card>
+		<div class="grid grid-cols-2 gap-4">
+			<Heard live={held} cluster={data.cluster}>
+				<StatTile
+					label="Heard"
+					value="{heard.length} of {CODES.length}"
+					share={heard.length / CODES.length}
+				/>
+				<StatTile
+					label="Apps running"
+					value="{apps.running} of {apps.total}"
+					share={apps.total ? apps.running / apps.total : undefined}
+				/>
+				<StatTile
+					label="CPU busy, heard nodes"
+					value={busy === undefined ? '–' : percent(busy / 100)}
+					share={busy === undefined ? undefined : busy / 100}
+				/>
+				<StatTile
+					label="Memory in use, heard nodes"
+					value={memory === undefined ? '–' : percent(memory)}
+					share={memory}
+				/>
+				{#snippet pending()}
+					{#each TILES as label (label)}<StatTile {label} pending />{/each}
+				{/snippet}
+			</Heard>
+		</div>
+	</div>
+
+	<Card title="Every node" flush>
+		{#snippet aside()}
+			{#if unread}<Badge tone="warn">{unread} of {CODES.length} not answering</Badge>{/if}
+		{/snippet}
 		<Heard live={held} cluster={data.cluster}>
-			<WorldMap states={held.view.nodes} now={clock.now} compact />
-			{#snippet pending()}<Skeleton ratio="{WIDTH} / {HEIGHT}" />{/snippet}
-		</Heard>
-	</Card>
-	<div class="grid grid-cols-2 gap-4">
-		<Heard live={held} cluster={data.cluster}>
-			<StatTile
-				label="Heard"
-				value="{heard.length} of {CODES.length}"
-				share={heard.length / CODES.length}
-			/>
-			<StatTile
-				label="Apps running"
-				value="{apps.running} of {apps.total}"
-				share={apps.total ? apps.running / apps.total : undefined}
-			/>
-			<StatTile
-				label="CPU busy, heard nodes"
-				value={busy === undefined ? '–' : percent(busy / 100)}
-				share={busy === undefined ? undefined : busy / 100}
-			/>
-			<StatTile
-				label="Memory in use, heard nodes"
-				value={memory === undefined ? '–' : percent(memory)}
-				share={memory}
-			/>
+			<NodesTable {rows} trends={trends.value ?? {}} now={clock.now} />
 			{#snippet pending()}
-				{#each TILES as label (label)}<StatTile {label} pending />{/each}
+				<div class="px-5 pb-5"><Skeleton height={ROWS} /></div>
 			{/snippet}
 		</Heard>
-	</div>
-</div>
+	</Card>
 
-<Card title="Every node" flush>
-	{#snippet aside()}
-		{#if unread}<Badge tone="warn">{unread} of {CODES.length} not answering</Badge>{/if}
-	{/snippet}
-	<Heard live={held} cluster={data.cluster}>
-		<NodesTable {rows} trends={trends.value ?? {}} now={clock.now} />
-		{#snippet pending()}
-			<div class="px-5 pb-5"><Skeleton height={ROWS} /></div>
-		{/snippet}
-	</Heard>
-</Card>
+	<FleetCharts
+		fleet={data.fleet}
+		since={data.span.since}
+		until={data.span.until}
+		span={data.range}
+	/>
 
-<FleetCharts fleet={data.fleet} since={data.span.since} until={data.span.until} span={data.range} />
-
-<Card title="CPU by the hour">
-	{#await data.heat}
-		<Skeleton height={HEAT} chart />
-	{:then heat}
-		<Heatmap
-			rows={heat.rows}
-			times={heat.times}
-			values={heat.values}
-			low={0}
-			high={100}
-			format={percentOf}
-			label="CPU per node per hour, the last 24 hours"
-		/>
-	{/await}
-</Card>
+	<Card title="CPU by the hour">
+		{#await data.heat}
+			<Skeleton height={HEAT} chart />
+		{:then heat}
+			<Heatmap
+				rows={heat.rows}
+				times={heat.times}
+				values={heat.values}
+				low={0}
+				high={100}
+				format={percentOf}
+				label="CPU per node per hour, the last 24 hours"
+			/>
+		{/await}
+	</Card>
+</Unpolished>

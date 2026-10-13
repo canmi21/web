@@ -11,16 +11,25 @@ describe('levelOf', () => {
 			'Nodes',
 			'Deployments',
 			'Apps',
+			'Tasks',
 			'Events',
+			'Accounts',
+			'Domains',
 		]);
 		expect(level.current).toBe('/nodes');
 		expect(level.up).toBeUndefined();
 		expect(level.trail).toEqual([{ label: 'Nodes' }]);
 	});
 
-	it('leaves Nodes out of a view that does not show them', () => {
+	it('leaves what is infra’s out of a view that does not show it, and keeps Tasks in every one', () => {
 		const level = levelOf({ url: at('/services'), view: 'services' });
-		expect(level.items.map((one) => one.key)).not.toContain('/nodes');
+		expect(level.items.map((one) => one.key)).toEqual([
+			'/',
+			'/deployments',
+			'/apps',
+			'/tasks',
+			'/events',
+		]);
 	});
 
 	it('enters a node: its pages, the way back to Nodes, and its tab in the trail', () => {
@@ -29,7 +38,14 @@ describe('levelOf', () => {
 			view: 'infra',
 			node: 'tyo',
 		});
-		expect(level.items.map((one) => one.key)).toEqual(['overview', 'apps', 'events', 'disk']);
+		expect(level.items.map((one) => one.key)).toEqual([
+			'overview',
+			'apps',
+			'events',
+			'disk',
+			'spec',
+			'drift',
+		]);
 		expect(level.current).toBe('disk');
 		expect(level.up).toEqual({ label: 'Nodes', href: '/infra/nodes' });
 		expect(level.items[1]?.href).toBe('/infra/nodes/tyo?tab=apps&range=6h');
@@ -48,6 +64,7 @@ describe('levelOf', () => {
 			'/platform/apps/relay?range=7d',
 			'/platform/apps/relay?tab=usage&range=7d',
 			'/platform/apps/relay?tab=history&range=7d',
+			'/platform/apps/relay?tab=spec&range=7d',
 		]);
 		expect(level.trail).toEqual([
 			{ label: 'Apps', href: '/platform/apps' },
@@ -65,5 +82,69 @@ describe('levelOf', () => {
 			{ label: '#42', mono: true },
 		]);
 		expect(titleOf(level, where)).toBe('#42');
+	});
+
+	it('opens a node’s Drift, with the trail naming it', () => {
+		const level = levelOf({ url: at('/nodes/tyo?tab=drift'), view: 'all', node: 'tyo' });
+		expect(level.current).toBe('drift');
+		expect(level.trail.at(-1)).toEqual({ label: 'Drift' });
+	});
+
+	it('enters an account: its two pages, the way back to Accounts, and its name as the title', () => {
+		const where = {
+			url: at('/infra/accounts/oci-2?tab=nodes'),
+			view: 'infra' as const,
+			account: 'oci-2',
+		};
+		const level = levelOf(where);
+		expect(level.depth).toBe(1);
+		expect(level.items.map((one) => one.href)).toEqual([
+			'/infra/accounts/oci-2?',
+			'/infra/accounts/oci-2?tab=nodes',
+		]);
+		expect(level.current).toBe('nodes');
+		expect(level.up).toEqual({ label: 'Accounts', href: '/infra/accounts' });
+		expect(level.trail).toEqual([
+			{ label: 'Accounts', href: '/infra/accounts' },
+			{ label: 'oci-2', href: '/infra/accounts/oci-2' },
+			{ label: 'Nodes' },
+		]);
+		expect(level.section?.path).toBe('/accounts');
+		expect(titleOf(level, where)).toBe('oci-2');
+	});
+
+	it('enters a domain, its first page left out of the trail', () => {
+		const level = levelOf({ url: at('/domains/home'), view: 'all', domain: 'home' });
+		expect(level.current).toBe('overview');
+		expect(level.up).toEqual({ label: 'Domains', href: '/domains' });
+		expect(level.trail).toEqual([{ label: 'Domains', href: '/domains' }, { label: 'home' }]);
+	});
+
+	it('keeps a task in Tasks, named by its id beside its service', () => {
+		const task = { service: 'registry', id: '0123456789abcdef' };
+		const where = { url: at('/tasks/registry/0123456789abcdef'), view: 'all' as const, task };
+		const level = levelOf(where);
+		expect(level.depth).toBe(0);
+		expect(level.current).toBe('/tasks');
+		expect(level.trail).toEqual([
+			{ label: 'Tasks', href: '/tasks' },
+			{ label: '0123456789abcdef', code: 'registry', mono: true },
+		]);
+		expect(titleOf(level, where)).toBe('0123456789abcdef');
+	});
+
+	it('reaches a kind with no page under /kinds, in no section, and one of its resources', () => {
+		const list = { url: at('/kinds/databases'), view: 'all' as const, kind: 'databases' };
+		const level = levelOf(list);
+		expect(level.current).toBeUndefined();
+		expect(level.trail).toEqual([{ label: 'Databases' }]);
+		expect(titleOf(level, list)).toBe('Databases');
+		const one = { ...list, url: at('/platform/kinds/databases/main'), view: 'platform' as const };
+		const opened = levelOf({ ...one, resource: 'main' });
+		expect(opened.trail).toEqual([
+			{ label: 'Databases', href: '/platform/kinds/databases' },
+			{ label: 'main' },
+		]);
+		expect(titleOf(opened, { ...one, resource: 'main' })).toBe('main');
 	});
 });

@@ -7,6 +7,7 @@ data/record/metadata.json linguist-generated=true
 data/record/diagram.json linguist-generated=true
 data/build/*.json linguist-generated=true
 libs/collection/drizzle/*/meta/*.json linguist-generated=true
+apps/console/src/lib/control/*.gen.ts linguist-generated=true
 
 # Over the workspace's hard limit, known, and owed a split after the migration rather than now:
 # the curated records until A2 moves them into the database, and the translation

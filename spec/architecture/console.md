@@ -57,15 +57,20 @@ binding, the console's own backend in all but where it runs. The backend is the 
 it holds the state: **every read the console's server makes is answered at once, from what that
 backend already holds in memory** -- never fanned out across the nodes, never computed while the
 console waits. A read the console needs and the backend cannot yet answer that way is the backend's
-to hold, not the console's to gather. **So the document's own response is drawn filled**: a page's
-load awaits its reads when the request is the browser's first, not a move -- `event.isDataRequest`
-false -- and the browser takes over from the data in the page with no read of its own; on a move
-between pages a read is streamed as above, since the browser holds most of it already. **A relay
-counts as answering once its body is read whole**, not once its head arrives: a far relay that had
-sent half of 450 KB of runs when the time ran out was read as nothing, and the overview said no
-deploys, until 2026-10-10; now the next nearest is asked. The placeholders stay for a read that
-fails or comes late, rarely seen but never removed. The reads that still fan out across the nodes
-break this rule until they move, in RFC mij2d. Decided with the author on 2026-10-09.
+to hold, not the console's to gather. **What the platform's control plane holds is read from the
+service that holds it**, decided on 2026-10-13: the registry's catalog and resources and the
+ledger's tasks are each one service's, asked over the VPC binding of the nearest node it runs on --
+`api.canmi.app/registry/...`, `/ledger/...` -- one hop and never fanned out, and a write goes the
+same way with the registry's token, which the console's server holds and the browser never does, as
+the reader's Access identity. **So the document's own response is drawn filled**: a page's load
+awaits its reads when the request is the browser's first, not a move -- `event.isDataRequest` false
+-- and the browser takes over from the data in the page with no read of its own; on a move between
+pages a read is streamed as above, since the browser holds most of it already. **A relay counts as
+answering once its body is read whole**, not once its head arrives: a far relay that had sent half
+of 450 KB of runs when the time ran out was read as nothing, and the overview said no deploys, until
+2026-10-10; now the next nearest is asked. The placeholders stay for a read that fails or comes
+late, rarely seen but never removed. The reads that still fan out across the nodes break this rule
+until they move, in RFC mij2d. Decided with the author on 2026-10-09.
 
 **Its reads are kept a little while at the edge, each for as long as its own data takes to move --
 a smart cache, which leaves it as stateless as before.** It holds no fact of its own, assumes

@@ -23,6 +23,7 @@
 	import Skeleton from '#lib/ui/skeleton.svelte';
 	import Tabs from '#lib/ui/tabs.svelte';
 	import { timeZone } from '#lib/ui/time-zone.js';
+	import Unpolished from '#lib/ui/unpolished.svelte';
 	import type { PageProps } from './$types';
 
 	let { data }: PageProps = $props();
@@ -80,101 +81,103 @@
 	const PLACED = $derived(data.nodes.length * 28 + 26);
 </script>
 
-<PageHeader title="Deployments" />
+<Unpolished rfc="8pqao">
+	<PageHeader title="Deployments" />
 
-<Silent nodes={missing.map(([node, failure]) => ({ node, message: failure.message }))} />
+	<Silent nodes={missing.map(([node, failure]) => ({ node, message: failure.message }))} />
 
-{#if empty}
-	<Empty view={data.view} />
-{:else}
-	<div class="grid grid-cols-2 gap-4 xl:grid-cols-5">
-		{#if read.value}
-			{@const { aggregates } = read.value}
-			<StatTile label="Runs, last 24 h" value={day} />
-			<StatTile
-				label="Success rate, {data.days} days"
-				value={aggregates.success_rate === null ? '-' : percent(aggregates.success_rate)}
-			/>
-			<StatTile label="Median duration" value={seconds(aggregates.median)} />
-			<StatTile label="p95 duration" value={seconds(aggregates.p95)} />
-			<StatTile label="Deploying now" value={going} />
-		{:else}
-			{#each TILES as label (label)}<StatTile {label} pending />{/each}
-		{/if}
-	</div>
-
-	<div class="grid gap-4 xl:grid-cols-2">
-		<Card title="Runs per day">
+	{#if empty}
+		<Empty view={data.view} />
+	{:else}
+		<div class="grid grid-cols-2 gap-4 xl:grid-cols-5">
 			{#if read.value}
-				<StackedBar
-					categories={bars.categories}
-					series={bars.series}
-					label="Runs per day over the last {data.days} days, by state"
+				{@const { aggregates } = read.value}
+				<StatTile label="Runs, last 24 h" value={day} />
+				<StatTile
+					label="Success rate, {data.days} days"
+					value={aggregates.success_rate === null ? '-' : percent(aggregates.success_rate)}
 				/>
+				<StatTile label="Median duration" value={seconds(aggregates.median)} />
+				<StatTile label="p95 duration" value={seconds(aggregates.p95)} />
+				<StatTile label="Deploying now" value={going} />
 			{:else}
-				<Skeleton height={BARS} chart />
-			{/if}
-		</Card>
-		<Card title="Placements by node, {data.days} days">
-			{#if read.value}
-				{@const { outcomes } = read.value}
-				<StackedBar
-					categories={outcomes.nodes.map((node) => nodeLabel(node, 'lead'))}
-					orientation="horizontal"
-					series={[
-						{
-							key: 'succeeded',
-							label: 'Succeeded',
-							color: 'var(--status-success)',
-							values: outcomes.succeeded,
-						},
-						{
-							key: 'failed',
-							label: 'Failed',
-							color: 'var(--status-critical)',
-							values: outcomes.failed,
-						},
-						{
-							key: 'skipped',
-							label: 'Skipped',
-							color: 'var(--foreground-subtle)',
-							values: outcomes.skipped,
-						},
-					]}
-					label="Placements per node by outcome, the last {data.days} days"
-				/>
-			{:else}
-				<Skeleton height={PLACED} chart />
-			{/if}
-		</Card>
-	</div>
-
-	<section class="flex min-w-0 flex-col">
-		<Tabs
-			bind:current={tab}
-			label="What the nodes deployed"
-			tabs={[
-				{ key: 'runs', label: read.value ? `CI runs (${runs.length})` : 'CI runs' },
-				{
-					key: 'apart',
-					label: read.value
-						? `Uploads and panel (${read.value.apart.length})`
-						: 'Uploads and panel',
-				},
-			]}
-		/>
-		<div class="overflow-hidden {stylex.attrs(surfaces.card).class}">
-			{#if !read.value}
-				<div class="p-5"><Skeleton height={TABLE} /></div>
-			{:else if tab === 'runs'}
-				<Queue {runs} nodes={data.nodes} {unknown} now={fresh.now} />
-			{:else}
-				<Events
-					events={read.value.apart}
-					label="Uploads and panel actions across every node, newest first"
-					empty="No node holds an upload or a panel action."
-				/>
+				{#each TILES as label (label)}<StatTile {label} pending />{/each}
 			{/if}
 		</div>
-	</section>
-{/if}
+
+		<div class="grid gap-4 xl:grid-cols-2">
+			<Card title="Runs per day">
+				{#if read.value}
+					<StackedBar
+						categories={bars.categories}
+						series={bars.series}
+						label="Runs per day over the last {data.days} days, by state"
+					/>
+				{:else}
+					<Skeleton height={BARS} chart />
+				{/if}
+			</Card>
+			<Card title="Placements by node, {data.days} days">
+				{#if read.value}
+					{@const { outcomes } = read.value}
+					<StackedBar
+						categories={outcomes.nodes.map((node) => nodeLabel(node, 'lead'))}
+						orientation="horizontal"
+						series={[
+							{
+								key: 'succeeded',
+								label: 'Succeeded',
+								color: 'var(--status-success)',
+								values: outcomes.succeeded,
+							},
+							{
+								key: 'failed',
+								label: 'Failed',
+								color: 'var(--status-critical)',
+								values: outcomes.failed,
+							},
+							{
+								key: 'skipped',
+								label: 'Skipped',
+								color: 'var(--foreground-subtle)',
+								values: outcomes.skipped,
+							},
+						]}
+						label="Placements per node by outcome, the last {data.days} days"
+					/>
+				{:else}
+					<Skeleton height={PLACED} chart />
+				{/if}
+			</Card>
+		</div>
+
+		<section class="flex min-w-0 flex-col">
+			<Tabs
+				bind:current={tab}
+				label="What the nodes deployed"
+				tabs={[
+					{ key: 'runs', label: read.value ? `CI runs (${runs.length})` : 'CI runs' },
+					{
+						key: 'apart',
+						label: read.value
+							? `Uploads and panel (${read.value.apart.length})`
+							: 'Uploads and panel',
+					},
+				]}
+			/>
+			<div class="overflow-hidden {stylex.attrs(surfaces.card).class}">
+				{#if !read.value}
+					<div class="p-5"><Skeleton height={TABLE} /></div>
+				{:else if tab === 'runs'}
+					<Queue {runs} nodes={data.nodes} {unknown} now={fresh.now} />
+				{:else}
+					<Events
+						events={read.value.apart}
+						label="Uploads and panel actions across every node, newest first"
+						empty="No node holds an upload or a panel action."
+					/>
+				{/if}
+			</div>
+		</section>
+	{/if}
+</Unpolished>

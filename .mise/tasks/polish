@@ -1,0 +1,6 @@
+#!/bin/sh
+#MISE description="Hold the console's unpolished surfaces to an open RFC each and no style of their own"
+# The rule is the console's spec/console/polish.md; the check and its reasoning are the script's.
+set -e
+cd "$(dirname "$0")/../.."
+exec node apps/console/scripts/polish.ts

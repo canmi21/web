@@ -1,8 +1,10 @@
 import { error } from '@sveltejs/kit';
+import type { Drift } from '#lib/control/types.js';
+import { resourceRead } from '#lib/kinds/server.js';
 import { markers, nodeCharts } from '#lib/nodes/charts.js';
 import { PAGE, olderThan, viewOf } from '#lib/nodes/view.js';
 import { edgeOf } from '#lib/server/platform.js';
-import { cluster, isNode } from '#lib/server/read.js';
+import { cluster, isNode, node } from '#lib/server/read.js';
 import { apps, disk, events, nodeNow, nodeSeries, range } from '#lib/server/reads.js';
 import type { PageServerLoad } from './$types';
 
@@ -47,5 +49,7 @@ export const load: PageServerLoad = async (event) => {
 			})),
 		),
 		disk: on('disk', () => disk(edge, name)),
+		spec: on('spec', () => resourceRead(edge, 'node', name)),
+		drift: on('drift', () => node<Drift>(edge, name, '/drift')),
 	};
 };

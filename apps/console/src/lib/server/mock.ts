@@ -6,6 +6,7 @@
 import type { AppDetail, Checked, Disk, MachineInfo, Now, Point, Summary } from '../host.ts';
 import type { App, Cluster, Event, Held, History, Slot } from '../wire.ts';
 import type { FleetEvent } from './fleet.ts';
+import { driftMock } from './mock-control.ts';
 import { NODES, type Node } from './nodes.ts';
 
 const ALL = Object.keys(NODES) as Node[];
@@ -281,6 +282,7 @@ export function hostMock(node: Node, path: string): unknown {
 	}
 	if (url.pathname === '/node/series') return series(node, query);
 	if (url.pathname === '/inspect/disk') return disk(node);
+	if (url.pathname === '/drift') return driftMock(node);
 	if (url.pathname === '/events') {
 		const { before, limit } = page();
 		return events(node, before, limit);

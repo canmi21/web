@@ -12,8 +12,9 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from graph import ROOT, build_inputs, changed, dependents, node_graph, owner, rust_graph  # noqa: E402
 
-# Whole-tree and cheap, so they run whatever changed.
-ALWAYS = ["secrets", "refs", "comments"]
+# Whole-tree and cheap, so they run whatever changed. `polish` reads the RFCs beside this
+# repository, and `check-contracts` the producers' schemas, both changing without touching it.
+ALWAYS = ["secrets", "refs", "comments", "polish", "check-contracts"]
 # Whole-program by nature: tsc reads three programs, vitest one suite, oxlint the tree.
 NODE = ["check", "lint", "test"]
 # Gates that belong to one package, run when it or anything it imports changed.

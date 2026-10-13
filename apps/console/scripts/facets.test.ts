@@ -18,4 +18,13 @@ describe("the facets' addresses", () => {
 		});
 		expect(JSON.stringify(contracts())).not.toContain('"any"');
 	});
+
+	it("give each command one from its body and its answer, so the browser's write moves with them", () => {
+		const { patch, create } = contracts();
+		expect(patch?.contract).toMatchObject({
+			body: { kind: { anyOf: expect.arrayContaining(['{"literal":"node"}']) }, revision: 'number' },
+		});
+		expect(create?.contract).toHaveProperty('answer');
+		expect(facetAddresses()).toHaveProperty('patch');
+	});
 });

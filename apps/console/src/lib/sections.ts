@@ -1,13 +1,16 @@
 /**
- * The console's five sections, in the sidebar's order: where each lives inside a view, what it is
+ * The console's sections, in the sidebar's order: where each lives inside a view, what it is
  * called, and the one scope it belongs to, if any, shown besides under All. See
- * spec/architecture/console.md.
+ * spec/console/navigation.md.
  */
 import ActivityIcon from '@tabler/icons-svelte-runes/icons/activity';
+import IdIcon from '@tabler/icons-svelte-runes/icons/id';
 import LayoutDashboardIcon from '@tabler/icons-svelte-runes/icons/layout-dashboard';
+import ListCheckIcon from '@tabler/icons-svelte-runes/icons/list-check';
 import PackagesIcon from '@tabler/icons-svelte-runes/icons/packages';
 import RocketIcon from '@tabler/icons-svelte-runes/icons/rocket';
 import ServerIcon from '@tabler/icons-svelte-runes/icons/server-2';
+import WorldIcon from '@tabler/icons-svelte-runes/icons/world';
 import { type View, isScope, within } from './scope/scope.ts';
 
 export const SECTIONS = [
@@ -15,7 +18,10 @@ export const SECTIONS = [
 	{ path: '/nodes', label: 'Nodes', icon: ServerIcon, only: 'infra' },
 	{ path: '/deployments', label: 'Deployments', icon: RocketIcon },
 	{ path: '/apps', label: 'Apps', icon: PackagesIcon },
+	{ path: '/tasks', label: 'Tasks', icon: ListCheckIcon },
 	{ path: '/events', label: 'Events', icon: ActivityIcon },
+	{ path: '/accounts', label: 'Accounts', icon: IdIcon, only: 'infra' },
+	{ path: '/domains', label: 'Domains', icon: WorldIcon, only: 'infra' },
 ] as const;
 
 export type Section = (typeof SECTIONS)[number];

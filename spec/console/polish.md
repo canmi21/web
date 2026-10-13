@@ -13,12 +13,14 @@ pages, every level's own pages, and whatever is added.
 
 ## Structure is built apart from its look
 
-**A surface built for what it does uses `@canmi/design` and `@canmi/kit` as they come and writes
-no style of its own** -- no `stylex.create`, no `style=` -- beyond the layout primitives the kit
-gives. Structure is its routes, what it reads, the actions it offers, a form's fields, its states
-while loading, empty and failed, and what it says to assistive technology; how it looks is spacing,
-type, color, motion and the fine of its layout. A change that styles an unpolished surface is
-polish, and nothing else is, so a diff says which it is.
+**A surface built for what it does uses `@canmi/design`, `@canmi/kit` and the console's shared
+components as they come, and writes no style of its own** -- no `stylex.create`, no `class`, no
+`style`, no `<style>`. The kit gives no layout, so a layout structure needs and no shared component
+gives -- a stack, a two-column detail, a form's row -- is added once as a shared component, styled
+there and reused, never inside the surface. Structure is its routes, what it reads, the actions it
+offers, a form's fields, its states while loading, empty and failed, and what it says to assistive
+technology; how it looks is spacing, type, color, motion and the fine of its layout. A change that
+styles an unpolished surface is polish, and nothing else is, so a diff says which it is.
 
 **An unpolished surface is wrapped in `<Unpolished rfc="<id>">`**, which marks it `data-unpolished`
 and, in development alone, draws a small tag at its corner; in production it adds nothing. Its RFC,
