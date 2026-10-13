@@ -36,6 +36,7 @@ app.get(`${PREFIX}*`, async (c) => {
 			where,
 			store: storeOf(dev, new URL(c.req.url).origin),
 			fresh: asksFresh(c.req.raw),
+			mock: dev,
 		}),
 		zone: served(
 			{ get: (name) => getCookie(c, name) },

@@ -147,6 +147,12 @@ takes the `live` stream at `/api/live`, its name, as development asks every face
 the dev server's own `localhost` origin, and joins the browser to the
 nearest relay's socket; none of it is in the build.
 
+**In development a read no node answers is made up**, shaped as the real answer is, so a page is
+drawn whole while the nodes are out of reach, and a node that failed is passed over for a minute
+rather than waited on again -- `src/lib/server/mock.ts`, asked only where the read's `Edge` says
+`mock`, which development alone sets. What a node does answer is drawn as it is: the console
+deployed is where the real data is read.
+
 **It reads, and does not write, at first.** Each node's host gains a read-only token, good for its
 `GET` routes alone, and that is the token the console's path carries; a host token is root on its
 machine, and seven of them in one Worker would make the Worker root on all seven. Restarting,

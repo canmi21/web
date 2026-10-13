@@ -18,6 +18,7 @@ export function edgeOf(event: Pick<RequestEvent, 'request'>): Edge {
 		where: event.request.cf as Whereabouts | undefined,
 		store: storeOf(dev, new URL(event.request.url).origin),
 		fresh: asksFresh(event.request),
+		mock: dev,
 	};
 }
 
