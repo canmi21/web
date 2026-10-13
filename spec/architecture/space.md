@@ -193,7 +193,7 @@ value under its specimen. A swatch is a well on the surface, ringed, with the co
 its corner the well's less the inset -- `src/lib/specimen/swatch.svelte`.
 
 **A card's head is its title, one sentence of the rule, and the RFC behind it**, save on home, whose
-cards stand each for a category and cite none: one proportion, a few of its specimens live over a
+cards stand each for a category and cite none: one proportion, two to a row at most, a few of its specimens live over a
 press that enters it, its title the link stretched over the card. The sentence is the shortest that
 says the rule, one where one will do, with commas and periods and no other stops: no colon,
 semicolon or dash, and no derivation, which is the RFC's. **It states the rule as it stands, in the

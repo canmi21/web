@@ -57,9 +57,10 @@
 			fontWeight: fontWeight.medium,
 			color: 'var(--foreground-default)',
 		},
+		/** Two cards to a row at most, one where two would fall under 20rem each. */
 		grid: {
 			display: 'grid',
-			gridTemplateColumns: 'repeat(auto-fill, minmax(20rem, 1fr))',
+			gridTemplateColumns: 'repeat(auto-fill, minmax(max(20rem, calc((100% - 1.5rem) / 2)), 1fr))',
 			gap: '1.5rem',
 		},
 		/** Each card at one proportion, whatever its sentence. */
@@ -105,6 +106,16 @@
 			fontWeight: fontWeight.medium,
 			color: 'var(--foreground-strong)',
 		},
+		pill: {
+			paddingBlock: '0.125rem',
+			paddingInline: '0.5rem',
+			borderWidth: 0,
+			borderRadius: radius.full,
+			backgroundColor: 'var(--interaction-muted)',
+			fontSize: fontSize.caption,
+			fontWeight: fontWeight.medium,
+			color: 'var(--foreground-default)',
+		},
 		words: {
 			padding: 0,
 			borderWidth: 0,
@@ -125,7 +136,7 @@
 		<div class={stylex.attrs(styles.row).class}>
 			{#each GRAYS as gray (gray.token)}
 				<span class={stylex.attrs(styles.above).class}>
-					<Swatch name={gray.name} token={gray.token} size="2.25rem" />
+					<Swatch name={gray.name} token={gray.token} size="3rem" />
 				</span>
 			{/each}
 		</div>
@@ -155,6 +166,14 @@
 						type="button"
 						class={stylex.attrs(styles.button, ring.control, ring.shownControl).class}
 						>Button</button
+					>
+				</Tooltip>
+			</span>
+			<span class={stylex.attrs(styles.above).class}>
+				<Tooltip label="Pill">
+					<button
+						type="button"
+						class={stylex.attrs(styles.pill, ring.control, ring.shownControl).class}>Tag</button
 					>
 				</Tooltip>
 			</span>
