@@ -21,10 +21,10 @@ All, Infra, Platform, Services   Overview, Nodes (Infra and All), Deployments, A
 ```
 
 **Entering a level replaces the sidebar with it.** The sidebar lists the pages of the level being
-read and no other: inside a node it is that node's pages, headed by the way back -- a chevron and
-the name of the list it was entered from, `Nodes`, and nothing else. The way back is laid out as
-one more page, its size, its icon column and its type, with no ground of its own, hovered or not,
-since it is never the page open; only its color answers the pointer. **The sidebar never names
+read and no other: inside a node it is that node's pages, headed by the way back -- a back arrow
+and the name of the list it was entered from, `Nodes`, and nothing else. The way back is an entry
+as any other, its size, its icon column, its type, the pointer's tint and the keyboard's ring,
+never held selected, since it is never the page open -- RFC ew5jo. **The sidebar never names
 the level it shows**: the page in the main region says what it is about, in its own title, and
 the trail in the top bar says where it is, so a name over the sidebar's pages would be a third. **The move has a direction**: going
 deeper, the level left slides off to the left as the new one arrives from the right, and coming

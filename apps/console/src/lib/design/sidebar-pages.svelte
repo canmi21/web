@@ -6,10 +6,7 @@
 	 */
 	import { page } from '$app/state';
 	import { untrack } from 'svelte';
-	import BackIcon from '@tabler/icons-svelte-runes/icons/chevron-left';
-	import * as stylex from '@stylexjs/stylex';
-	import { duration, fontSize, fontWeight } from '@canmi/design/scale.stylex';
-	import Icon from '@canmi/design/components/icon.svelte';
+	import BackIcon from '@tabler/icons-svelte-runes/icons/arrow-left';
 	import NavLink from '@canmi/design/components/nav-link.svelte';
 	import type { Level } from '../levels.ts';
 	import { pass } from './motion.ts';
@@ -70,30 +67,14 @@
 			pass(next.ghost, panel, next.way);
 		});
 	});
-
-	const styles = stylex.create({
-		/** The way back up: laid out as a page, with no ground of its own, hovered or not. */
-		back: {
-			color: { default: 'var(--foreground-muted)', ':hover': 'var(--foreground-strong)' },
-			fontSize: fontSize.body,
-			fontWeight: fontWeight.medium,
-			transitionProperty: 'color',
-			transitionDuration: duration.base,
-		},
-	});
 </script>
 
 <!-- A page's load starts on hover; see spec/architecture/console.md. -->
 <nav aria-label={level.name ?? 'Sections'} data-sveltekit-preload-data="hover">
 	<div bind:this={panel} class="flex flex-col gap-1">
 		{#if level.up}
-			<a
-				href={level.up.href}
-				class="flex h-9 items-center gap-2.5 px-3 {stylex.attrs(styles.back).class}"
-			>
-				<Icon icon={BackIcon} size={18} stroke={1.75} />
-				{level.up.label}
-			</a>
+			<!-- The way back up, an entry as any other: tinted and ringed as one. -->
+			<NavLink href={level.up.href} label={level.up.label} icon={BackIcon} />
 		{/if}
 		{#each level.items as item (item.key)}
 			{@const here = item.key === level.current}

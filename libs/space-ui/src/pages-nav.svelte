@@ -20,14 +20,14 @@
 <script lang="ts">
 	/**
 	 * Each group of a level's pages under its heading, the page being read held selected, and inside
-	 * a deeper level the way back up above them: a chevron and the name of the list it was entered
-	 * from, laid out as a page with no ground of its own. On a move to a deeper or a shallower level
-	 * the old list slides away as the new arrives. As the console's sidebar, spec/console/
-	 * navigation.md, "Entering a level replaces the sidebar with it".
+	 * a deeper level the way back up above them: a back arrow and the name of the list it was
+	 * entered from, an entry as any other, so it is tinted and ringed as one. On a move to a deeper
+	 * or a shallower level the old list slides away as the new arrives. As the console's sidebar,
+	 * spec/console/navigation.md, "Entering a level replaces the sidebar with it".
 	 */
 	import * as stylex from '@stylexjs/stylex';
 	import { untrack } from 'svelte';
-	import BackIcon from '@tabler/icons-svelte-runes/icons/chevron-left';
+	import BackIcon from '@tabler/icons-svelte-runes/icons/arrow-left';
 	import EnterIcon from '@tabler/icons-svelte-runes/icons/chevron-right';
 	import Icon from '@canmi/design/components/icon.svelte';
 	import NavLink from '@canmi/design/components/nav-link.svelte';
@@ -90,18 +90,6 @@
 	});
 
 	const styles = stylex.create({
-		back: {
-			display: 'flex',
-			alignItems: 'center',
-			gap: '0.625rem',
-			height: '2.25rem',
-			paddingInline: '0.75rem',
-			color: { default: 'var(--foreground-muted)', ':hover': 'var(--foreground-strong)' },
-			fontSize: fontSize.body,
-			fontWeight: fontWeight.medium,
-			transitionProperty: 'color',
-			transitionDuration: duration.base,
-		},
 		/** The chevron of a page entered, at its end, letting the pointer through to the link. */
 		enters: {
 			position: 'absolute',
@@ -131,10 +119,7 @@
 <nav aria-label={label}>
 	<div bind:this={panel} class="flex flex-col gap-1">
 		{#if up}
-			<a href={up.href} class={stylex.attrs(styles.back).class}>
-				<Icon icon={BackIcon} size={18} stroke={1.75} />
-				{up.label}
-			</a>
+			<NavLink href={up.href} label={up.label} icon={BackIcon} />
 		{/if}
 		{#each groups as group, index (index)}
 			{#if group.label}
