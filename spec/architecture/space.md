@@ -193,17 +193,18 @@ value under its specimen. A swatch is a well on the surface, ringed, with the co
 its corner the well's less the inset -- `src/lib/specimen/swatch.svelte`.
 
 **A card's head is its title, one sentence of the rule, and the RFC behind it**, save on home, whose
-cards stand each for a category, a glimpse of it and its pages, and cite none. The sentence is the
-shortest that says the rule, one where one will do, with commas and periods and no other stops: no
-colon, semicolon or dash, and no derivation, which is the RFC's. **It states the rule as it stands,
-in the present and objectively**: neither a command, no must or only, nor a reason, and with no
-count in it, only one or more. **It is plain**: it says what was chosen in ordinary words, as one
-would say it aloud, with no flourish and no case made for it. **It carries at most one number, and
-only one that means something**: what a value was worked out from, an APCA Lc, a ratio of ΔL\*,
-never how many of a thing there are. No two cards on a page open on the same word. The RFC stands at
-the head's top right on every card, a link by its place and the pointer alone, with no underline,
-once the RFCs are reached. **No card takes its page's name**, the first least of all: a title names
-what its card shows, plainly. RFC 5j1bf.
+cards stand each for a category and cite none: one proportion, a few of its specimens live over a
+press that enters it, its title the link stretched over the card. The sentence is the shortest that
+says the rule, one where one will do, with commas and periods and no other stops: no colon,
+semicolon or dash, and no derivation, which is the RFC's. **It states the rule as it stands, in the
+present and objectively**: neither a command, no must or only, nor a reason, and with no count in
+it, only one or more. **It is plain**: it says what was chosen in ordinary words, as one would say
+it aloud, with no flourish and no case made for it. **It carries at most one number, and only one
+that means something**: what a value was worked out from, an APCA Lc, a ratio of ΔL\*, never how
+many of a thing there are. No two cards on a page open on the same word. The RFC stands at the
+head's top right on every card, a link by its place and the pointer alone, with no underline, once
+the RFCs are reached. **No card takes its page's name**, the first least of all: a title names what
+its card shows, plainly. RFC 5j1bf.
 
 **A specimen is drawn in the page's theme.** Both themes stand side by side only where the rule
 is why the two differ, as a hue's pair does, or on the page about light and dark itself.

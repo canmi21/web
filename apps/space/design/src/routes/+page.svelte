@@ -1,16 +1,20 @@
 <script lang="ts">
 	/**
-	 * The system's home: a card for each category drawn so far, as the pages under it are laid,
-	 * each holding a glimpse of what it shows and its pages to enter. The glimpses are drawn from
-	 * the style and the scale as the pages are, and stand still: what they show is a page away.
+	 * The system's home: a card for each category drawn so far, at one proportion, each holding a
+	 * few of its own specimens, live: a tip on the pointer, a press that copies. A press anywhere
+	 * else on a card enters the category -- the card's title is the link, stretched over it.
 	 */
 	import * as stylex from '@stylexjs/stylex';
 	import { borderWidth, fontSize, fontWeight, radius } from '@canmi/design/scale.stylex';
-	import { descends, ring } from '@canmi/space-ui/ring';
-	import Box from '#lib/specimen/box.svelte';
+	import Icon from '@canmi/design/components/icon.svelte';
+	import Tooltip from '@canmi/design/components/tooltip.svelte';
+	import CheckIcon from '@tabler/icons-svelte-runes/icons/check';
+	import { ring } from '@canmi/space-ui/ring';
 	import Card from '#lib/specimen/card.svelte';
+	import Swatch from '#lib/specimen/swatch.svelte';
+	import { Ticks } from '#lib/specimen/ticks.svelte.ts';
+	import { SIZES, constOf } from '#lib/specimen/type.ts';
 	import { LAYERS, type Category } from '#lib/pages.js';
-	import { SIZES } from '#lib/specimen/type.ts';
 
 	/** Each category drawn so far, by the layer holding it. */
 	const SECTIONS = LAYERS.map((layer) => ({
@@ -25,28 +29,27 @@
 		states: 'How a thing shows that the keyboard is on it.',
 	};
 
-	/** The grays the color card glimpses, the ground first and the text last. */
+	/** The grays the color card holds, the ground first and the text last. */
 	const GRAYS = [
-		'--background-base',
-		'--background-surface',
-		'--interaction-muted',
-		'--interaction-strong',
-		'--border-strong',
-		'--foreground-subtle',
-		'--foreground-muted',
-		'--foreground-strong',
+		{ name: 'Base', token: '--background-base' },
+		{ name: 'Surface', token: '--background-surface' },
+		{ name: 'Muted rank', token: '--interaction-muted' },
+		{ name: 'Strong border', token: '--border-strong' },
+		{ name: 'Muted text', token: '--foreground-muted' },
+		{ name: 'Strong text', token: '--foreground-strong' },
 	];
 
-	/** The row every card's glimpse is measured against, so the cards stand at one height. */
-	const ROW = 18;
+	const ticks = new Ticks();
+	const nameOf = (name: string) => name[0]!.toUpperCase() + name.slice(1);
 
 	const styles = stylex.create({
-		head: { display: 'flex', flexDirection: 'column', gap: '0.5rem', maxWidth: '48rem' },
+		head: { display: 'flex', flexDirection: 'column', gap: '0.75rem', maxWidth: '44rem' },
 		title: {
 			fontSize: fontSize.headline,
 			fontWeight: fontWeight.semibold,
 			letterSpacing: '-0.02em',
 			color: 'var(--foreground-strong)',
+			textBox: 'trim-start cap alphabetic',
 		},
 		lede: { fontSize: fontSize.prose, lineHeight: 1.625, color: 'var(--foreground-muted)' },
 		layer: {
@@ -56,26 +59,38 @@
 		},
 		grid: {
 			display: 'grid',
-			gridTemplateColumns: 'repeat(auto-fill, minmax(22rem, 1fr))',
+			gridTemplateColumns: 'repeat(auto-fill, minmax(20rem, 1fr))',
 			gap: '1.5rem',
 		},
-		/** A strip of the grays, ringed as one, each cell its gray. */
-		strip: {
-			display: 'grid',
-			gridTemplateColumns: `repeat(${GRAYS.length}, 2rem)`,
-			height: '2rem',
-			overflow: 'hidden',
-			borderRadius: radius.lg,
-			boxShadow: `0 0 0 ${borderWidth.hairline} var(--border-default)`,
-		},
-		ladder: {
+		/** Each card at one proportion, whatever its sentence. */
+		card: { display: 'grid', aspectRatio: '4 / 3' },
+		/** The specimens' ground, the card again on the page's own, filling what the head leaves. */
+		stage: {
 			display: 'flex',
-			alignItems: 'baseline',
-			gap: '0.875rem',
+			flexGrow: 1,
+			alignItems: 'center',
+			justifyContent: 'center',
+			padding: '2rem',
+			borderWidth: borderWidth.hairline,
+			borderStyle: 'solid',
+			borderColor: 'var(--border-default)',
+			borderRadius: radius.lg,
+			backgroundColor: 'var(--background-base)',
+		},
+		/** A specimen over the card's link, so a press on it is its own, not the card's. */
+		above: { position: 'relative', zIndex: 2 },
+		row: { display: 'flex', alignItems: 'center', gap: '0.75rem' },
+		/** Rings drawn at rest, far enough apart that neither meets the other. */
+		apart: { gap: '1.5rem' },
+		ladder: { display: 'flex', alignItems: 'baseline', gap: '0.875rem' },
+		glyphs: {
+			padding: 0,
+			borderWidth: 0,
+			backgroundColor: 'transparent',
 			fontWeight: fontWeight.medium,
 			color: 'var(--foreground-strong)',
+			cursor: 'copy',
 		},
-		states: { display: 'flex', alignItems: 'center', gap: '1.25rem' },
 		button: {
 			display: 'flex',
 			alignItems: 'center',
@@ -85,26 +100,18 @@
 			borderStyle: 'solid',
 			borderColor: 'var(--border-default)',
 			borderRadius: radius.md,
+			backgroundColor: 'transparent',
 			fontSize: fontSize.label,
 			fontWeight: fontWeight.medium,
 			color: 'var(--foreground-strong)',
 		},
 		words: {
+			padding: 0,
+			borderWidth: 0,
+			backgroundColor: 'transparent',
 			fontSize: fontSize.title,
 			fontWeight: fontWeight.medium,
 			color: 'var(--foreground-strong)',
-		},
-		/** The category's pages, each a link by its words. */
-		pages: {
-			display: 'flex',
-			flexWrap: 'wrap',
-			columnGap: '1.25rem',
-			rowGap: '0.5rem',
-			marginTop: '1.25rem',
-		},
-		page: {
-			fontSize: fontSize.body,
-			color: { default: 'var(--foreground-muted)', ':hover': 'var(--foreground-strong)' },
 		},
 	});
 </script>
@@ -113,25 +120,51 @@
 	<title>Design</title>
 </svelte:head>
 
-{#snippet glimpse(category: Category)}
+{#snippet specimens(category: Category)}
 	{#if category.slug === 'color'}
-		<div class={stylex.attrs(styles.strip).class}>
-			{#each GRAYS as token (token)}
-				<span style:background-color="var({token})"></span>
+		<div class={stylex.attrs(styles.row).class}>
+			{#each GRAYS as gray (gray.token)}
+				<span class={stylex.attrs(styles.above).class}>
+					<Swatch name={gray.name} token={gray.token} size="2.25rem" />
+				</span>
 			{/each}
 		</div>
 	{:else if category.slug === 'typography'}
 		<div class={stylex.attrs(styles.ladder).class}>
 			{#each SIZES as size (size.name)}
-				<span style:font-size="{size.rem}rem">Aa</span>
+				<span class={stylex.attrs(styles.above).class}>
+					<Tooltip label={nameOf(size.name)} icon={ticks.has(size.name) ? CheckIcon : undefined}>
+						<button
+							type="button"
+							aria-label="Copy {constOf(size)}"
+							class={stylex.attrs(styles.glyphs, ring.host).class}
+							style:font-size="{size.rem}rem"
+							onclick={() => ticks.write(constOf(size), size.name)}
+						>
+							<span class={stylex.attrs(ring.ink).class}>Aa</span>
+						</button>
+					</Tooltip>
+				</span>
 			{/each}
 		</div>
 	{:else if category.slug === 'states'}
-		<div class={stylex.attrs(styles.states).class}>
-			<span class={stylex.attrs(styles.button, ring.control, ring.shownControl).class}>Button</span>
-			<span class={stylex.attrs(styles.words, ring.host, ring.shownWords).class}
-				><span class={stylex.attrs(ring.ink).class}>Focus</span></span
-			>
+		<div class={stylex.attrs(styles.row, styles.apart).class}>
+			<span class={stylex.attrs(styles.above).class}>
+				<Tooltip label="Control">
+					<button
+						type="button"
+						class={stylex.attrs(styles.button, ring.control, ring.shownControl).class}
+						>Button</button
+					>
+				</Tooltip>
+			</span>
+			<span class={stylex.attrs(styles.above).class}>
+				<Tooltip label="Words">
+					<button type="button" class={stylex.attrs(styles.words, ring.host, ring.shownWords).class}
+						><span class={stylex.attrs(ring.ink).class}>Focus</span></button
+					>
+				</Tooltip>
+			</span>
 		</div>
 	{/if}
 {/snippet}
@@ -140,8 +173,8 @@
 	<header class={stylex.attrs(styles.head).class}>
 		<h1 class={stylex.attrs(styles.title).class}>Design</h1>
 		<p class={stylex.attrs(styles.lede).class}>
-			One set of names every component reads, a style that gives each a value in light and in dark,
-			and a scale no style changes. Everything here is drawn from the code itself.
+			The colors, type and states the console and canmi.app are built from, each page drawn by the
+			code it describes.
 		</p>
 	</header>
 
@@ -150,20 +183,13 @@
 			<h2 class={stylex.attrs(styles.layer).class}>{layer.label}</h2>
 			<div class={stylex.attrs(styles.grid).class}>
 				{#each layer.categories as category (category.slug)}
-					<Card title={category.label} rule={RULES[category.slug] ?? ''}>
-						<Box row="{ROW}rem" ratio="1/3">
-							{@render glimpse(category)}
-						</Box>
-						<nav aria-label={category.label} class={stylex.attrs(styles.pages).class}>
-							{#each category.pages.filter((one) => one.href) as one (one.label)}
-								<a href={one.href} class={stylex.attrs(styles.page, ring.host).class}
-									><span class={stylex.attrs(ring.ink, descends(one.label) && ring.descends).class}
-										>{one.label}</span
-									></a
-								>
-							{/each}
-						</nav>
-					</Card>
+					<div class={stylex.attrs(styles.card).class}>
+						<Card title={category.label} rule={RULES[category.slug] ?? ''} href={category.href}>
+							<div class={stylex.attrs(styles.stage).class}>
+								{@render specimens(category)}
+							</div>
+						</Card>
+					</div>
 				{/each}
 			</div>
 		</section>

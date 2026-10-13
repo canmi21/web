@@ -16,22 +16,44 @@
 	} from '@canmi/design/scale.stylex';
 	import { frame } from './frame.stylex.ts';
 	import RfcRef from '@canmi/space-ui/rfc-ref.svelte';
+	import { ring } from '@canmi/space-ui/ring';
 	import { dev } from '$app/env';
 
 	let {
 		title,
 		rule,
 		rfc,
+		href,
 		children,
 	}: {
 		title: string;
 		rule: string;
 		/** The RFC behind the rule; none on a card that stands for a part of the system, as home's. */
 		rfc?: string;
+		/**
+		 * Where the card leads, as home's do: its title is the link, stretched over the whole card,
+		 * so a press anywhere on it but on what is `above` enters, and the keyboard rings the card.
+		 */
+		href?: string;
 		children: Snippet;
 	} = $props();
 
 	const styles = stylex.create({
+		/** A card that leads somewhere: its title's link reaches over all of it. */
+		leads: { position: 'relative', cursor: 'pointer' },
+		stretched: {
+			color: 'inherit',
+			'::after': {
+				content: '""',
+				position: 'absolute',
+				inset: `calc(-1 * ${borderWidth.hairline})`,
+				zIndex: 1,
+				borderRadius: radius.xl,
+				outlineWidth: 'var(--ring, 0)',
+				outlineStyle: 'solid',
+				outlineColor: 'var(--interaction-focus)',
+			},
+		},
 		card: {
 			display: 'flex',
 			minWidth: 0,
@@ -79,10 +101,16 @@
 	});
 </script>
 
-<section class={stylex.attrs(styles.card).class}>
+<section class={stylex.attrs(styles.card, href !== undefined && styles.leads).class}>
 	<header class={stylex.attrs(styles.head).class}>
 		<div class={stylex.attrs(styles.words).class}>
-			<h2 class={stylex.attrs(styles.title).class}>{title}</h2>
+			<h2 class={stylex.attrs(styles.title).class}>
+				{#if href}
+					<a {href} class={stylex.attrs(styles.stretched, ring.host).class}>{title}</a>
+				{:else}
+					{title}
+				{/if}
+			</h2>
 			<p class={stylex.attrs(styles.rule).class}>{rule}</p>
 		</div>
 		{#if rfc}
