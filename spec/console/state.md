@@ -14,9 +14,10 @@ own** in `src/lib/state.ts`, `reader` paired with `localStorage["state"]` and `t
 so it does not take `@canmi/records`. A loose key outside the two records is the scatter the
 mechanism exists to stop.
 
-The sitting's record holds `scroll.at`, each path's place, and `tab.at`, each page's tab last
-open, each one key holding a map from path, as the site's `scroll.at` does: the keys are addresses,
-not names the console chooses.
+The sitting's record holds `scroll.at`, each path's place, kept and returned to by
+`@canmi/space-ui`'s `place.ts`, which canmi.app shares, and `tab.at`, each page's tab last open,
+each one key holding a map from path, as the site's `scroll.at` does: the keys are addresses, not
+names the console chooses.
 
 ## Kept, and where
 

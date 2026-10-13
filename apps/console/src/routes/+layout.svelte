@@ -19,7 +19,7 @@
 	import Trail from '#lib/design/trail.svelte';
 	import Shell from '@canmi/design/layouts/shell.svelte';
 	import { provideActions } from '#lib/ui/actions.svelte.js';
-	import { goTo, holdTag, keepPlace, placeIn, placeOf, placeTag } from '#lib/ui/place.js';
+	import { kept } from '#lib/state.js';
 	import { setTimeZone, settle } from '#lib/ui/time-zone.js';
 	// The shell's face, its CDN filled in by the build; see vite.config.ts.
 	import '@canmi/fonts/mono.css';
@@ -88,34 +88,9 @@
 	 * spec/console/state.md, "A place comes back as near as the page still allows".
 	 */
 	let scroller: HTMLElement | undefined = $state();
-	/** The path whose place is being kept; none between a navigation and its arrival. */
-	let placing: string | undefined;
-	afterNavigate(({ from, to }) => {
-		const path = to?.url.pathname;
-		if (!scroller || !path) return;
-		if (from?.url.pathname !== path) {
-			const place = placeOf(sessionStorage, path);
-			// Come fresh to an anchor the address names: the one arrival carried there in motion.
-			const named = !place && !from && to.url.hash;
-			const anchor = named
-				? document.getElementById(decodeURIComponent(to.url.hash.slice(1)))
-				: null;
-			if (anchor) anchor.scrollIntoView({ behavior: 'smooth' });
-			else goTo(scroller, place);
-		}
-		placing = path;
-	});
-	let pending = false;
-	function moved() {
-		if (pending) return;
-		pending = true;
-		requestAnimationFrame(() => {
-			pending = false;
-			// A scroll while the next page replaces this one is neither page's place.
-			if (!scroller || placing !== page.url.pathname) return;
-			keepPlace(sessionStorage, placing, placeIn(scroller));
-		});
-	}
+	const place = kept.follow(() => page.url.pathname);
+	afterNavigate(({ from, to }) => place.arrived(scroller, from?.url, to?.url));
+	const moved = () => place.moved(scroller);
 
 	/** Where the reader is, which the sidebar, the trail and the title are drawn from. */
 	// An error's page drills into nothing: a node, app or run the address names may not exist.
@@ -146,8 +121,8 @@
 	{#if dev}{@html DEV_STYLEX}{/if}
 	{@html disclosureHead(disclosure)}
 	<title>{name}</title>
-	<!-- The main area held back while a reload finds its place; see src/lib/ui/place.ts. -->
-	{@html holdTag}
+	<!-- The main area held back while a reload finds its place; see @canmi/space-ui/place. -->
+	{@html kept.holdTag}
 </svelte:head>
 
 <!-- Three fixed regions, and only the page scrolls. See spec/architecture/console.md. -->
@@ -164,5 +139,5 @@
 	{@render children()}
 </Shell>
 <!-- A reload at its place before the first frame, which the hydrated page would reach a frame
-     late; see src/lib/ui/place.ts. Run as the document is parsed, never again. -->
-{@html placeTag}
+     late; see @canmi/space-ui/place. Run as the document is parsed, never again. -->
+{@html kept.placeTag}

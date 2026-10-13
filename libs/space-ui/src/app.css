@@ -30,6 +30,11 @@ html {
 		}
 	}
 
+	/* A reload finding its place, for the moment before the offset is set: src/place.ts. */
+	html[data-placing] #content {
+		visibility: hidden;
+	}
+
 	body {
 		background-color: var(--background-base);
 		color: var(--foreground-default);

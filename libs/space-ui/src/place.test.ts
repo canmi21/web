@@ -1,5 +1,8 @@
 import { describe, expect, it } from 'vitest';
-import { holdScript, keepPlace, placeOf, placeScript } from './place.ts';
+import { record } from '@canmi/kit/behavior/state';
+import { places } from './place.ts';
+
+const { holdScript, keepPlace, placeOf, placeScript } = places(record('state', []));
 
 /** A `sessionStorage` as much as the record needs. */
 function storage() {

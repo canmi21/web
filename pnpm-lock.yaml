@@ -318,6 +318,9 @@ importers:
       '@canmi/response':
         specifier: ^2.0.0
         version: 2.0.0
+      '@canmi/space-ui':
+        specifier: workspace:*
+        version: link:../../libs/space-ui
       '@canmi/web':
         specifier: ^2026.1009.0
         version: 2026.1009.0(@sentry/sveltekit@11.4.0(@babel/core@7.29.7(supports-color@10.2.2))(@cloudflare/workers-types@5.20261004.1)(@sveltejs/kit@3.0.0(@opentelemetry/api@1.9.1)(@sveltejs/vite-plugin-svelte@7.3.1(svelte@5.57.1)(vite@8.3.2(@types/node@26.6.4)(esbuild@0.28.2)(jiti@2.7.0)(tsx@4.23.15)(yaml@2.9.1)))(svelte@5.57.1)(typescript@6.0.3)(vite@8.3.2(@types/node@26.6.4)(esbuild@0.28.2)(jiti@2.7.0)(tsx@4.23.15)(yaml@2.9.1)))(svelte@5.57.1)(vite@8.3.2(@types/node@26.6.4)(esbuild@0.28.2)(jiti@2.7.0)(tsx@4.23.15)(yaml@2.9.1)))(@sveltejs/kit@3.0.0(@opentelemetry/api@1.9.1)(@sveltejs/vite-plugin-svelte@7.3.1(svelte@5.57.1)(vite@8.3.2(@types/node@26.6.4)(esbuild@0.28.2)(jiti@2.7.0)(tsx@4.23.15)(yaml@2.9.1)))(svelte@5.57.1)(typescript@6.0.3)(vite@8.3.2(@types/node@26.6.4)(esbuild@0.28.2)(jiti@2.7.0)(tsx@4.23.15)(yaml@2.9.1)))(hono@4.13.12)
@@ -1252,6 +1255,9 @@ importers:
       '@canmi/design':
         specifier: ^2026.1012.5
         version: 2026.1012.5(@stylexjs/stylex@0.19.1)(@tabler/icons-svelte-runes@3.49.0(svelte@5.57.1))(svelte@5.57.1)
+      '@canmi/kit':
+        specifier: ^2026.1010.0
+        version: 2026.1010.0(@stylexjs/stylex@0.19.1)(react@19.3.0)(svelte@5.57.1)
       '@canmi/web':
         specifier: ^2026.1009.0
         version: 2026.1009.0(@sentry/sveltekit@11.4.0(@babel/core@7.29.7(supports-color@10.2.2))(@cloudflare/workers-types@5.20261004.1)(@sveltejs/kit@3.0.0(@opentelemetry/api@1.9.1)(@sveltejs/vite-plugin-svelte@7.3.1(svelte@5.57.1)(vite@8.3.2(@types/node@26.6.4)(esbuild@0.28.2)(jiti@2.7.0)(tsx@4.23.15)(yaml@2.9.1)))(svelte@5.57.1)(typescript@6.0.3)(vite@8.3.2(@types/node@26.6.4)(esbuild@0.28.2)(jiti@2.7.0)(tsx@4.23.15)(yaml@2.9.1)))(svelte@5.57.1)(vite@8.3.2(@types/node@26.6.4)(esbuild@0.28.2)(jiti@2.7.0)(tsx@4.23.15)(yaml@2.9.1)))(@sveltejs/kit@3.0.0(@opentelemetry/api@1.9.1)(@sveltejs/vite-plugin-svelte@7.3.1(svelte@5.57.1)(vite@8.3.2(@types/node@26.6.4)(esbuild@0.28.2)(jiti@2.7.0)(tsx@4.23.15)(yaml@2.9.1)))(svelte@5.57.1)(typescript@6.0.3)(vite@8.3.2(@types/node@26.6.4)(esbuild@0.28.2)(jiti@2.7.0)(tsx@4.23.15)(yaml@2.9.1)))(hono@4.13.12)

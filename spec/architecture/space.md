@@ -94,6 +94,11 @@ Design at its left, and finding's stand-in and the switch between light and dark
 field 15rem wide and as tall as the switch. Every page is listed once, in the design app's
 `src/lib/pages.ts`, which the sidebar, the top bar and home all read.
 
+**Space keeps what the console keeps, as the console decides it** -- spec/console/state.md. One
+origin holds every part, so its two records are declared once, in `@canmi/space-ui`'s `state.ts`,
+and each page's place in the main area is kept and returned to by the same `place.ts` the console
+takes.
+
 **The sidebar has levels, as the console's does** -- spec/console/navigation.md, "Entering a level
 replaces the sidebar with it". The top level is Home and each category, Color among them, under the
 heading of the layer holding it. A category is a level of its own: entering it replaces the sidebar

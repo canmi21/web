@@ -48,7 +48,7 @@ html {
 		}
 	}
 
-	/* A reload finding its place, for the moment before the offset is set: src/lib/ui/place.ts. */
+	/* A reload finding its place, for the moment before the offset is set: @canmi/space-ui/place. */
 	html[data-placing] #content {
 		visibility: hidden;
 	}

@@ -4,9 +4,13 @@
  * which, and the lib's spec/kit/state.md for the mechanism.
  */
 import { record } from '@canmi/kit/behavior/state';
+import { places } from '@canmi/space-ui/place';
 
 /** What is true of the person. Pair it with `localStorage`. */
 export const reader = record('state', []);
 
 /** What is true of this sitting. Pair it with `sessionStorage`. */
 export const tab = record('state', []);
+
+/** Each path's place in the main area, kept in the sitting's record. */
+export const kept = places(tab);
