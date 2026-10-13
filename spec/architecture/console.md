@@ -75,7 +75,7 @@ them -- a restart, a purge -- costs a read and changes nothing drawn. Decided wi
 
 - **Each read has its own time**: the runs five seconds, the place list's own step, a run's start
   being in the socket sooner; a span's minutes until the next whole minute, before which a relay
-  has none to add; the primary half a minute. The cluster is not kept: it is read in 100 ms and
+  has none to add. The cluster is not kept: it is read in 100 ms and
   the socket overtakes it at once. A read that failed is never kept.
 - **A request that says `Cache-Control: no-cache` goes past it** and keeps what it brings for
   everyone after: a hard reload does, and so does the console's own read after a write it made --

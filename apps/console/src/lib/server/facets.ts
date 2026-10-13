@@ -25,7 +25,6 @@ import type { Zone } from '../chart/series.ts';
 import type { Cluster, Entry, History, Live } from '../wire.ts';
 import { type Env, openLive } from './edge.ts';
 import { order } from './nodes.ts';
-import { primaryOf } from './primary.ts';
 import { type Read, minuteOf } from './read.ts';
 import type { Sources } from './sources.ts';
 
@@ -164,13 +163,6 @@ export const FACETS = {
 				})),
 			};
 		},
-	}),
-
-	/** The node the database is primary on, which each place's latency on the map is to. */
-	primary: facet({
-		revision: 1,
-		params: () => ({}),
-		read: (context) => primaryOf(context.sources.edge),
 	}),
 
 	/** Every node, lean: what the shell, the map and the place list draw. */

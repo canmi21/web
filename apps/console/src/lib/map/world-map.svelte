@@ -23,7 +23,7 @@
 	import { Held } from '../design/held.ts';
 	import Point from '@canmi/design/components/point.svelte';
 	import PlaceCard from './place-card.svelte';
-	import { gather, nameOf, nodeLabel, PLACES } from './places.ts';
+	import { gather, nameOf, nearestOf, nodeLabel, PLACES } from './places.ts';
 
 	let {
 		states,
@@ -32,7 +32,6 @@
 		compact = false,
 		pointed,
 		tallest,
-		primary,
 		shape: first = 'flat',
 	}: {
 		/** What is held of each node, by code; a node not in it has not been heard. */
@@ -47,15 +46,11 @@
 		pointed?: string;
 		/** The most the map may stand tall, a CSS length; its width follows, the rest left empty. */
 		tallest?: string;
-		/** The node the database is primary on, which each card's latency is to. */
-		primary?: string;
 		/** The view the reader left the map in, which it opens in, already round if a globe. */
 		shape?: 'flat' | 'globe';
 	} = $props();
 
 	const { node: toNode } = scoped();
-	const millisecondsOf = (seconds: number | undefined) =>
-		seconds === undefined ? undefined : seconds * 1000;
 
 	const WORDS: Record<Shown, string> = {
 		live: 'Live',
@@ -92,6 +87,7 @@
 			(Object.keys(POINTS) as (keyof typeof POINTS)[]).map((code) => {
 				const held = heldOf(states[code]);
 				const machine = readings(held?.snapshot.machine);
+				const nearest = nearestOf(held?.snapshot.round_trip);
 				return {
 					code,
 					role: PLACES[code].role,
@@ -103,12 +99,9 @@
 					cpu: machine?.cpu,
 					heard: held?.heard_at,
 					booted: machine?.booted,
-					primary: primary === code,
+					nearest: nearest?.code,
 					// Seconds on the wire, milliseconds on the page.
-					latency:
-						primary === undefined
-							? undefined
-							: millisecondsOf(held?.snapshot.round_trip?.[primary]),
+					latency: nearest && nearest.seconds * 1000,
 					point: POINTS[code],
 				};
 			}),

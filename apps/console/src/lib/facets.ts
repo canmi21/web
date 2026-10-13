@@ -22,7 +22,6 @@ export const NAMES = [
 	'cluster',
 	'nearest',
 	'deploys',
-	'primary',
 	'live',
 ] as const satisfies readonly RouteName[];
 

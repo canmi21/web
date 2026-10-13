@@ -1,10 +1,10 @@
 /**
  * The edge's cache of the backend's reads: each kept for as long as its own data takes to move --
- * runs five seconds, a span's minutes until the next whole minute, the primary half a minute -- and
- * nothing kept but a read that answered. Lost at any moment, it costs a read and nothing else; a
- * request that asks `Cache-Control: no-cache`, as a hard reload and a read after the console's own
- * write do, goes to the backend and keeps what it brings. See spec/architecture/console.md, "The
- * console's server never waits on data; it only draws".
+ * runs five seconds, a span's minutes until the next whole minute -- and nothing kept but a read
+ * that answered. Lost at any moment, it costs a read and nothing else; a request that asks
+ * `Cache-Control: no-cache`, as a hard reload and a read after the console's own write do, goes to
+ * the backend and keeps what it brings. See spec/architecture/console.md, "The console's server
+ * never waits on data; it only draws".
  */
 
 /** Where reads are kept: Cloudflare's cache, shared by the isolates of one place, or a map. */

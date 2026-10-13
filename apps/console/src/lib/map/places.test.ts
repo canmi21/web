@@ -1,5 +1,14 @@
 import { describe, expect, it } from 'vitest';
-import { displayName, gather, type Member, nameOf, nodeLabel, PLACES, rank } from './places.ts';
+import {
+	displayName,
+	gather,
+	type Member,
+	nameOf,
+	nearestOf,
+	nodeLabel,
+	PLACES,
+	rank,
+} from './places.ts';
 
 const GIB = 2 ** 30;
 const member = (code: string, overrides: Partial<Member> = {}): Member => ({
@@ -138,5 +147,19 @@ describe('what a node is called', () => {
 		expect(nodeLabel('gvx', 'lead')).toBe('Sweden (gvx)');
 		expect(nodeLabel('xyz')).toBe('xyz');
 		expect(Object.keys(PLACES).length).toBe(9);
+	});
+});
+
+describe('the node a relay is nearest', () => {
+	it('is the one it timed the least round trip to', () => {
+		expect(nearestOf({ nrt: 0.0021, sin: 0.068, hnd: 0.0004 })).toEqual({
+			code: 'hnd',
+			seconds: 0.0004,
+		});
+	});
+
+	it('is none where it has timed no other lately', () => {
+		expect(nearestOf({})).toBeUndefined();
+		expect(nearestOf(undefined)).toBeUndefined();
 	});
 });

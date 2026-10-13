@@ -52,7 +52,5 @@ export const load: PageServerLoad = async (event) => {
 		deploys: first ? await deploys : deploys,
 		now: first ? await now : now,
 		dry: first ? await dry : dry,
-		// Where each place's latency is to; see spec/console/overview.md.
-		primary: nodes ? FACETS.primary.read(context, {}) : Promise.resolve(undefined),
 	};
 };

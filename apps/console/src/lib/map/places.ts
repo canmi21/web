@@ -176,10 +176,10 @@ export interface Member {
 	heard: string | undefined;
 	/** When its machine started, in seconds since the epoch, where its meter says. */
 	booted?: number;
-	/** Its round trip to the database's primary in milliseconds, where it is timed and not it. */
+	/** Its round trip to its nearest node in milliseconds, where its relay has timed one lately. */
 	latency?: number;
-	/** Whether the database's primary is this node. */
-	primary?: boolean;
+	/** That nearest node's code. */
+	nearest?: string;
 	point: readonly [number, number];
 }
 
@@ -209,6 +209,20 @@ export function rank(members: readonly Member[]): Member[] {
 				a.order - b.order,
 		)
 		.map(({ member }) => member);
+}
+
+/**
+ * The node a relay timed the least round trip to, and that round trip in seconds; none where it
+ * has timed no other lately.
+ */
+export function nearestOf(
+	round_trip: Readonly<Record<string, number>> | undefined,
+): { code: string; seconds: number } | undefined {
+	let nearest: { code: string; seconds: number } | undefined;
+	for (const [code, seconds] of Object.entries(round_trip ?? {})) {
+		if (nearest === undefined || seconds < nearest.seconds) nearest = { code, seconds };
+	}
+	return nearest;
 }
 
 /** Every node gathered into its place's site, in node order of each place's first node. */

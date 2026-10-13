@@ -2,7 +2,7 @@
 	/**
 	 * What a mark's card says of its place, as rows of a name and a value: how long it has been up,
 	 * its role, the apps it runs, two rings, how busy its processor is and how much memory is in
-	 * use, written in `G`, and its round trip to the database's primary. A shared place's nodes
+	 * use, written in `G`, and its round trip to its nearest node. A shared place's nodes
 	 * follow one under another with no title over them, each headed by its city and country --
 	 * `Narita, Japan` -- never its code, and each head a link to its node. The map places the card;
 	 * this draws it. See spec/console/overview.md, "A place's card says what the list does not".
@@ -24,7 +24,7 @@
 	import { scoped } from '../scope/context.ts';
 	import { tone, type, type Tone } from '../style.ts';
 	import type { State } from '../wire.ts';
-	import { countryOf, nameOf, partOf, ROLES, type Member, type Site } from './places.ts';
+	import { countryOf, nameOf, nodeLabel, partOf, ROLES, type Member, type Site } from './places.ts';
 
 	let { site, now }: { site: Site; now: number } = $props();
 
@@ -39,11 +39,10 @@
 	const ramOf = (member: Member) =>
 		member.used === undefined ? undefined : `${(member.used / GIB).toFixed(1)}G`;
 	/**
-	 * Its round trip to the database's primary: a tenth of a millisecond under ten, whole above;
-	 * `Primary` on the primary itself, and nothing where its relay has not timed it lately.
+	 * Its round trip to its nearest node: a tenth of a millisecond under ten, whole above; nothing
+	 * where its relay has timed no other lately.
 	 */
 	function latencyOf(member: Member): string {
-		if (member.primary) return 'Primary';
 		if (member.latency === undefined) return '–';
 		return `${member.latency < 10 ? member.latency.toFixed(1) : Math.round(member.latency)}ms`;
 	}
@@ -109,8 +108,6 @@
 			lineHeight: 1.4,
 		},
 		title: { color: 'var(--foreground-strong)', fontWeight: weight.semibold },
-		/** A word among figures, as `Primary` is in the latency's row. */
-		word: { fontFamily: 'var(--font-sans)' },
 		muted: { color: 'var(--foreground-muted)' },
 		value: { color: 'var(--foreground-default)', textAlign: 'right' },
 		head: {
@@ -144,8 +141,9 @@
 			/>{/if}
 	{:else if row === 'Latency'}
 		<span
-			title="Round trip to the database's primary"
-			class={stylex.attrs(member.primary && styles.word).class}>{latencyOf(member)}</span
+			title={member.nearest === undefined
+				? 'No node timed lately'
+				: `Round trip to ${nodeLabel(member.nearest)}, the nearest node`}>{latencyOf(member)}</span
 		>
 	{:else if ramOf(member) === undefined}
 		–

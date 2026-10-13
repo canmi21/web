@@ -113,15 +113,15 @@ made it as wide; the names once at the left keep it to both. A node's code is ne
 the code is the key and not a name, said only to assistive technology -- and each head links to
 its node.
 
-**The last row is latency, each node's round trip to the database's primary**, as its relay
-times its ping to that node's -- platform's `spec/architecture/relay.md`, "The round trip to each
-neighbor" -- carried in seconds, as every duration is, and written by the page in milliseconds, a
-tenth under ten and whole above, `0.4ms`, `151ms`: the wire keeps the one rule and the page wraps
-it for a reader, as it wraps a node's code in its city. The primary
-says `Primary` in its own row rather than a zero, and a node its relay has not timed lately says
-`–`, which is not the same as slow. Which node is primary the page reads once, from the `primary`
-proxy's health through the nearest node that answers, since the proxy runs on every node and
-routes to the one primary; the round trips themselves move live, in the snapshots.
+**The last row is latency, each node's round trip to its nearest node**, the least of the round
+trips its relay times to every other over the tailnet -- platform's `spec/architecture/relay.md`,
+"The round trip to each neighbor". Apps are split across the nodes, so no one node is where every
+other one's traffic goes, and the primary is no longer what a node is measured against. It is
+carried in seconds, as every duration is, and written by the page in milliseconds, a tenth under ten
+and whole above, `0.4ms`, `151ms`: the wire keeps the one rule and the page wraps it for a reader,
+as it wraps a node's code in its city. Which node is nearest is said in the row's title, by its city
+and its code, since one city may hold several. A node whose relay has timed no other lately says
+`–`, which is not the same as slow. The round trips move live, in the snapshots.
 
 **A country's flag stands before each place's name in the list**, drawn by Twemoji -- flat, as the
 console is, where the system's emoji font is not -- from `@twemoji/svg`, the maintained fork's

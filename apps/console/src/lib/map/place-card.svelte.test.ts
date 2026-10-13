@@ -75,6 +75,21 @@ describe('a place card on the server', () => {
 		expect(body).not.toContain('1d 0h');
 	});
 
+	it('times each node to its nearest, named by its city in the title, and none untimed', () => {
+		const members = [
+			member('tyo', { latency: 0.42, nearest: 'nrt' }),
+			member('nrt', { latency: 151.3, nearest: 'sin' }),
+			member('hnd'),
+		];
+		const { body } = render(PlaceCard, { props: { site: site(members), now: NOW } });
+		expect(body).toContain('0.4ms');
+		expect(body).toContain('151ms');
+		expect(body).toContain('title="Round trip to Tokyo, Japan (nrt), the nearest node"');
+		expect(body).toContain('title="Round trip to Singapore (sin), the nearest node"');
+		expect(body).toContain('title="No node timed lately"');
+		expect(body).not.toContain('Primary');
+	});
+
 	it('lists a node alone by uptime, role, apps and two rings, with no state or clock', () => {
 		const lone = member('gvx', { cluster: undefined, role: 'core' });
 		const { body } = render(PlaceCard, { props: { site: site([lone]), now: NOW } });

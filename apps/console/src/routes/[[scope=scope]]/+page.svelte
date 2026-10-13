@@ -120,11 +120,6 @@
 
 	/** The place list's and the timeline's height before their reads land. */
 	const LIST = 9 * 28;
-	/** The node the database is primary on, once read; each card's latency is to it. */
-	const primary = new Landed(
-		() => data.primary,
-		() => data.view,
-	);
 	/** The node a line of the list points at, which the map opens. */
 	let pointed: string | undefined = $state();
 </script>
@@ -200,7 +195,6 @@
 						now={live.now}
 						{pointed}
 						tallest="26.25rem"
-						primary={primary.value}
 						shape={data.shape}
 					/>
 					{#snippet pending()}
