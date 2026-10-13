@@ -9,6 +9,7 @@
 	import Icon from '@canmi/design/components/icon.svelte';
 	import Tooltip from '@canmi/design/components/tooltip.svelte';
 	import CheckIcon from '@tabler/icons-svelte-runes/icons/check';
+	import SearchIcon from '@tabler/icons-svelte-runes/icons/search';
 	import { ring } from '@canmi/space-ui/ring';
 	import Card from '#lib/specimen/card.svelte';
 	import Swatch from '#lib/specimen/swatch.svelte';
@@ -39,6 +40,11 @@
 		{ name: 'Strong text', token: '--foreground-strong' },
 	];
 
+	/** The color card's row, six wells and their gaps, which every stage is measured against. */
+	const ANCHOR = '21.75rem';
+	/** The tallest of the cards' rows, so every stage stands as high. */
+	const TALLEST = '3.125rem';
+
 	const ticks = new Ticks();
 	const nameOf = (name: string) => name[0]!.toUpperCase() + name.slice(1);
 
@@ -63,15 +69,19 @@
 			gridTemplateColumns: 'repeat(auto-fill, minmax(max(20rem, calc((100% - 1.5rem) / 2)), 1fr))',
 			gap: '1.5rem',
 		},
-		/** Each card at one proportion, whatever its sentence. */
-		card: { display: 'grid', aspectRatio: '4 / 3' },
-		/** The specimens' ground, the card again on the page's own, filling what the head leaves. */
+		card: { display: 'grid' },
+		/**
+		 * The specimens' ground, the card again on the page's own: above and below them as much as the
+		 * color card's row leaves either side, every card's stage the same. A card a longer sentence
+		 * beside it stretches keeps its stage, the room going under its sentence.
+		 */
 		stage: {
 			display: 'flex',
-			flexGrow: 1,
+			marginTop: 'auto',
 			alignItems: 'center',
 			justifyContent: 'center',
-			padding: '2rem',
+			paddingInline: '2rem',
+			paddingBlock: `max(2rem, (100cqw - ${ANCHOR}) / 2)`,
 			borderWidth: borderWidth.hairline,
 			borderStyle: 'solid',
 			borderColor: 'var(--border-default)',
@@ -80,10 +90,10 @@
 		},
 		/** A specimen over the card's link, so a press on it is its own, not the card's. */
 		above: { position: 'relative', zIndex: 2 },
-		row: { display: 'flex', alignItems: 'center', gap: '0.75rem' },
+		row: { display: 'flex', alignItems: 'center', gap: '0.75rem', minHeight: TALLEST },
 		/** Rings drawn at rest, far enough apart that neither meets the other. */
-		apart: { gap: '1.5rem' },
-		ladder: { display: 'flex', alignItems: 'baseline', gap: '0.875rem' },
+		apart: { gap: '1.25rem' },
+		ladder: { display: 'flex', alignItems: 'baseline', gap: '0.875rem', minHeight: TALLEST },
 		glyphs: {
 			padding: 0,
 			borderWidth: 0,
@@ -106,6 +116,12 @@
 			fontWeight: fontWeight.medium,
 			color: 'var(--foreground-strong)',
 		},
+		primary: {
+			borderColor: 'transparent',
+			backgroundColor: 'var(--foreground-strong)',
+			color: 'var(--background-base)',
+		},
+		icon: { justifyContent: 'center', width: '2rem', paddingInline: 0 },
 		pill: {
 			paddingBlock: '0.125rem',
 			paddingInline: '0.5rem',
@@ -161,11 +177,30 @@
 	{:else if category.slug === 'states'}
 		<div class={stylex.attrs(styles.row, styles.apart).class}>
 			<span class={stylex.attrs(styles.above).class}>
-				<Tooltip label="Control">
+				<Tooltip label="Icon button">
+					<button
+						type="button"
+						aria-label="Search"
+						class={stylex.attrs(styles.button, styles.icon, ring.control, ring.shownControl).class}
+						><Icon icon={SearchIcon} size={16} /></button
+					>
+				</Tooltip>
+			</span>
+			<span class={stylex.attrs(styles.above).class}>
+				<Tooltip label="Button">
 					<button
 						type="button"
 						class={stylex.attrs(styles.button, ring.control, ring.shownControl).class}
-						>Button</button
+						>Secondary</button
+					>
+				</Tooltip>
+			</span>
+			<span class={stylex.attrs(styles.above).class}>
+				<Tooltip label="Button">
+					<button
+						type="button"
+						class={stylex.attrs(styles.button, styles.primary, ring.control, ring.shownControl)
+							.class}>Primary</button
 					>
 				</Tooltip>
 			</span>
