@@ -174,12 +174,12 @@ is a relation, one level for the grounds in both themes, not the size of a step,
 draws -- `src/lib/specimen/relief.svelte`.
 
 **A pointer on a specimen shows its tip, and the keyboard alone draws a ring**: on `:focus-visible`,
-flush, `0.125rem` in `--interaction-focus`, on the shape it has -- spec/styling/focus.md. Space
-names the kit's `--color-accent` as that blue on every theme's mark. **Bare words are ringed on
-their ink, one `0.25rem` room off it on every side, the corner growing with the words, `2/7em`**:
-their box trimmed to their capitals and their baseline, the ring alone reaching down past a letter
-that falls below it, the room taken back from the margin so nothing moves -- RFC mpy16 and RFC
-z3y37, `@canmi/space-ui/ring`.
+flush, `0.125rem` in `--interaction-focus` wherever it is drawn, on the shape it has --
+spec/styling/focus.md. Space names the kit's `--color-accent` as that blue on every theme's mark.
+**Bare words are ringed on their ink, one `0.25rem` room off it on every side, the corner growing
+with the words, `2/7em`**: their box trimmed to their capitals and their baseline, the ring reaching
+as far up as down past a letter that falls below it, so it stays centered on the capitals, and
+nothing beside them within its room and width -- RFC mpy16 and RFC 4zzb2, `@canmi/space-ui/ring`.
 
 **Every mark of a color copies its token on a press**, `var(--token)` as code reads it, and ticks
 the mark it was pressed on, each tick on its own clock: a swatch, a ramp's cell, a stop on a way,

@@ -59,9 +59,15 @@ export const ring = stylex.create({
 	},
 	/**
 	 * Ink with a letter below its baseline: its box still ends on the baseline, so it lays out as
-	 * any words do, and only the ring reaches down past the letters that fall.
+	 * any words do, and only the ring reaches down past the letters that fall, and up by as much,
+	 * so it stays centered on the capitals as the eye reads the words.
 	 */
-	descends: { '::before': { bottom: `calc(-1 * ${ROOM} - ${DESCENDER})` } },
+	descends: {
+		'::before': {
+			top: `calc((1cap - var(--font-sans-cap-height)) - ${ROOM} - ${DESCENDER})`,
+			bottom: `calc(-1 * ${ROOM} - ${DESCENDER})`,
+		},
+	},
 	/** The ring at rest, for a page that shows it: on a control, and on words through their host. */
 	shownControl: { outlineWidth: WIDTH },
 	shownWords: { '--ring': WIDTH },

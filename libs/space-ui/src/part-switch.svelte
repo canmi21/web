@@ -30,7 +30,8 @@
 	const UNDER_NAME = -(8 + 14 + 6);
 
 	const styles = stylex.create({
-		corner: { display: 'flex', alignItems: 'center', gap: '0.125rem' },
+		/** The name and its mark, a ring's room and width apart, so the name's ring clears the mark. */
+		corner: { display: 'flex', alignItems: 'center', gap: '0.375rem' },
 		name: {
 			fontSize: fontSize.prose, // the corner's name, a step over the bar's links
 			fontWeight: fontWeight.semibold,
