@@ -23,7 +23,7 @@ hostname and cannot set one ahead for a wildcard application's subdomains, and a
 follow Access's redirect to get one: a page on one name could not open a socket on another --
 https://developers.cloudflare.com/cloudflare-one/identity/authorization-cookie/.
 
-**What the console looks like -- its shell, its icons, how its styles are layered, its motion -- is [../console/design.md](../console/design.md).** What it remembers of a reader, and where, is [../console/state.md](../console/state.md). This file is what it does.
+**What the console looks like -- its shell, its icons, how its styles are layered, its motion -- is [../console/design.md](../console/design.md).** What it remembers of a reader, and where, is [../console/state.md](../console/state.md). Which surfaces are polished, and how one built ahead of its look is marked, is [../console/polish.md](../console/polish.md). This file is what it does.
 
 **The console is read whole, or in one of three scopes, the layers the workspace's
 `spec/architecture/layers.md` draws.** `All` is the default and has no segment of its own -- `/`,
@@ -210,10 +210,11 @@ nobody writes the route that serves it.** Three layers, decided with the author 
 of the messages it carries, `Live`, so the relay's socket moves to a new address when what it sends
 does. Nothing the console answers is reached by a name it chose by hand any longer.
 
-**The facets cover what has been polished, and nothing else, as of 2026-10-10**: the sidebar with
-its account, the top bar, and on the overview the verdict, the map's card -- the place list, the
-world map and the figures under them -- and the timeline. Every other page reads as it did: its
-look and likely its structure are still to change, and a facet cut now would be cut again.
+**The facets were cut first for what had been polished, as of 2026-10-10**: the sidebar with its
+account, the top bar, and on the overview the verdict, the map's card -- the place list, the world
+map and the figures under them -- and the timeline. Since 2026-10-13 what a surface stands on is cut
+as a facet whether or not the surface is polished -- [../console/polish.md](../console/polish.md) --
+since it outlasts the look drawn over it.
 
 **`/api/` is a Hono app**, `src/lib/server/api.ts`, as the site's API is: the facets first, and
 whatever the console answers itself later -- a third party's API passed on -- beside them, in the
