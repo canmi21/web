@@ -10,6 +10,7 @@
  */
 export const NODES = {
 	tyo: [35.6762, 139.6503],
+	sin: [1.3644, 103.9915],
 	gvx: [60.5933, 16.9513],
 	buf: [42.9405, -78.7322],
 	nrt: [35.772, 140.3929],
@@ -25,7 +26,7 @@ const FIXED = Object.keys(NODES) as Node[];
 
 /** Who goes first when Cloudflare knows the reader's continent and not where on it. */
 const BY_CONTINENT: Readonly<Record<string, readonly Node[]>> = {
-	AS: ['tyo', 'nrt', 'hnd', 'sha'],
+	AS: ['tyo', 'sin', 'nrt', 'hnd', 'sha'],
 	EU: ['gvx', 'bru'],
 	NA: ['buf', 'rdu'],
 };

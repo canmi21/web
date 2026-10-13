@@ -38,11 +38,12 @@ export const PLACES: Record<Node, Place> = {
 		role: 'relay',
 		cluster: 'tokyo',
 	},
-	gvx: { place: 'Gävle', city: 'Gävle', country: 'Sweden', role: 'core' },
+	gvx: { place: 'Gävle', city: 'Gävle', country: 'Sweden', role: 'relay' },
 	bru: { place: 'Brussels', city: 'Brussels', country: 'Belgium', role: 'relay' },
-	buf: { place: 'Buffalo', city: 'Buffalo', country: 'United States', role: 'core' },
+	buf: { place: 'Buffalo', city: 'Buffalo', country: 'United States', role: 'relay' },
 	rdu: { place: 'Raleigh', city: 'Raleigh', country: 'United States', role: 'home' },
 	sha: { place: 'Shanghai', city: 'Shanghai', country: 'China', role: 'home' },
+	sin: { place: 'Singapore', city: 'Singapore', country: 'Singapore', role: 'core' },
 };
 
 /** The European Union's members, by the names `Place.country` spells them. */

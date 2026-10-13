@@ -137,6 +137,6 @@ describe('what a node is called', () => {
 		expect(nodeLabel('hnd')).toBe('Tokyo, Japan (hnd)');
 		expect(nodeLabel('gvx', 'lead')).toBe('Sweden (gvx)');
 		expect(nodeLabel('xyz')).toBe('xyz');
-		expect(Object.keys(PLACES).length).toBe(8);
+		expect(Object.keys(PLACES).length).toBe(9);
 	});
 });

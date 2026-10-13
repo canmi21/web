@@ -21,6 +21,7 @@ export const DOTS =
 /** Each node's latitude and longitude, as nodes.ts has it, for the globe. */
 export const LOCATIONS: Record<Node, readonly [number, number]> = {
 	tyo: [35.6762, 139.6503],
+	sin: [1.3644, 103.9915],
 	gvx: [60.5933, 16.9513],
 	buf: [42.9405, -78.7322],
 	nrt: [35.772, 140.3929],
@@ -33,6 +34,7 @@ export const LOCATIONS: Record<Node, readonly [number, number]> = {
 /** Each node's place on the plot. */
 export const POINTS: Record<Node, readonly [number, number]> = {
 	tyo: [887.91, 363.1],
+	sin: [788.86, 465.51],
 	gvx: [547.09, 256.38],
 	buf: [281.31, 336.98],
 	nrt: [889.97, 362.77],

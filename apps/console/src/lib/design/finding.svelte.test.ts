@@ -16,7 +16,7 @@ describe('finding', () => {
 	it('lists the pages, the nodes and the apps of All, apps by name', () => {
 		const all = findable('all', NODES);
 		expect(all.filter((one) => one.kind === 'page').map((one) => one.label)).toContain('Nodes');
-		expect(all.filter((one) => one.kind === 'node')).toHaveLength(8);
+		expect(all.filter((one) => one.kind === 'node')).toHaveLength(9);
 		expect(all.filter((one) => one.kind === 'app').map((one) => one.code)).toEqual(
 			expect.arrayContaining(['relay', 'geo']),
 		);

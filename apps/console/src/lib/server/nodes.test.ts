@@ -31,7 +31,7 @@ describe('order', () => {
 	});
 
 	it('falls back to the continent when it has no place', () => {
-		expect(order({ continent: 'AS' }).slice(0, 4)).toEqual(['tyo', 'nrt', 'hnd', 'sha']);
+		expect(order({ continent: 'AS' }).slice(0, 5)).toEqual(['tyo', 'sin', 'nrt', 'hnd', 'sha']);
 		expect(order({ continent: 'EU' }).slice(0, 2)).toEqual(['gvx', 'bru']);
 		expect(order({ continent: 'NA', latitude: '' }).slice(0, 2)).toEqual(['buf', 'rdu']);
 	});

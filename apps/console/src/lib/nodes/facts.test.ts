@@ -7,13 +7,15 @@ describe('failure domains', () => {
 			'oci',
 			'oci',
 			'oci',
+			'oci-2',
 			'az',
 			'az',
 			'rkn',
 			'int',
 			'int',
 		]);
-		for (const { domain } of Object.values(FACTS)) expect(PROVIDERS[domain]).toBeDefined();
+		for (const { domain } of Object.values(FACTS))
+			expect(PROVIDERS[domain.replace(/-\d+$/, '')]).toBeDefined();
 		expect(Object.keys(PROVIDERS)).toEqual(['oci', 'az', 'rkn', 'int', 'cf', 'vcl']);
 	});
 

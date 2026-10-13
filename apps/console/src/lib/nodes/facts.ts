@@ -21,6 +21,7 @@ export const FACTS: Record<Node, Facts> = {
 	tyo: { tier: 'datacenter', domain: 'oci', expiry: 2036, system: 'debian' },
 	nrt: { tier: 'datacenter', domain: 'oci', expiry: 2036, system: 'alpine' },
 	hnd: { tier: 'datacenter', domain: 'oci', expiry: 2036, system: 'alpine' },
+	sin: { tier: 'datacenter', domain: 'oci-2', expiry: 2036, system: 'debian' },
 	gvx: { tier: 'datacenter', domain: 'az', expiry: 2030, system: 'debian' },
 	bru: { tier: 'datacenter', domain: 'az', expiry: 2030, system: 'debian' },
 	buf: { tier: 'datacenter', domain: 'rkn', expiry: 2027, system: 'debian' },

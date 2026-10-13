@@ -35,6 +35,7 @@ declare global {
 			BRU: Fetcher;
 			BUF: Fetcher;
 			SHA: Fetcher;
+			SIN: Fetcher;
 			/** A Worker secret. */
 			HOST_READ_TOKEN: string;
 			/** The adapter's own: the client files and the prerendered pages. */

@@ -224,6 +224,6 @@ describe('runs', () => {
 		const { env } = bound(relays(down));
 		const found = await runs({ env });
 		expect(found.runs).toEqual([]);
-		expect(Object.keys(found.failures)).toHaveLength(8);
+		expect(Object.keys(found.failures)).toHaveLength(9);
 	});
 });
