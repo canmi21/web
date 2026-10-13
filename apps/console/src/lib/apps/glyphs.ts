@@ -4,6 +4,7 @@
  * spec/console/design.md, "Icons".
  */
 import Activity from '@tabler/icons-svelte-runes/icons/activity';
+import AddressBook from '@tabler/icons-svelte-runes/icons/address-book';
 import Api from '@tabler/icons-svelte-runes/icons/api';
 import ArrowsExchange from '@tabler/icons-svelte-runes/icons/arrows-exchange';
 import Broadcast from '@tabler/icons-svelte-runes/icons/broadcast';
@@ -16,6 +17,7 @@ import Database from '@tabler/icons-svelte-runes/icons/database';
 import DatabaseStar from '@tabler/icons-svelte-runes/icons/database-star';
 import Gauge from '@tabler/icons-svelte-runes/icons/gauge';
 import Heartbeat from '@tabler/icons-svelte-runes/icons/heartbeat';
+import Key from '@tabler/icons-svelte-runes/icons/key';
 import LayoutDashboard from '@tabler/icons-svelte-runes/icons/layout-dashboard';
 import Link from '@tabler/icons-svelte-runes/icons/link';
 import ListCheck from '@tabler/icons-svelte-runes/icons/list-check';
@@ -59,9 +61,11 @@ const GLYPHS: Readonly<Record<string, IconComponent>> = {
 	probe: Heartbeat,
 	quorum: UsersGroup,
 	quota: Gauge,
+	registry: AddressBook,
 	relay: Broadcast,
 	resolver: WorldSearch,
 	router: Route,
+	secrets: Key,
 	shot: Camera,
 	site: WorldWww,
 	store: Stack,

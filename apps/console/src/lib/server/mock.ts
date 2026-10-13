@@ -252,9 +252,15 @@ function disk(node: string): Disk {
 	};
 }
 
+/** A relative `path` read as its pathname and its query. */
+function parsed(path: string): { pathname: string; searchParams: URLSearchParams } {
+	const [pathname = '', query = ''] = path.split(/\?(.*)/s);
+	return { pathname, searchParams: new URLSearchParams(query) };
+}
+
 /** Made-up data for a relay's `path`, as answered by `node`'s relay. */
 export function relayMock(node: Node, path: string): unknown {
-	const url = new URL(path, 'http://mock');
+	const url = parsed(path);
 	if (url.pathname === '/state') return cluster(node);
 	if (url.pathname === '/history') return history(node, url.searchParams);
 	if (url.pathname === '/runs') return runs(node, url.searchParams);
@@ -263,7 +269,7 @@ export function relayMock(node: Node, path: string): unknown {
 
 /** Made-up data for `path` under `node`'s host's `/api`, or nothing for a path not made up. */
 export function hostMock(node: Node, path: string): unknown {
-	const url = new URL(path, 'http://mock');
+	const url = parsed(path);
 	const query = url.searchParams;
 	const parts = url.pathname.split('/').filter(Boolean).map(decodeURIComponent);
 	const page = () => ({
