@@ -122,6 +122,7 @@ const ISO: Readonly<Record<string, string>> = {
 	Belgium: 'BE',
 	China: 'CN',
 	Japan: 'JP',
+	Singapore: 'SG',
 	Sweden: 'SE',
 	'United Kingdom': 'GB',
 	'United States': 'US',
