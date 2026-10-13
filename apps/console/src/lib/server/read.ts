@@ -28,27 +28,14 @@ export interface Edge {
 	store?: Store;
 	/** Whether the request asks past the store, a hard reload or a read after a write. */
 	fresh?: boolean;
-	/**
-	 * Development's: a read no node answers is answered with made-up data, ./mock.ts, and a node
-	 * that failed is passed over for `QUIET_MS` rather than waited on again.
-	 */
+	/** Development's mock mode: every read answered with made-up data, no node asked; ./mode.ts. */
 	mock?: boolean;
 }
 
-/** How long development passes over a node that failed, in milliseconds. */
-const QUIET_MS = 60_000;
-
-/** When each node last failed a read, in development. */
-const failedAt = new Map<Node, number>();
-
-const quiet = (edge: Edge, node: Node): boolean =>
-	edge.mock === true && Date.now() - (failedAt.get(node) ?? -Infinity) < QUIET_MS;
-
-/** The read as it came, or development's made-up one where it failed and one is made. */
-function standIn<T>(edge: Edge, read: Read<T>, node: Node, made: () => unknown): Read<T> {
-	if (read.ok || !edge.mock) return read;
-	const data = made();
-	return data === undefined ? read : { ok: true, node, data: data as T };
+/** Made-up data as `node` would answer it, or no such route where nothing is made up for it. */
+function made<T>(node: Node, data: unknown): Read<T> {
+	if (data === undefined) return failed(404, 'no_such_route', `${node} has no such route.`);
+	return { ok: true, node, data: data as T };
 }
 
 /** A read worth keeping: one that answered. */
@@ -70,25 +57,15 @@ export type Read<T> = { ok: true; node: Node; data: T } | { ok: false; failure: 
  */
 async function nearest<T>(edge: Edge, path: `/${string}`, timeout: number): Promise<Read<T>> {
 	const nodes = order(edge.where);
-	const read = await tried<T>(edge, path, timeout, nodes);
-	return standIn(edge, read, nodes[0]!, () => relayMock(nodes[0]!, path));
-}
-
-async function tried<T>(
-	edge: Edge,
-	path: `/${string}`,
-	timeout: number,
-	nodes: readonly Node[],
-): Promise<Read<T>> {
+	if (edge.mock) return made(nodes[0]!, relayMock(nodes[0]!, path));
 	let last: Read<T> | undefined;
-	for (const node of nodes.filter((one) => !quiet(edge, one)).slice(0, TRIES)) {
+	for (const node of nodes.slice(0, TRIES)) {
 		try {
 			const signal = AbortSignal.timeout(timeout);
 			const answer = await reach(edge.env, node, path, { method: 'GET', signal });
 			if (!answer.ok) {
 				await answer.body?.cancel();
 				console.error(`read: ${node} answered ${path} ${answer.status}`);
-				failedAt.set(node, Date.now());
 				continue;
 			}
 			last = await opened<T>(node, answer);
@@ -97,7 +74,6 @@ async function tried<T>(
 		} catch (error) {
 			console.error(`read: ${node} did not answer ${path}: ${String(error)}`);
 		}
-		failedAt.set(node, Date.now());
 	}
 	return last ?? failed(502, 'upstream_unavailable', 'No relay answered.');
 }
@@ -175,19 +151,7 @@ export async function node<T>(
 	timeout?: number,
 ): Promise<Read<T>> {
 	if (!isNode(name)) return failed(404, 'no_such_host', `No node is named ${name}.`);
-	const read = quiet(edge, name)
-		? failed(502, 'upstream_unavailable', `${name} failed a moment ago.`)
-		: await asked<T>(edge, name, path, timeout);
-	if (!read.ok && read.failure.status !== 404) failedAt.set(name, Date.now());
-	return standIn(edge, read, name, () => hostMock(name, path));
-}
-
-async function asked<T>(
-	edge: Edge,
-	name: Node,
-	path: `/${string}`,
-	timeout: number | undefined,
-): Promise<Read<T>> {
+	if (edge.mock) return made(name, hostMock(name, path));
 	const binding = bindingOf(edge.env, name);
 	const token = edge.env.HOST_READ_TOKEN;
 	if (binding === undefined || !token) {

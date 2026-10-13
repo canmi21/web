@@ -7,6 +7,7 @@ import type { Context } from './facets.ts';
 import { sourcesOf } from './sources.ts';
 import { dev } from '$app/env';
 import { asksFresh, storeOf } from './cache.ts';
+import { MOCKED } from './mode.ts';
 
 /**
  * The bindings come from `cloudflare:workers`, which the adapter emulates under `vite dev`;
@@ -18,7 +19,7 @@ export function edgeOf(event: Pick<RequestEvent, 'request'>): Edge {
 		where: event.request.cf as Whereabouts | undefined,
 		store: storeOf(dev, new URL(event.request.url).origin),
 		fresh: asksFresh(event.request),
-		mock: dev,
+		mock: MOCKED,
 	};
 }
 

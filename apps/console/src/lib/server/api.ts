@@ -16,6 +16,7 @@ import type { Whereabouts } from './nodes.ts';
 import { sourcesOf } from './sources.ts';
 import { dev } from '$app/env';
 import { asksFresh, storeOf } from './cache.ts';
+import { MOCKED } from './mode.ts';
 
 const app = new Hono<{ Bindings: Env }>();
 
@@ -36,7 +37,7 @@ app.get(`${PREFIX}*`, async (c) => {
 			where,
 			store: storeOf(dev, new URL(c.req.url).origin),
 			fresh: asksFresh(c.req.raw),
-			mock: dev,
+			mock: MOCKED,
 		}),
 		zone: served(
 			{ get: (name) => getCookie(c, name) },

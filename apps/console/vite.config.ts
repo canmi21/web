@@ -20,6 +20,10 @@ const ROOT = fileURLToPath(new URL('../../', import.meta.url));
 // a token, which the console's build does not hold yet. See spec/architecture/console.md, "Errors
 // go to Sentry, and development sends nothing".
 const upload = uploadsSourceMaps(process.env);
+
+// Development's mock mode, made-up data with no node reached and so no remote binding started;
+// see src/lib/server/mode.ts.
+const MOCK = process.env.CONSOLE_DATA === 'mock';
 const stylexPlugin = stylex({
 	useCSSLayers: true,
 	unstable_moduleResolution: { type: 'commonJS', rootDir: ROOT },
@@ -33,6 +37,7 @@ export default defineConfig(({ mode }) => ({
 		// The facets' addresses, stated to the pages and the Worker by one build, so the two agree;
 		// see spec/architecture/console.md, "A component asks for its facet".
 		...(mode === 'production' ? { STATED_FACET_ADDRESSES: JSON.stringify(facetAddresses()) } : {}),
+		...(mode === 'production' ? {} : { CONSOLE_MOCK: JSON.stringify(MOCK) }),
 	},
 	// Its own pinned port, refused rather than moved when taken, so one console runs at a time; see
 	// spec/toolchain.md, "Dev ports are pinned".
@@ -60,7 +65,7 @@ export default defineConfig(({ mode }) => ({
 			preprocess: vitePreprocess(),
 			compilerOptions: { runes: true },
 			// Every page rendered in the Worker, from what the nodes answer through their bindings.
-			adapter: adapter(),
+			adapter: adapter({ platformProxy: { remoteBindings: !MOCK } }),
 		}),
 
 		{
@@ -79,7 +84,7 @@ export default defineConfig(({ mode }) => ({
 			apply: 'serve',
 			async configureServer(server) {
 				const { live } = await import('./scripts/live.ts');
-				live(server);
+				live(server, MOCK);
 			},
 		},
 	],

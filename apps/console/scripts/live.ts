@@ -32,11 +32,17 @@ interface Platform {
 	cf: unknown;
 }
 
-export function live(server: ViteDevServer): void {
+export function live(server: ViteDevServer, mocked = false): void {
 	const browsers = new WebSocketServer({ noServer: true });
 	server.httpServer?.on('upgrade', (request: IncomingMessage, socket: Duplex, head: Buffer) => {
 		// Development asks the stream at its name; see src/lib/facets.ts.
 		if (new URL(request.url ?? '/', 'http://localhost').pathname !== '/api/live') return;
+		// Mock mode reaches no relay, so the pages hold the data they were drawn with.
+		if (mocked) {
+			socket.write('HTTP/1.1 503 Service Unavailable\r\nconnection: close\r\n\r\n');
+			socket.destroy();
+			return;
+		}
 		if (!admitted(request.headers.origin, portOf(server))) {
 			socket.write('HTTP/1.1 403 Forbidden\r\nconnection: close\r\n\r\n');
 			socket.destroy();

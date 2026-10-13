@@ -1,8 +1,7 @@
 /**
- * What a read answers in development when no node does: made up, shaped as the real answer is, so
- * a page is drawn whole while the nodes are out of reach. Never in the build -- only an `Edge`
- * with `mock` set asks for it. See spec/architecture/console.md, "Developing it reads the real
- * nodes".
+ * What every read answers in development's mock mode: made up, shaped as the real answer is, so a
+ * page is drawn whole with no node reached. Never in the build -- only an `Edge` with `mock` set
+ * asks for it; see ./mode.ts.
  */
 import type { AppDetail, Checked, Disk, MachineInfo, Now, Point, Summary } from '../host.ts';
 import type { App, Cluster, Event, Held, History, Slot } from '../wire.ts';

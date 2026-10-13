@@ -170,6 +170,12 @@ description = "Run the console against the real nodes through their remote bindi
 dir = "apps/console"
 run = "(test -f .dev.vars || pnpm run vars) && pnpm run dev"
 
+[tasks.dev-console-mock]
+description = "Run the console on made-up data, reaching no node: what tuning its pages runs"
+dir = "apps/console"
+env = { CONSOLE_DATA = "mock" }
+run = "pnpm run dev"
+
 [tasks.dev-space]
 description = "Run canmi.app at http://localhost:26528: its router in workerd, and each part's own server"
 dir = "apps/space"

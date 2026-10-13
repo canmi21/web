@@ -1,27 +1,27 @@
-import { describe, expect, it, vi } from 'vitest';
+import { describe, expect, it } from 'vitest';
 import type { Now } from '../host.ts';
+import type { Env } from './edge.ts';
 import { NODES } from './nodes.ts';
 import { cluster, node } from './read.ts';
 
-/** No node bound, so every read fails as an unreachable one does. */
-const unbound = { env: { HOST_READ_TOKEN: 'read-token' } };
+/** Bindings that fail the test if anything is asked of them. */
+const untouched = new Proxy({} as Env, {
+	get: (_, name) =>
+		name === 'HOST_READ_TOKEN' ? 'read-token' : { fetch: () => expect.unreachable() },
+});
 
-describe('a read no node answers', () => {
-	vi.spyOn(console, 'error').mockImplementation(() => {});
+describe('mock mode', () => {
+	const edge = { env: untouched, mock: true };
 
-	it('fails, outside development', async () => {
-		expect((await cluster(unbound)).ok).toBe(false);
-		expect((await node(unbound, 'tyo', '/node/now')).ok).toBe(false);
-	});
-
-	it('is made up in development, shaped as the real answer is', async () => {
-		const state = await cluster({ ...unbound, mock: true });
+	it('answers every read with made-up data, shaped as the real answer is', async () => {
+		const state = await cluster(edge);
 		expect(state.ok && Object.keys(state.data.nodes).sort()).toEqual(Object.keys(NODES).sort());
-		const now = await node<Now>({ ...unbound, mock: true }, 'tyo', '/node/now');
+		const now = await node<Now>(edge, 'tyo', '/node/now');
 		expect(now.ok && typeof now.data.sample.values['cpu.usage']).toBe('number');
 	});
 
-	it('stays failed where nothing is made up for its path', async () => {
-		expect((await node({ ...unbound, mock: true }, 'tyo', '/nothing')).ok).toBe(false);
+	it('answers a path nothing is made up for as no such route', async () => {
+		const read = await node(edge, 'tyo', '/nothing');
+		expect(!read.ok && read.failure.code).toBe('no_such_route');
 	});
 });

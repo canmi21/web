@@ -147,11 +147,11 @@ takes the `live` stream at `/api/live`, its name, as development asks every face
 the dev server's own `localhost` origin, and joins the browser to the
 nearest relay's socket; none of it is in the build.
 
-**In development a read no node answers is made up**, shaped as the real answer is, so a page is
-drawn whole while the nodes are out of reach, and a node that failed is passed over for a minute
-rather than waited on again -- `src/lib/server/mock.ts`, asked only where the read's `Edge` says
-`mock`, which development alone sets. What a node does answer is drawn as it is: the console
-deployed is where the real data is read.
+**Development has a mock mode beside it, which reaches no node**: every read answered with made-up
+data shaped as the real answer is, no remote binding started and no live stream joined, so a page
+is drawn whole and at once -- `mise run //repos/web:dev-console-mock`, `src/lib/server/mock.ts`. It
+is what tuning a page's UI runs. The two never mix: the real mode draws only what the nodes answer,
+and a node that does not answer is drawn as one that did not.
 
 **It reads, and does not write, at first.** Each node's host gains a read-only token, good for its
 `GET` routes alone, and that is the token the console's path carries; a host token is root on its
