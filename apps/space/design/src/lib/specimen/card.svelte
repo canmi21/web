@@ -7,7 +7,13 @@
 	 */
 	import * as stylex from '@stylexjs/stylex';
 	import type { Snippet } from 'svelte';
-	import { borderWidth, fontSize, fontWeight, lineHeight, radius } from '@canmi/design/scale.stylex';
+	import {
+		borderWidth,
+		fontSize,
+		fontWeight,
+		lineHeight,
+		radius,
+	} from '@canmi/design/scale.stylex';
 	import { frame } from './frame.stylex.ts';
 	import RfcRef from '@canmi/space-ui/rfc-ref.svelte';
 	import { dev } from '$app/env';
@@ -17,7 +23,13 @@
 		rule,
 		rfc,
 		children,
-	}: { title: string; rule: string; rfc: string; children: Snippet } = $props();
+	}: {
+		title: string;
+		rule: string;
+		/** The RFC behind the rule; none on a card that stands for a part of the system, as home's. */
+		rfc?: string;
+		children: Snippet;
+	} = $props();
 
 	const styles = stylex.create({
 		card: {
@@ -73,7 +85,9 @@
 			<h2 class={stylex.attrs(styles.title).class}>{title}</h2>
 			<p class={stylex.attrs(styles.rule).class}>{rule}</p>
 		</div>
-		<span class={stylex.attrs(styles.cited).class}><RfcRef id={rfc} {dev} /></span>
+		{#if rfc}
+			<span class={stylex.attrs(styles.cited).class}><RfcRef id={rfc} {dev} /></span>
+		{/if}
 	</header>
 	<div class={stylex.attrs(styles.body).class}>
 		{@render children()}
