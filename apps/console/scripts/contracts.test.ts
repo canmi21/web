@@ -1,4 +1,14 @@
-import { existsSync, readFileSync } from 'node:fs';
+import { spawnSync } from 'node:child_process';
+import {
+	appendFileSync,
+	existsSync,
+	mkdtempSync,
+	readFileSync,
+	rmSync,
+	writeFileSync,
+} from 'node:fs';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { describe, expect, it } from 'vitest';
 import { CONTRACTS, Unsupported, formatted, generate, readerOf } from './contracts.ts';
@@ -99,6 +109,43 @@ describe('a contract reader', () => {
 	])('refuses %s, naming where', (_, schema, message) => {
 		expect(() => made(schema)).toThrow(Unsupported);
 		expect(() => made(schema)).toThrow(message);
+	});
+
+	it("names the command that writes it again, this repository's own when none is given", () => {
+		const schema = { title: 'Root', type: 'string' };
+		expect(generate(schema, 'a test')).toContain('// `mise run contracts` writes it again');
+		const named = generate(schema, 'a test', 'mise run catalog');
+		expect(named).toContain('// `mise run catalog` writes it again');
+		expect(named).not.toContain('mise run contracts');
+	});
+
+	it('writes and checks one reader named on the command line, from where it is run', () => {
+		const script = fileURLToPath(new URL('./contracts.ts', import.meta.url));
+		const where = mkdtempSync(join(tmpdir(), 'contracts-'));
+		const named = (...more: string[]) =>
+			spawnSync(
+				'node',
+				[script, '--schema', 'root.schema.json', '--reader', 'root.gen.ts', ...more],
+				{ cwd: where, encoding: 'utf8' },
+			);
+		try {
+			writeFileSync(
+				join(where, 'root.schema.json'),
+				JSON.stringify({ title: 'Root', type: 'string' }),
+			);
+			expect(named('--again', 'mise run root').status).toBe(0);
+			const reader = readFileSync(join(where, 'root.gen.ts'), 'utf8');
+			expect(reader).toContain('// root.schema.json.');
+			expect(reader).toContain('// `mise run root` writes it again');
+			expect(named('--again', 'mise run root', '--check').status).toBe(0);
+			appendFileSync(join(where, 'root.gen.ts'), '// changed by hand\n');
+			const drifted = named('--again', 'mise run root', '--check');
+			expect(drifted.status).toBe(1);
+			expect(drifted.stderr).toContain('`mise run root` writes it again');
+			expect(named().status, 'a reader named without its command').toBe(2);
+		} finally {
+			rmSync(where, { recursive: true });
+		}
 	});
 
 	it('refuses a schema with no title to name its type by', () => {
