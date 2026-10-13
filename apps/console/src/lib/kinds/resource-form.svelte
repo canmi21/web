@@ -51,7 +51,8 @@
 				)
 			: await create(description.name, name, reading.spec);
 		busy = false;
-		for (const field of form.querySelectorAll('input[type="password"]')) {
+		// A secret's alone: a masked field is a password input while hidden, and keeps what it holds.
+		for (const field of form.querySelectorAll('input[data-secret]')) {
 			if (field instanceof HTMLInputElement) field.value = '';
 		}
 	}

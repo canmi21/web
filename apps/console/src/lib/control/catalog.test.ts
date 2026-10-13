@@ -69,22 +69,39 @@ describe('the catalog, as a page reads it', () => {
 		expect(roles && holdsObjects(roles)).toBe(false);
 	});
 
-	it("takes every secret's value out of a spec, at any depth, and keeps the rest", async () => {
-		const fields = kindOf(await mocked(), 'account')?.fields ?? [];
+	it("takes every secret's value out of a spec, at any depth, and keeps the rest", () => {
+		const fields: Field[] = [
+			{ name: 'provider', type: 'string', editable: true, required: true },
+			{
+				name: 'identities',
+				type: 'list',
+				editable: true,
+				required: true,
+				fields: [
+					{ name: 'kind', type: 'choice', editable: true, required: true, choices: ['email'] },
+					{ name: 'value', type: 'string', editable: true, required: true, masked: true },
+					{ name: 'token', type: 'string', editable: true, required: false, secret: true },
+				],
+			},
+		];
 		const spec = {
 			provider: 'oracle',
-			identities: [
-				{ kind: 'email', value: 'hidden' },
-				{ kind: 'tenancy', secret: 'accounts/registry/ACCOUNT_X_TENANCY' },
-			],
+			identities: [{ kind: 'email', value: 'shown-on-asking', token: 'hidden' }],
 		};
+		// A masked value is kept and answered; only a secret's is never held.
 		expect(withoutSecrets(fields, spec)).toEqual({
 			provider: 'oracle',
-			identities: [
-				{ kind: 'email' },
-				{ kind: 'tenancy', secret: 'accounts/registry/ACCOUNT_X_TENANCY' },
-			],
+			identities: [{ kind: 'email', value: 'shown-on-asking' }],
 		});
-		expect(JSON.stringify(withoutSecrets(fields, spec))).not.toContain('hidden');
+	});
+
+	it("marks an identity's value masked, the field the console hides until asked", async () => {
+		const identities = kindOf(await mocked(), 'account')?.fields.find(
+			(one) => one.name === 'identities',
+		);
+		expect(identities?.fields?.map((one) => [one.name, one.masked ?? false])).toEqual([
+			['kind', false],
+			['value', true],
+		]);
 	});
 });

@@ -2,7 +2,8 @@
  * A resource's form, worked out from its kind in the catalog alone: how each field is drawn, what
  * its input is named, and how what was sent is read back into a `spec`. A field the registry alone
  * writes is shown and never sent; a `secret` one is a password field, never filled from what was
- * read, and left blank it keeps what is held. Platform's RFC cpc2b and spec/console/navigation.md.
+ * read, and left blank it keeps what is held; a `masked` one is a text field filled and sent like
+ * any other, its content hidden until shown. Platform's RFC cpc2b and spec/console/navigation.md.
  */
 import type { Field, Kind } from '../control/catalog.gen.ts';
 import type { Spec } from '../control/types.ts';
@@ -12,6 +13,7 @@ export type Input =
 	| 'shown'
 	| 'text'
 	| 'password'
+	| 'masked'
 	| 'number'
 	| 'checkbox'
 	| 'select'
@@ -23,6 +25,7 @@ export type Input =
 export function inputOf(field: Field): Input {
 	if (!field.editable) return 'shown';
 	if (field.secret) return 'password';
+	if (field.masked && field.type === 'string') return 'masked';
 	switch (field.type) {
 		case 'string':
 			return 'text';

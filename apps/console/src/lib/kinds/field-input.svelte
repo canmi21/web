@@ -2,12 +2,15 @@
 	/**
 	 * One field of a resource's form, drawn from the catalog: a choice as a select, a reference as a
 	 * picker of that kind's resources, a list of objects an item at a time, a secret as a password
-	 * field never filled from what was read, and the registry's own fields shown and never sent.
+	 * field never filled from what was read, a masked value filled and hidden until shown, and the
+	 * registry's own fields shown and never sent.
 	 */
 	import { untrack } from 'svelte';
 	import type { Field } from '../control/catalog.gen.ts';
 	import Button from '../ui/button.svelte';
-	import { type Options, filled, inputOf, nameOf, shown } from './form.ts';
+	import MaskedInput from '../ui/masked-input.svelte';
+	import FieldValue from './field-value.svelte';
+	import { type Options, filled, inputOf, nameOf } from './form.ts';
 	import ItemFields from './item-fields.svelte';
 
 	let {
@@ -45,7 +48,7 @@
 </script>
 
 {#if input === 'shown'}
-	<p>{field.name}: {shown(value)}</p>
+	<p>{field.name}: <FieldValue {field} {value} label={name} /></p>
 {:else if input === 'checkbox'}
 	<p>
 		<input {id} {name} type="checkbox" checked={value === true} />
@@ -109,10 +112,19 @@
 				{name}
 				type="password"
 				autocomplete="new-password"
+				data-secret
 				required={field.required && creating}
 				aria-describedby={creating ? undefined : `${id}-hint`}
 			/>
 			{#if !creating}<span id="{id}-hint">Left blank, what is held is kept.</span>{/if}
+		{:else if input === 'masked'}
+			<MaskedInput
+				{id}
+				{name}
+				value={filled(field, value)}
+				label={field.name}
+				required={field.required}
+			/>
 		{:else}
 			<input
 				{id}

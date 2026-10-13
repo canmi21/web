@@ -231,18 +231,18 @@ describe('mock mode', () => {
 		expect(!again.ok && again.failure.code).toBe('invalid_revision');
 	});
 
-	it("keeps only an identity's secret name, never its value", async () => {
+	it("keeps an identity's masked value as written and answers it, as the registry does", async () => {
 		const read = await resource(edge, 'account', 'oci-2');
 		if (!read.ok) throw new Error(read.failure.message);
+		const identities = [{ kind: 'email', value: 'author@example.com' }];
 		await patch(edge, 'developer', {
 			kind: 'account',
 			ref: 'oci-2',
 			revision: read.data.revision,
-			patch: { identities: [{ kind: 'email', value: 'hush-456' }] },
+			patch: { identities },
 		});
 		const after = await resource(edge, 'account', 'oci-2');
-		expect(JSON.stringify(after)).not.toContain('hush-456');
-		expect(JSON.stringify(after)).toContain('_EMAIL');
+		expect(after.ok && after.data.spec.identities).toEqual(identities);
 	});
 });
 

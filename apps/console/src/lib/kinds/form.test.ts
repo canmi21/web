@@ -3,7 +3,10 @@ import type { Field } from '../control/catalog.gen.ts';
 import { patchOf } from '../control/patch.ts';
 import { edited, filled, inputOf, read, referred, shown } from './form.ts';
 
-/** An account's and a node's fields as the committed catalog describes them. */
+/**
+ * A list of objects holding a secret beside a field only the registry writes, the path any field
+ * marked `secret` takes; and a node's fields as the committed catalog describes them.
+ */
 const VALUE: Field = {
 	name: 'value',
 	type: 'string',
@@ -163,5 +166,60 @@ describe('shown and filled', () => {
 		expect(shown(['compute', 'core'])).toBe('compute, core');
 		expect(shown({ run: 4 })).toBe('{"run":4}');
 		expect(shown(undefined)).toBe('–');
+	});
+});
+
+describe('a masked field', () => {
+	const MASKED: Field = {
+		name: 'value',
+		type: 'string',
+		masked: true,
+		editable: true,
+		required: true,
+	};
+	const MASKED_ITEMS: Field = {
+		name: 'identities',
+		type: 'list',
+		editable: true,
+		required: true,
+		fields: [
+			{
+				name: 'kind',
+				type: 'choice',
+				choices: ['tenancy', 'email'],
+				editable: true,
+				required: true,
+			},
+			MASKED,
+		],
+	};
+
+	it('is a text input hidden until shown, filled with what is held, unlike a secret', () => {
+		expect(inputOf(MASKED)).toBe('masked');
+		expect(filled(MASKED, 'ocid1.tenancy')).toBe('ocid1.tenancy');
+		expect(inputOf({ ...MASKED, type: 'integer' })).toBe('number');
+		expect(inputOf({ ...MASKED, secret: true })).toBe('password');
+	});
+
+	it('is read and sent like any text, and asked for again where required and left blank', () => {
+		const sent = form([
+			['spec.identities.0.kind', 'tenancy'],
+			['spec.identities.0.value', ' ocid1.tenancy '],
+			['spec.identities.1.kind', 'email'],
+			['spec.identities.1.value', ''],
+		]);
+		const reading = read([MASKED_ITEMS], sent, 'spec', false);
+		expect(reading.spec).toEqual({
+			identities: [{ kind: 'tenancy', value: 'ocid1.tenancy' }, { kind: 'email' }],
+		});
+		expect(reading.missing).toEqual(['spec.identities.1.value']);
+	});
+
+	it('changes by what was typed, the list written whole', () => {
+		const before = { identities: [{ kind: 'tenancy', value: 'old' }] };
+		const after = edited(before, { identities: [{ kind: 'tenancy', value: 'new' }] }, [
+			MASKED_ITEMS,
+		]);
+		expect(patchOf(before, after)).toEqual({ identities: [{ kind: 'tenancy', value: 'new' }] });
 	});
 });

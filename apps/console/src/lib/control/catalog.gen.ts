@@ -41,8 +41,7 @@ export type Field = {
 	 */
 	choices?: string[];
 	/**
-	 * False for what only the registry writes, as an identity's `secret`, which is read and never
-	 * sent.
+	 * False for what only the registry writes.
 	 */
 	editable: boolean;
 	/**
@@ -56,11 +55,16 @@ export type Field = {
 	 * field.
 	 */
 	kind?: Kind;
+	/**
+	 * Kept and answered like any other value, and drawn hidden until the reader asks to see it, as
+	 * an identity's `value` -- RFC cpc2b; beside its ordinary `type`.
+	 */
+	masked?: boolean;
 	name: string;
 	required: boolean;
 	/**
-	 * Written and never read back, as an identity's `value`, which the secret service keeps and the
-	 * registry answers by its name alone; beside its ordinary `type`.
+	 * Written and never read back, its value handed to the secret service and answered by the name
+	 * it is kept under; beside its ordinary `type`. No field is one today.
 	 */
 	secret?: boolean;
 	type: Type;
@@ -70,6 +74,7 @@ export const Field: v.GenericSchema<Field> = v.object({
 	editable: v.boolean(),
 	fields: v.exactOptional(v.array(v.lazy(() => Field))),
 	kind: v.exactOptional(v.lazy(() => Kind)),
+	masked: v.exactOptional(v.boolean()),
 	name: v.string(),
 	required: v.boolean(),
 	secret: v.exactOptional(v.boolean()),

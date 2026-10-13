@@ -1,11 +1,12 @@
 <script lang="ts">
 	/**
 	 * A resource as the registry holds it: what is wanted, by its kind's fields in the catalog's
-	 * order, then what is and what differs, as the platform wrote them. Drift is drawn here, never
-	 * worked out -- platform's RFC cpc2b.
+	 * order, a masked value hidden until shown, then what is and what differs, as the platform wrote
+	 * them. Drift is drawn here, never worked out -- platform's RFC cpc2b.
 	 */
 	import type { Description } from '../control/catalog.gen.ts';
 	import type { Resource } from '../control/types.ts';
+	import FieldValue from './field-value.svelte';
 	import { shown } from './form.ts';
 
 	let { description, resource }: { description: Description; resource: Resource } = $props();
@@ -26,7 +27,7 @@
 		<dd>{resource.revision}</dd>
 		{#each description.fields as field (field.name)}
 			<dt>{field.name}</dt>
-			<dd>{field.secret ? 'kept by the secret service' : shown(resource.spec[field.name])}</dd>
+			<dd><FieldValue {field} value={resource.spec[field.name]} /></dd>
 		{/each}
 		{#each rest as [key, value] (key)}
 			<dt>{key}</dt>

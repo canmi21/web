@@ -62,8 +62,7 @@ const CATALOG = {
 					required: true,
 					fields: [
 						field('kind', 'choice', { required: true, choices: ['user_id', 'tenancy', 'email'] }),
-						field('value', 'string', { secret: true }),
-						field('secret', 'string', { editable: false }),
+						field('value', 'string', { required: true, masked: true }),
 					],
 				}),
 			],
@@ -115,10 +114,8 @@ function state(): Held {
 	const account = made('account', 'oci-2', ++revision, {
 		provider: 'oracle',
 		identities: [
-			{
-				kind: 'tenancy',
-				secret: `accounts/registry/ACCOUNT_${idOf('account', 'oci-2').toUpperCase()}_TENANCY`,
-			},
+			{ kind: 'tenancy', value: `ocid1.tenancy.oc1..${idOf('tenancy')}` },
+			{ kind: 'email', value: 'oracle@example.com' },
 		],
 	});
 	const nodes = (Object.keys(NODES) as Node[]).map((node, index) => {
@@ -244,10 +241,9 @@ function written(
 	if (body.revision !== (found?.revision ?? 0))
 		return refused(409, 'invalid_revision', 'It changed since it was read.');
 	const spec = (method === 'PUT' ? body.spec : applied(found?.spec ?? {}, body.spec)) as Spec;
-	const kept = stored(kind, ref, spec);
-	if (found && same(found.spec, kept)) return success({});
+	if (found && same(found.spec, spec)) return success({});
 	const revision = ++all.revision;
-	const resource = made(kind, found?.name ?? ref, revision, kept);
+	const resource = made(kind, found?.name ?? ref, revision, spec);
 	all.resources = [...all.resources.filter((one) => one !== found), resource];
 	const id = idOf('task', String(revision), String(Date.now()));
 	record(
@@ -262,17 +258,6 @@ function written(
 		['written'],
 	);
 	return success({ revision, task: id }, 202);
-}
-
-/** `spec` as the registry keeps it: an identity's value handed on, only its name kept. */
-function stored(kind: Resource['kind'], ref: string, spec: Spec): Spec {
-	if (kind !== 'account' || !Array.isArray(spec.identities)) return spec;
-	const identities = spec.identities.map((one: Spec) => {
-		if (!('value' in one)) return one;
-		const name = `accounts/registry/ACCOUNT_${idOf('account', ref).toUpperCase()}_${String(one.kind).toUpperCase()}`;
-		return { kind: one.kind, secret: name };
-	});
-	return { ...spec, identities };
 }
 
 function ledger(parts: string[], query: URLSearchParams): Response {
