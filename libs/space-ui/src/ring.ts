@@ -89,9 +89,11 @@ export const descends = (words: string) => /[gjpqy]/.test(words);
  * them, so the pointer crossing the row never falls between two and the tips follow it without a
  * break -- lib's spec/design/components.md, "Marks with tips in a row share the gaps between
  * them". A row sets `--reach`, half its gap, and `--reach-up` and `--reach-down` on a mark shorter
- * than the row, as far as the row stands past it.
+ * than the row, as far as the row stands past it. `--reach-left` and `--reach-right` take one side
+ * over, for a mark whose gaps differ on either side.
  */
-const SIDE = 'var(--reach, 0px)';
+const LEFT = 'var(--reach-left, var(--reach, 0px))';
+const RIGHT = 'var(--reach-right, var(--reach, 0px))';
 const UP = 'var(--reach-up, 0px)';
 const DOWN = 'var(--reach-down, 0px)';
 
@@ -104,8 +106,8 @@ export const reach = stylex.create({
 			position: 'absolute',
 			top: `calc(-1 * ${UP})`,
 			bottom: `calc(-1 * ${DOWN})`,
-			left: `calc(-1 * ${SIDE})`,
-			right: `calc(-1 * ${SIDE})`,
+			left: `calc(-1 * ${LEFT})`,
+			right: `calc(-1 * ${RIGHT})`,
 		},
 	},
 	/** Words': their ring's box round their ink, and the row's share around that. */
@@ -116,8 +118,8 @@ export const reach = stylex.create({
 			position: 'absolute',
 			top: `calc(-1 * (${UP} + ${ROOM}))`,
 			bottom: `calc(-1 * (${DOWN} + ${ROOM}))`,
-			left: `calc(-1 * max(${SIDE}, ${ROOM}))`,
-			right: `calc(-1 * max(${SIDE}, ${ROOM}))`,
+			left: `calc(-1 * max(${LEFT}, ${ROOM}))`,
+			right: `calc(-1 * max(${RIGHT}, ${ROOM}))`,
 		},
 	},
 	/** Words with a letter below their baseline, reached down to it. */

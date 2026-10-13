@@ -7,6 +7,7 @@
 	 * that gray at a share of its light.
 	 */
 	import * as stylex from '@stylexjs/stylex';
+	import { reach } from '@canmi/space-ui/ring';
 	import { borderWidth, radius } from '@canmi/design/scale.stylex';
 	import Icon from '@canmi/design/components/icon.svelte';
 	import ThemeScope from '@canmi/design/components/theme-scope.svelte';
@@ -237,8 +238,9 @@
 		/** Straight above, its top toward the scene's far side: the screen's right is x, its up -z. */
 		camera.up.set(0, 0, -1);
 		function look() {
-			const reach = SCENE.width / 2 / (Math.tan((FIELD_OF_VIEW * Math.PI) / 360) * camera.aspect);
-			camera.position.set(0, reach, 0);
+			const distance =
+				SCENE.width / 2 / (Math.tan((FIELD_OF_VIEW * Math.PI) / 360) * camera.aspect);
+			camera.position.set(0, distance, 0);
 			camera.lookAt(0, 0, 0);
 			held.quaternion.copy(turn);
 			renderer.render(scene, camera);
@@ -429,6 +431,7 @@
 			display: 'flex',
 			gap: '0.125rem',
 			padding: '0.125rem',
+			'--reach': '0.0625rem',
 			borderWidth: borderWidth.hairline,
 			borderStyle: 'solid',
 			borderColor: 'var(--border-default)',
@@ -505,7 +508,7 @@
 				<button
 					type="button"
 					aria-label={view.name}
-					class={stylex.attrs(styles.view, at === view.name && styles.chosen).class}
+					class={stylex.attrs(styles.view, reach.mark, at === view.name && styles.chosen).class}
 					aria-pressed={at === view.name}
 					onclick={() => go?.(view.pose)}
 				>

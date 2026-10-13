@@ -5,6 +5,7 @@
 	 * is named by its tip and copies its token as code reads it; the card cites the RFC behind it.
 	 */
 	import * as stylex from '@stylexjs/stylex';
+	import { reach } from '@canmi/space-ui/ring';
 	import { borderWidth, radius } from '@canmi/design/scale.stylex';
 	import Icon from '@canmi/design/components/icon.svelte';
 	import ThemeScope from '@canmi/design/components/theme-scope.svelte';
@@ -75,26 +76,6 @@
 			boxShadow: `0 0 0 ${borderWidth.hairline} var(--border-default)`,
 			cursor: 'copy',
 		},
-		/**
-		 * The well's unseen reach into half of each gap beside it, so the pointer crossing from one
-		 * capsule to the next never leaves both and the tips follow it without a break.
-		 */
-		reach: {
-			'::before': {
-				content: '""',
-				position: 'absolute',
-				top: 0,
-				bottom: 0,
-				left: `calc(-1 * ${share(BETWEEN / 2)})`,
-				right: `calc(-1 * ${share(WITHIN / 2)})`,
-			},
-		},
-		reachAfter: {
-			'::before': {
-				left: `calc(-1 * ${share(WITHIN / 2)})`,
-				right: `calc(-1 * ${share(BETWEEN / 2)})`,
-			},
-		},
 		/** The hue, ringed inside its own edge so a pale one still has one. */
 		hue: {
 			flexGrow: 1,
@@ -142,8 +123,9 @@
 							<button
 								type="button"
 								aria-label="Copy {hue.token}, {hue.name} in the {theme}"
-								class={stylex.attrs(styles.well, styles.reach, index > 0 && styles.reachAfter)
-									.class}
+								class={stylex.attrs(styles.well, reach.mark).class}
+								style:--reach-left={share((index > 0 ? WITHIN : BETWEEN) / 2)}
+								style:--reach-right={share((index > 0 ? BETWEEN : WITHIN) / 2)}
 								onclick={() => ticks.copy(hue.token, key)}
 							>
 								<ThemeScope {theme}>
