@@ -12,14 +12,14 @@ export interface Size {
 	readonly name: string;
 	readonly rem: number;
 	readonly kind: Kind;
-	/** A line it would set. */
+	/** The line its card sets, one for every size on that card, so they are told apart by size. */
 	readonly sample: string;
 }
 
 export const SIZES: readonly Size[] = [
-	{ name: 'caption', rem: 0.75, kind: 'interface', sample: 'Updated two minutes ago' },
+	{ name: 'caption', rem: 0.75, kind: 'interface', sample: 'Deploy to production' },
 	{ name: 'label', rem: 0.8125, kind: 'interface', sample: 'Deploy to production' },
-	{ name: 'body', rem: 0.875, kind: 'interface', sample: 'Every node answers in its own region.' },
+	{ name: 'body', rem: 0.875, kind: 'interface', sample: 'Deploy to production' },
 	{
 		name: 'prose',
 		rem: 1,
@@ -27,9 +27,9 @@ export const SIZES: readonly Size[] = [
 		sample:
 			'A sentence meant to be read is set at the size the reader chose for their browser, with room between its lines.',
 	},
-	{ name: 'title', rem: 1.25, kind: 'heading', sample: 'Regions' },
+	{ name: 'title', rem: 1.25, kind: 'heading', sample: 'Overview' },
 	{ name: 'headline', rem: 1.5, kind: 'heading', sample: 'Overview' },
-	{ name: 'display', rem: 2, kind: 'heading', sample: 'Design' },
+	{ name: 'display', rem: 2, kind: 'heading', sample: 'Overview' },
 ];
 
 /** How a size is copied, as code reads it. */

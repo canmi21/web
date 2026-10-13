@@ -22,6 +22,11 @@ import WeightsIcon from '@tabler/icons-svelte-runes/icons/bold';
 import LeadingIcon from '@tabler/icons-svelte-runes/icons/line-height';
 import TrackingIcon from '@tabler/icons-svelte-runes/icons/letter-spacing';
 import NumbersIcon from '@tabler/icons-svelte-runes/icons/numbers';
+import StatesIcon from '@tabler/icons-svelte-runes/icons/click';
+import FocusIcon from '@tabler/icons-svelte-runes/icons/focus-2';
+import HoverIcon from '@tabler/icons-svelte-runes/icons/hand-finger';
+import SelectionIcon from '@tabler/icons-svelte-runes/icons/select';
+import DisabledIcon from '@tabler/icons-svelte-runes/icons/ban';
 
 /** A category: a page in the top level that is entered, its own pages replacing the sidebar. */
 export interface Category extends Page {
@@ -60,9 +65,16 @@ const TYPOGRAPHY: readonly Page[] = [
 	{ label: 'Families', icon: FamiliesIcon },
 	{ href: resolve('/foundations/typography/sizes'), label: 'Sizes', icon: SizesIcon },
 	{ label: 'Weights', icon: WeightsIcon },
-	{ label: 'Leading', icon: LeadingIcon },
+	{ href: resolve('/foundations/typography/leading'), label: 'Leading', icon: LeadingIcon },
 	{ label: 'Tracking', icon: TrackingIcon },
 	{ label: 'Numbers', icon: NumbersIcon },
+];
+
+const STATES: readonly Page[] = [
+	{ href: resolve('/foundations/states/focus'), label: 'Focus', icon: FocusIcon },
+	{ label: 'Hover', icon: HoverIcon },
+	{ label: 'Selection', icon: SelectionIcon },
+	{ label: 'Disabled', icon: DisabledIcon },
 ];
 
 /** The system's layers in the order each stands on the last. */
@@ -86,6 +98,14 @@ export const LAYERS: readonly Layer[] = [
 				icon: TypographyIcon,
 				enters: true,
 				pages: TYPOGRAPHY,
+			},
+			{
+				...firstOf(STATES),
+				label: 'States',
+				slug: 'states',
+				icon: StatesIcon,
+				enters: true,
+				pages: STATES,
 			},
 		],
 	},

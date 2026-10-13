@@ -141,7 +141,10 @@ specimen stands in, which is the card again on the page's own ground**: what it 
 card, and a card stands on the ground, never on another card. A specimen with a shape of its own, a
 page drawn small, stands in the box at its own proportions and is never stretched to the card.
 **The card's inset is the same on every side**, and the title and the RFC are trimmed to their
-capitals so the inset is measured to the letters -- `src/lib/specimen/frame.stylex.ts`. The card
+capitals so the inset is measured to the letters -- `src/lib/specimen/frame.stylex.ts`. **Any box
+drawn on a page is inset the same way, to what is drawn**: words to their capitals, shapes to their
+edges, a first line that cannot be trimmed giving its room over the capitals back from the top --
+RFC 0gmzi. The card
 keeps the console's card's `radius.xl`, and the box holds `lg` -- lib's `spec/design/styles.md`, "Of
 two corners nested". RFC 73ol5.
 
@@ -169,6 +172,12 @@ to the drag, the point held following the pointer; the menu, there from the firs
 that rest, brings it to a set view. It fills its box to the edge and is cut off there. What it shows
 is a relation, one level for the grounds in both themes, not the size of a step, which its own card
 draws -- `src/lib/specimen/relief.svelte`.
+
+**A pointer on a specimen shows its tip, and the keyboard alone draws a ring**: on `:focus-visible`,
+flush, `0.125rem` in `--interaction-focus`, on the shape it has -- spec/styling/focus.md. **Bare
+words are ringed on their ink, one `0.25rem` room off it on every side, the corner growing with the
+words, `2/7em`**: their box trimmed to their capitals and their baseline, or their descent where a
+letter falls below it, the room taken back from the margin so nothing moves -- RFC mpy16.
 
 **Every mark of a color copies its token on a press**, `var(--token)` as code reads it, and ticks
 the mark it was pressed on, each tick on its own clock: a swatch, a ramp's cell, a stop on a way,

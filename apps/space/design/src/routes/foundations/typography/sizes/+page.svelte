@@ -5,12 +5,19 @@
 	 * draft, held in src/lib/specimen/type.ts until it is decided.
 	 */
 	import * as stylex from '@stylexjs/stylex';
-	import { fontSize, fontWeight, lineHeight, radius } from '@canmi/design/scale.stylex';
+	import {
+		borderWidth,
+		fontSize,
+		fontWeight,
+		lineHeight,
+		radius,
+	} from '@canmi/design/scale.stylex';
 	import Icon from '@canmi/design/components/icon.svelte';
 	import Tooltip from '@canmi/design/components/tooltip.svelte';
 	import CheckIcon from '@tabler/icons-svelte-runes/icons/check';
 	import Box from '#lib/specimen/box.svelte';
 	import Card from '#lib/specimen/card.svelte';
+	import { descends, ring } from '#lib/specimen/ring.ts';
 	import { Ticks } from '#lib/specimen/ticks.svelte.ts';
 	import { SIZES, constOf, type Kind, type Size } from '#lib/specimen/type.ts';
 
@@ -62,6 +69,9 @@
 
 	const ticks = new Ticks();
 
+	/** The interface's words with a shape of their own, ringed on it rather than on the words. */
+	const shaped = new Set(['tag', 'secondary', 'primary']);
+
 	const styles = stylex.create({
 		/** Every size side by side on one baseline, smallest first. */
 		all: {
@@ -83,7 +93,8 @@
 			textAlign: 'start',
 			cursor: 'copy',
 		},
-		glyphs: { fontWeight: fontWeight.medium, lineHeight: 1 },
+		/** In the line words are set in, so a ring stands off them as it does off any words. */
+		glyphs: { fontWeight: fontWeight.medium },
 		hidden: { visibility: 'hidden' },
 		tick: {
 			position: 'absolute',
@@ -95,20 +106,24 @@
 			pointerEvents: 'none',
 		},
 		/** A kind's sizes, each a row: its name and value, then the size itself. */
-		list: {
+		list: { display: 'flex', flexDirection: 'column', width: `min(100%, ${ROW}rem)` },
+		/** A size's row, ruled off from the one above, its name and the size on one baseline. */
+		row: {
 			display: 'grid',
-			gridTemplateColumns: '7rem minmax(0, 1fr)',
+			gridTemplateColumns: '6rem minmax(0, 1fr)',
 			alignItems: 'baseline',
 			columnGap: '2rem',
-			rowGap: '1.75rem',
-			width: `min(100%, ${ROW}rem)`,
+			paddingBlock: '1.25rem',
+			borderTopWidth: { default: borderWidth.hairline, ':first-child': 0 },
+			borderTopStyle: 'solid',
+			borderTopColor: 'var(--border-subtle)',
 		},
-		row: { display: 'contents' },
-		named: { display: 'flex', flexDirection: 'column', gap: '0.125rem' },
+		named: { display: 'flex', flexDirection: 'column', gap: '0.25rem' },
+		/** Smaller than any size it names, so the sizes are what is read. */
 		name: {
-			fontSize: fontSize.body,
+			fontSize: fontSize.caption,
 			fontWeight: fontWeight.medium,
-			color: 'var(--foreground-strong)',
+			color: 'var(--foreground-default)',
 		},
 		value: {
 			display: 'flex',
@@ -116,7 +131,97 @@
 			height: '1rem',
 			fontFamily: 'var(--font-mono)',
 			fontSize: fontSize.caption,
+			color: 'var(--foreground-subtle)',
+		},
+		/**
+		 * A card as an app would draw one: a name, a note, a line, and two actions, each word's size
+		 * named in its tip, a word alone, each line as wide as its words so a ring on it is too.
+		 */
+		mock: {
+			display: 'flex',
+			flexDirection: 'column',
+			alignItems: 'flex-start',
+			width: '20rem',
+			// Set in the body, so its line and capitals are the first line's: the inset is measured to
+			// what is drawn, the top to those capitals -- RFC 0gmzi.
+			fontSize: fontSize.body,
+			paddingTop: 'calc(1.25rem - (1lh - var(--font-sans-cap-height)) / 2)',
+			paddingInline: '1.25rem',
+			paddingBottom: '1.25rem',
+			borderWidth: borderWidth.hairline,
+			borderStyle: 'solid',
+			borderColor: 'var(--border-default)',
+			borderRadius: radius.xl,
+			backgroundColor: 'var(--background-surface)',
+			boxShadow: 'var(--shadow-surface)',
+		},
+		/** One line of the body tall, a pill beside the name standing out of it as it must. */
+		head: {
+			display: 'flex',
+			alignSelf: 'stretch',
+			height: '1lh',
+			alignItems: 'center',
+			justifyContent: 'space-between',
+		},
+		/** A word pressed to copy its size, drawn only as its look says. */
+		reset: {
+			padding: 0,
+			borderWidth: 0,
+			backgroundColor: 'transparent',
+			textAlign: 'start',
+			cursor: 'copy',
+		},
+		mockName: {
+			fontSize: fontSize.body,
+			fontWeight: fontWeight.medium,
+			color: 'var(--foreground-strong)',
+		},
+		pill: {
+			paddingBlock: '0.125rem',
+			paddingInline: '0.5rem',
+			borderRadius: radius.full,
+			fontSize: fontSize.caption,
+			fontWeight: fontWeight.medium,
+			color: 'var(--foreground-default)',
+			backgroundColor: 'var(--interaction-muted)',
+		},
+		/** Each line as wide as its words, so a ring on it is too. */
+		note: {
+			alignSelf: 'flex-start',
+			marginTop: '0.25rem',
+			fontSize: fontSize.caption,
 			color: 'var(--foreground-muted)',
+		},
+		line: {
+			alignSelf: 'flex-start',
+			marginTop: '1rem',
+			fontSize: fontSize.body,
+			color: 'var(--foreground-default)',
+		},
+		actions: {
+			display: 'flex',
+			alignSelf: 'stretch',
+			justifyContent: 'flex-end',
+			gap: '0.5rem',
+			marginTop: '1.25rem',
+		},
+		action: {
+			display: 'flex',
+			alignItems: 'center',
+			height: '2rem',
+			paddingInline: '0.75rem',
+			borderWidth: borderWidth.hairline,
+			borderStyle: 'solid',
+			borderColor: 'var(--border-default)',
+			borderRadius: radius.md,
+			fontSize: fontSize.label,
+			fontWeight: fontWeight.medium,
+			color: 'var(--foreground-strong)',
+		},
+		primary: {
+			borderColor: 'transparent',
+			color: 'var(--background-base)',
+			backgroundColor: 'var(--foreground-strong)',
 		},
 		/** How each kind is set beside its size: a heading heavier, text to be read with room. */
 		interface: { color: 'var(--foreground-default)' },
@@ -136,18 +241,20 @@
 
 <div class="flex flex-col gap-6">
 	<Card title="The Ladder" rule="Every word on a page is set at one of these sizes." rfc="wb3ro">
-		<Box row="{ALL_ROW}rem" ratio="2/3">
+		<Box row="{ALL_ROW}rem" ratio="1/3">
 			<div class={stylex.attrs(styles.all).class}>
 				{#each SIZES as size (size.name)}
 					<Tooltip label={nameOf(size)}>
 						<button
 							type="button"
 							aria-label="Copy {constOf(size)}"
-							class={stylex.attrs(styles.press, styles.glyphs).class}
+							class={stylex.attrs(styles.press, styles.glyphs, ring.host).class}
 							style:font-size="{size.rem}rem"
 							onclick={() => ticks.write(constOf(size), size.name)}
 						>
-							<span class={stylex.attrs(ticks.has(size.name) && styles.hidden).class}>Aa</span>
+							<span class={stylex.attrs(ring.ink, ticks.has(size.name) && styles.hidden).class}
+								>Aa</span
+							>
 							{#if ticks.has(size.name)}
 								<span class={stylex.attrs(styles.tick).class}>
 									<Icon icon={CheckIcon} size={16} stroke={3} />
@@ -163,32 +270,69 @@
 	{#each GROUPS as group (group.look)}
 		<Card title={group.title} rule={group.rule} rfc="wb3ro">
 			<Box row="{ROW}rem" ratio="1/2">
-				<div class={stylex.attrs(styles.list).class}>
-					{#each group.rows as { size, sample } (size.name)}
-						<div class={stylex.attrs(styles.row).class}>
-							<div class={stylex.attrs(styles.named).class}>
-								<span class={stylex.attrs(styles.name).class}>{nameOf(size)}</span>
-								<span class={stylex.attrs(styles.value).class}>
-									{#if ticks.has(`${group.look}-${size.name}`)}
-										<Icon icon={CheckIcon} size={14} stroke={3} />
-									{:else}
-										{size.rem}rem
-									{/if}
-								</span>
+				{#if group.look === 'interface'}
+					{@render inUse()}
+				{:else}
+					<div class={stylex.attrs(styles.list).class}>
+						{#each group.rows as { size, sample } (size.name)}
+							<div class={stylex.attrs(styles.row).class}>
+								<div class={stylex.attrs(styles.named).class}>
+									<span class={stylex.attrs(styles.name).class}>{nameOf(size)}</span>
+									<span class={stylex.attrs(styles.value).class}>
+										{#if ticks.has(`${group.look}-${size.name}`)}
+											<Icon icon={CheckIcon} size={14} stroke={3} />
+										{:else}
+											{size.rem}rem
+										{/if}
+									</span>
+								</div>
+								<button
+									type="button"
+									aria-label="Copy {constOf(size)}"
+									class={stylex.attrs(styles.press, styles[group.look]).class}
+									style:font-size="{size.rem}rem"
+									onclick={() => ticks.write(constOf(size), `${group.look}-${size.name}`)}
+								>
+									{sample}
+								</button>
 							</div>
-							<button
-								type="button"
-								aria-label="Copy {constOf(size)}"
-								class={stylex.attrs(styles.press, styles[group.look]).class}
-								style:font-size="{size.rem}rem"
-								onclick={() => ticks.write(constOf(size), `${group.look}-${size.name}`)}
-							>
-								{sample}
-							</button>
-						</div>
-					{/each}
-				</div>
+						{/each}
+					</div>
+				{/if}
 			</Box>
 		</Card>
 	{/each}
 </div>
+
+{#snippet inUse()}
+	<div class={stylex.attrs(styles.mock).class}>
+		<div class={stylex.attrs(styles.head).class}>
+			{@render word('body', 'name', styles.mockName, 'Example')}
+			{@render word('caption', 'tag', styles.pill, 'Tag')}
+		</div>
+		{@render word('caption', 'note', styles.note, 'A caption under the name')}
+		{@render word('body', 'line', styles.line, 'A line of body text, as an interface sets it.')}
+		<div class={stylex.attrs(styles.actions).class}>
+			{@render word('label', 'secondary', styles.action, 'Secondary')}
+			{@render word('label', 'primary', [styles.action, styles.primary], 'Primary')}
+		</div>
+	</div>
+{/snippet}
+
+{#snippet word(size: string, key: string, look: stylex.StyleXStyles, text: string)}
+	{@const ticked = ticks.has(`interface-${key}`)}
+	<Tooltip label={size[0]!.toUpperCase() + size.slice(1)} icon={ticked ? CheckIcon : undefined}>
+		<button
+			type="button"
+			aria-label="Copy fontSize.{size}"
+			class={stylex.attrs(styles.reset, look, shaped.has(key) ? ring.control : ring.host).class}
+			onclick={() => ticks.write(`fontSize.${size}`, `interface-${key}`)}
+		>
+			{#if shaped.has(key)}
+				{text}
+			{:else}
+				<span class={stylex.attrs(ring.ink, descends(text) && ring.descends).class}>{text}</span>
+			{/if}
+		</button>
+	</Tooltip>
+{/snippet}
