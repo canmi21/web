@@ -1,8 +1,8 @@
 <script lang="ts">
 	/**
 	 * One resource as the catalog draws it: what the registry holds of it, and a form changing it
-	 * at the revision it was read at. A node's and an app's Spec, an account's and a domain's
-	 * Overview, and a resource under `/kinds` stand on it. See spec/console/navigation.md.
+	 * at the revision it was read at. A node's and an app's Spec, an account's Overview, and a
+	 * resource under `/kinds` stand on it. See spec/console/navigation.md.
 	 */
 	import Card from '../card.svelte';
 	import type { Description } from '../control/catalog.gen.ts';

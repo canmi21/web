@@ -104,7 +104,6 @@
 			app: params.app,
 			run: params.run,
 			account: params.account,
-			domain: params.domain,
 			task: service !== undefined && task !== undefined ? { service, id: task } : undefined,
 			kind: params.kind,
 			resource: params.resource,

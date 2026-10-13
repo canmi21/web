@@ -14,6 +14,6 @@
 	<PageHeader title={pluralLabel(data.kind)} />
 	<KindPage
 		read={data.read}
-		href={(one) => to(`/kinds/${encodeURIComponent(data.kind)}/${encodeURIComponent(one.name)}`)}
+		href={(ref) => to(`/kinds/${encodeURIComponent(data.kind)}/${encodeURIComponent(ref)}`)}
 	/>
 </Unpolished>

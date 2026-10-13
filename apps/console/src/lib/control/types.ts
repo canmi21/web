@@ -26,7 +26,8 @@ export interface Resource {
 	kind: Kind;
 	/** 16 lowercase hexadecimal digits, never changed; the name is a label. */
 	id: string;
-	name: string;
+	/** Null for a kind the catalog marks `named: false`, an account's: it is its id. */
+	name: string | null;
 	/** The change that last wrote it, which a write of it carries back. */
 	revision: number;
 	spec: Spec;
@@ -134,14 +135,14 @@ export type TaskQuery = {
 
 /** A write's outcome: its task, nothing to change, or the registry's refusal. */
 export type Written =
-	| { ok: true; task: string; revision: number }
+	| { ok: true; task: string; revision: number; id?: string }
 	| { ok: true; unchanged: true }
 	| { ok: false; failure: Failure };
 
-/** Creating a resource by its name, at revision 0. */
+/** Creating a resource at revision 0: a named kind's by its name, any other with none. */
 export interface Create {
 	kind: Kind;
-	name: string;
+	name?: string;
 	spec: Spec;
 }
 

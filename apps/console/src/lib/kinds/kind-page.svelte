@@ -1,11 +1,11 @@
 <script lang="ts">
 	/**
 	 * A kind's page as the catalog alone draws it: every resource of it, and a form creating one.
-	 * Accounts, Domains and every kind under `/kinds` stand on it. See spec/console/navigation.md.
+	 * Accounts and every kind under `/kinds` stand on it. See spec/console/navigation.md.
 	 */
 	import Card from '../card.svelte';
 	import type { Description } from '../control/catalog.gen.ts';
-	import type { Control, List, Resource } from '../control/types.ts';
+	import type { Control, List } from '../control/types.ts';
 	import Skeleton from '../ui/skeleton.svelte';
 	import Failed from './failed.svelte';
 	import type { Options } from './form.ts';
@@ -18,7 +18,8 @@
 		creates = true,
 	}: {
 		read: Read | Promise<Read>;
-		href: (resource: Resource) => string;
+		/** Where a resource is read, by its name, or its id where its kind has none. */
+		href: (ref: string) => string;
 		/** Whether a form creating one follows the list, as it does on the kind's own page. */
 		creates?: boolean;
 	} = $props();
@@ -44,7 +45,7 @@
 		</Card>
 		{#if creates}
 			<Card title="New {description.data.name}">
-				<ResourceForm description={description.data} {options} />
+				<ResourceForm description={description.data} {options} created={href} />
 			</Card>
 		{/if}
 	{/if}

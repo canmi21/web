@@ -1,9 +1,12 @@
 /**
- * Which page of an account's or a domain's level is open, as its query says it -- as a node's are,
- * src/lib/nodes/view.ts -- and where a kind under `/kinds/<plural>` is named and sent. See
- * spec/console/navigation.md.
+ * Which page of an account's level is open, as its query says it -- as a node's are,
+ * src/lib/nodes/view.ts -- where a kind under `/kinds/<plural>` is named and sent, and how a
+ * resource is called and addressed when its kind has no name. See spec/console/navigation.md.
  */
+import type { Description } from '../control/catalog.gen.ts';
+import type { Resource } from '../control/types.ts';
 import { type View, within } from '../scope/scope.ts';
+import { shown } from './form.ts';
 
 export const TABS = [
 	{ key: 'overview', label: 'Overview' },
@@ -34,18 +37,43 @@ export const PAGED: Readonly<Partial<Record<string, string>>> = {
 	node: '/nodes',
 	app: '/apps',
 	account: '/accounts',
-	domain: '/domains',
 };
 
 /**
- * Where a kind with pages of its own is read in `view`, or one resource of it, its Spec where it
- * has one: an app in the view asked, whose page sends it on to its own; the rest are infra's.
+ * Where a kind with pages of its own is read in `view`, or one resource of it by `ref`, its Spec
+ * where it has one: an app in the view asked, whose page sends it on to its own; the rest are
+ * infra's.
  */
-export function pagedHref(view: View, kind: string, name?: string): string | undefined {
+export function pagedHref(view: View, kind: string, ref?: string): string | undefined {
 	const path = PAGED[kind];
 	if (path === undefined) return undefined;
 	const where = kind === 'app' || view === 'all' ? view : 'infra';
-	if (name === undefined) return within(where, path);
-	const at = within(where, `${path}/${encodeURIComponent(name)}`);
+	if (ref === undefined) return within(where, path);
+	const at = within(where, `${path}/${encodeURIComponent(ref)}`);
 	return kind === 'node' || kind === 'app' ? `${at}?tab=spec` : at;
 }
+
+/** How many of an id's digits stand for it where a resource has no name -- platform's RFC 32hd9. */
+const SHORT = 8;
+
+/** An id as it is shown where its resource has no name: its first eight digits. */
+export const shortId = (id: string): string => id.slice(0, SHORT);
+
+/**
+ * What a resource is called: its name, or for a kind with no name its first column -- an account's
+ * provider -- and its id's first eight digits. Platform's RFC 32hd9.
+ */
+export function labelOf(
+	description: Pick<Description, 'named' | 'columns'>,
+	one: Resource,
+): string {
+	if (description.named && one.name) return one.name;
+	const first = description.columns[0];
+	const said = first === undefined ? undefined : one.spec[first];
+	const lead = said === undefined ? '' : `${shown(said)} `;
+	return `${lead}${shortId(one.id)}`;
+}
+
+/** What a resource is addressed by in a link: its name, or its id where its kind has none. */
+export const refOf = (description: Pick<Description, 'named'>, one: Resource): string =>
+	description.named && one.name ? one.name : one.id;

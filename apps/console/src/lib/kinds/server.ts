@@ -9,6 +9,7 @@ import type { Control } from '../control/types.ts';
 import { catalog, resource, resources } from '../server/control.ts';
 import type { Edge, Read } from '../server/read.ts';
 import { type Options, referred } from './form.ts';
+import { labelOf } from './view.ts';
 
 /** The kind named `name` or reached at `/v1/<name>`, or why there is none. */
 export function describedIn(read: Read<Catalog>, name: string): Control<Description> {
@@ -27,15 +28,23 @@ export const describeKind = async (
 	read: Catalogued = catalog(edge),
 ): Promise<Control<Description>> => describedIn(await read, name);
 
-/** The resources of each kind `description` refers to, by id and name; one not read offers none. */
+/**
+ * The resources of each kind `description` refers to, by id and as each is called -- a kind with no
+ * name by its first column and short id; one not read offers none.
+ */
 async function optionsOf(edge: Edge, description: Description, read: Catalogued): Promise<Options> {
 	const kinds = referred(description.fields);
-	const lists = await Promise.all(kinds.map((kind) => resources(edge, kind, read)));
+	const [catalogued, ...lists] = await Promise.all([
+		read,
+		...kinds.map((kind) => resources(edge, kind, read)),
+	]);
 	return Object.fromEntries(
 		kinds.map((kind, index) => {
 			const listed = lists[index];
-			const items = listed?.ok ? listed.data.items : [];
-			return [kind, items.map((one) => ({ value: one.id, label: one.name }))];
+			const described = catalogued.ok ? describe(catalogued.data, kind) : undefined;
+			if (!listed?.ok || !described) return [kind, []];
+			const items = listed.data.items;
+			return [kind, items.map((one) => ({ value: one.id, label: labelOf(described, one) }))];
 		}),
 	);
 }
@@ -68,10 +77,11 @@ export async function resourceRead(
 }
 
 /**
- * The nodes under an account or in a domain: those whose `field` names its id. The list is the
- * node kind's own, so its columns are the catalog's for a node.
+ * The nodes under an account: those whose `account` names its id. The list is the node kind's own,
+ * so its columns are the catalog's for a node.
  */
-export async function nodesUnder(edge: Edge, field: 'account' | 'domain', ref: string) {
+export async function nodesUnder(edge: Edge, ref: string) {
+	const field = 'account';
 	const read = catalog(edge);
 	const [nodeKind, held, nodes] = await Promise.all([
 		describeKind(edge, 'node', read),

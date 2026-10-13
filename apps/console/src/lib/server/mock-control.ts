@@ -31,10 +31,10 @@ const CATALOG = {
 		{
 			name: 'node',
 			plural: 'nodes',
+			named: true,
 			fields: [
 				field('address', 'string', { required: true }),
 				field('tier', 'choice', { required: true, choices: ['datacenter', 'home', 'transient'] }),
-				field('domain', 'reference', { required: true, kind: 'domain' }),
 				field('system', 'choice', { required: true, choices: ['debian', 'alpine'] }),
 				field('core', 'boolean'),
 				field('expiry', 'integer'),
@@ -44,11 +44,12 @@ const CATALOG = {
 				field('roles', 'list', { choices: ['compute', 'storage', 'core'] }),
 			],
 			actions: [],
-			columns: ['address', 'tier', 'domain', 'system'],
+			columns: ['address', 'tier', 'account', 'system'],
 		},
 		{
 			name: 'app',
 			plural: 'apps',
+			named: true,
 			fields: [field('placements', 'list', { required: true }), field('release', 'object')],
 			actions: [],
 			columns: ['placements'],
@@ -56,8 +57,12 @@ const CATALOG = {
 		{
 			name: 'account',
 			plural: 'accounts',
+			named: false,
 			fields: [
-				field('provider', 'string', { required: true }),
+				field('provider', 'choice', {
+					required: true,
+					choices: ['oracle', 'azure', 'racknerd', 'backblaze', 'cloudflare'],
+				}),
 				field('identities', 'list', {
 					required: true,
 					fields: [
@@ -69,13 +74,6 @@ const CATALOG = {
 			actions: [],
 			columns: ['provider'],
 		},
-		{
-			name: 'domain',
-			plural: 'domains',
-			fields: [field('note', 'string')],
-			actions: [],
-			columns: ['note'],
-		},
 	],
 };
 
@@ -84,7 +82,7 @@ const CORES = new Set(['tyo', 'sin', 'rdu']);
 const APPS: Record<string, Node[]> = {
 	relay: Object.keys(NODES) as Node[],
 	registry: ['tyo', 'sin', 'rdu'],
-	ledger: ['rdu'],
+	ledger: ['tyo', 'sin', 'rdu'],
 	gateway: ['tyo', 'rdu'],
 	objects: ['tyo', 'sin', 'gvx'],
 	shot: ['sin', 'buf'],
@@ -100,30 +98,48 @@ interface Held {
 
 let held: Held | undefined;
 
-function made(kind: Resource['kind'], name: string, revision: number, spec: Spec): Resource {
-	return { kind, id: idOf(kind, name), name, revision, spec };
+function made(
+	kind: Resource['kind'],
+	name: string | null,
+	revision: number,
+	spec: Spec,
+	id = idOf(kind, name ?? ''),
+): Resource {
+	return { kind, id, name, revision, spec };
 }
+
+/** The kinds made by a `POST` with no name, as the catalog marks them. */
+const UNNAMED = new Set(CATALOG.items.filter((one) => !one.named).map((one) => one.name));
 
 /** The made-up registry and ledger, made once a process. */
 function state(): Held {
 	if (held) return held;
 	let revision = 0;
-	const domains = ['oci-1', 'oci-2', 'home'].map((name) =>
-		made('domain', name, ++revision, name === 'home' ? { note: 'The house.' } : {}),
+	const account = made(
+		'account',
+		null,
+		++revision,
+		{
+			provider: 'oracle',
+			identities: [
+				{ kind: 'tenancy', value: `ocid1.tenancy.oc1..${idOf('tenancy')}` },
+				{ kind: 'email', value: 'oracle@example.com' },
+			],
+		},
+		idOf('account', 'oracle'),
 	);
-	const account = made('account', 'oci-2', ++revision, {
-		provider: 'oracle',
-		identities: [
-			{ kind: 'tenancy', value: `ocid1.tenancy.oc1..${idOf('tenancy')}` },
-			{ kind: 'email', value: 'oracle@example.com' },
-		],
-	});
+	const cloud = made(
+		'account',
+		null,
+		++revision,
+		{ provider: 'cloudflare', identities: [{ kind: 'email', value: 'edge@example.com' }] },
+		idOf('account', 'cloudflare'),
+	);
 	const nodes = (Object.keys(NODES) as Node[]).map((node, index) => {
 		const home = node === 'sha' || node === 'buf';
 		const spec: Spec = {
 			address: `100.64.0.${index + 1}`,
 			tier: home ? 'home' : 'datacenter',
-			domain: (home ? domains[2] : domains[index % 2])?.id,
 			system: 'debian',
 			hosting: home ? 'selfhost' : 'datacenter',
 			roles: CORES.has(node) ? ['compute', 'core'] : ['compute'],
@@ -140,7 +156,7 @@ function state(): Held {
 		};
 		return made('app', name, ++revision, { placements, release });
 	});
-	held = { revision, resources: [...domains, account, ...nodes, ...apps], tasks: [] };
+	held = { revision, resources: [account, cloud, ...nodes, ...apps], tasks: [] };
 	for (const [index, service] of ['shot', 'deployer', 'shot', 'cron'].entries()) {
 		const failedOne = index === 2;
 		record(
@@ -221,8 +237,18 @@ export async function controlMock(path: string, init: RequestInit = {}): Promise
 					`No ${kind} is ${ref}.`,
 				);
 	}
-	if (ref === undefined) return refused(404, 'no_such_route', 'No such route.');
-	return written(all, kind, ref, found, method, JSON.parse(String(init.body ?? '{}')) as Spec);
+	const body = JSON.parse(String(init.body ?? '{}')) as Spec;
+	if (ref !== undefined) return written(all, kind, ref, found, method, body);
+	if (method !== 'POST') return refused(404, 'no_such_route', 'No such route.');
+	if (!UNNAMED.has(kind)) return refused(405, 'invalid_method', `A ${kind} is made by its PUT.`);
+	return written(
+		all,
+		kind,
+		idOf(kind, String(Date.now()), String(Math.random())),
+		undefined,
+		method,
+		body,
+	);
 }
 
 /** A write to the made-up registry, refused as the registry refuses it. */
@@ -236,14 +262,16 @@ function written(
 ) {
 	if ('status' in body || 'drift' in body)
 		return refused(400, 'forbidden_field', 'Not written by a person.');
-	if (method === 'PATCH' && !found)
+	// A kind with no name is made by its POST alone, never at a route of its own.
+	if ((method === 'PATCH' || UNNAMED.has(kind)) && method !== 'POST' && !found)
 		return refused(404, 'no_such_resource', `No ${kind} is ${ref}.`);
 	if (body.revision !== (found?.revision ?? 0))
 		return refused(409, 'invalid_revision', 'It changed since it was read.');
-	const spec = (method === 'PUT' ? body.spec : applied(found?.spec ?? {}, body.spec)) as Spec;
+	const spec = (method === 'PATCH' ? applied(found?.spec ?? {}, body.spec) : body.spec) as Spec;
 	if (found && same(found.spec, spec)) return success({});
 	const revision = ++all.revision;
-	const resource = made(kind, found?.name ?? ref, revision, spec);
+	const name = found ? found.name : UNNAMED.has(kind) ? null : ref;
+	const resource = made(kind, name, revision, spec, found?.id ?? (name === null ? ref : undefined));
 	all.resources = [...all.resources.filter((one) => one !== found), resource];
 	const id = idOf('task', String(revision), String(Date.now()));
 	record(
@@ -257,7 +285,8 @@ function written(
 		},
 		['written'],
 	);
-	return success({ revision, task: id }, 202);
+	const drawn = method === 'POST' ? { id: resource.id } : {};
+	return success({ revision, task: id, ...drawn }, 202);
 }
 
 function ledger(parts: string[], query: URLSearchParams): Response {

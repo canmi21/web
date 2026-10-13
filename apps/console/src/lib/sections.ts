@@ -10,7 +10,6 @@ import ListCheckIcon from '@tabler/icons-svelte-runes/icons/list-check';
 import PackagesIcon from '@tabler/icons-svelte-runes/icons/packages';
 import RocketIcon from '@tabler/icons-svelte-runes/icons/rocket';
 import ServerIcon from '@tabler/icons-svelte-runes/icons/server-2';
-import WorldIcon from '@tabler/icons-svelte-runes/icons/world';
 import { type View, isScope, within } from './scope/scope.ts';
 
 export const SECTIONS = [
@@ -21,7 +20,6 @@ export const SECTIONS = [
 	{ path: '/tasks', label: 'Tasks', icon: ListCheckIcon },
 	{ path: '/events', label: 'Events', icon: ActivityIcon },
 	{ path: '/accounts', label: 'Accounts', icon: IdIcon, only: 'infra' },
-	{ path: '/domains', label: 'Domains', icon: WorldIcon, only: 'infra' },
 ] as const;
 
 export type Section = (typeof SECTIONS)[number];

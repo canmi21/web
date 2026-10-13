@@ -1,6 +1,6 @@
 /**
  * Where the reader is in the console, as a level of one tree: a view at the root, and a node, an
- * app, an account or a domain inside it. A level carries the pages the sidebar lists, the way back
+ * app or an account inside it. A level carries the pages the sidebar lists, the way back
  * up, and the trail the top bar writes, so the shell is drawn from one answer. A record with a page
  * and nothing under it -- a run, a task, a resource of a kind under `/kinds` -- is no level, and
  * keeps the level it was opened from. See spec/console/navigation.md.
@@ -16,7 +16,13 @@ import LayoutDashboardIcon from '@tabler/icons-svelte-runes/icons/layout-dashboa
 import PackagesIcon from '@tabler/icons-svelte-runes/icons/packages';
 import ServerIcon from '@tabler/icons-svelte-runes/icons/server-2';
 import { TABS as APP_TABS, appQuery, appViewOf } from './apps/view.ts';
-import { TABS as RECORD_TABS, pluralLabel, recordQuery, recordViewOf } from './kinds/view.ts';
+import {
+	TABS as RECORD_TABS,
+	pluralLabel,
+	recordQuery,
+	recordViewOf,
+	shortId,
+} from './kinds/view.ts';
 import { nameOf } from './map/places.ts';
 import { TABS as NODE_TABS, hrefOf as nodeQuery, viewOf as nodeViewOf } from './nodes/view.ts';
 import { type View, appHref, displayOf, nodeHref, within } from './scope/scope.ts';
@@ -87,8 +93,8 @@ export interface Where {
 	readonly node?: string;
 	readonly app?: string;
 	readonly run?: string;
+	/** An account's id, since it has no name -- platform's RFC 32hd9. */
 	readonly account?: string;
-	readonly domain?: string;
 	/** A task of the ledger, which its service and its id name together. */
 	readonly task?: { readonly service: string; readonly id: string };
 	/** A kind with no page of its own, by its plural, and one of its resources. */
@@ -104,15 +110,15 @@ function opened(items: readonly Item[], current: string, href: string, name: Cru
 	return [{ ...name, href }, { label: item.label }];
 }
 
-/** An account's or a domain's level, under the root's section that lists them. */
-function recordLevel(
-	url: Where['url'],
-	view: View,
-	path: '/accounts' | '/domains',
-	name: string,
-): Level {
+/**
+ * An account's level, under the root's section that lists them: addressed by its id, and called by
+ * its id's first eight digits, as it has no name. Platform's RFC 32hd9.
+ */
+function accountLevel(url: Where['url'], view: View, id: string): Level {
+	const path = '/accounts';
+	const name = shortId(id);
 	const query = recordViewOf(url.searchParams);
-	const base = within(view, `${path}/${encodeURIComponent(name)}`);
+	const base = within(view, `${path}/${encodeURIComponent(id)}`);
 	const section = sectionOf(path);
 	const label = section?.label ?? path;
 	const items = RECORD_TABS.map((tab) => ({
@@ -129,14 +135,14 @@ function recordLevel(
 		up: { label, href: within(view, path) },
 		trail: [
 			{ label, href: within(view, path) },
-			...opened(items, query.tab, base, { label: name }),
+			...opened(items, query.tab, base, { label: name, mono: true }),
 		],
 		section,
 	};
 }
 
 export function levelOf(where: Where): Level {
-	const { url, view, node, app, account, domain } = where;
+	const { url, view, node, app, account } = where;
 	if (node !== undefined) {
 		const query = nodeViewOf(url.searchParams);
 		const base = nodeHref(view, node);
@@ -187,8 +193,7 @@ export function levelOf(where: Where): Level {
 			section: sectionOf('/apps'),
 		};
 	}
-	if (account !== undefined) return recordLevel(url, view, '/accounts', account);
-	if (domain !== undefined) return recordLevel(url, view, '/domains', domain);
+	if (account !== undefined) return accountLevel(url, view, account);
 	const shown = sectionsIn(view);
 	const found = sectionOf(url.pathname);
 	// None for a section the view does not show, as Nodes in Services, whose page is a 404.
@@ -225,8 +230,9 @@ function rootTrail({ view, run, task, kind, resource }: Where, section?: Section
 
 /** The `<title>`: the one name the page is about. See spec/architecture/console.md. */
 export function titleOf(level: Level, where: Where): string {
-	const { node, app, run, account, domain, task, kind, resource } = where;
+	const { node, app, run, account, task, kind, resource } = where;
 	if (run !== undefined) return `#${run}`;
 	if (kind !== undefined) return resource ?? pluralLabel(kind);
-	return node ?? app ?? account ?? domain ?? task?.id ?? level.section?.label ?? 'Console';
+	if (account !== undefined) return shortId(account);
+	return node ?? app ?? task?.id ?? level.section?.label ?? 'Console';
 }

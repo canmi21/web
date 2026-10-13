@@ -14,7 +14,6 @@ describe('levelOf', () => {
 			'Tasks',
 			'Events',
 			'Accounts',
-			'Domains',
 		]);
 		expect(level.current).toBe('/nodes');
 		expect(level.up).toBeUndefined();
@@ -90,34 +89,41 @@ describe('levelOf', () => {
 		expect(level.trail.at(-1)).toEqual({ label: 'Drift' });
 	});
 
-	it('enters an account: its two pages, the way back to Accounts, and its name as the title', () => {
+	it('enters an account by its id, called by its first eight digits, as it has no name', () => {
+		const id = '1a2b3c4d5e6f7a8b';
 		const where = {
-			url: at('/infra/accounts/oci-2?tab=nodes'),
+			url: at(`/infra/accounts/${id}?tab=nodes`),
 			view: 'infra' as const,
-			account: 'oci-2',
+			account: id,
 		};
 		const level = levelOf(where);
 		expect(level.depth).toBe(1);
 		expect(level.items.map((one) => one.href)).toEqual([
-			'/infra/accounts/oci-2?',
-			'/infra/accounts/oci-2?tab=nodes',
+			`/infra/accounts/${id}?`,
+			`/infra/accounts/${id}?tab=nodes`,
 		]);
 		expect(level.current).toBe('nodes');
 		expect(level.up).toEqual({ label: 'Accounts', href: '/infra/accounts' });
 		expect(level.trail).toEqual([
 			{ label: 'Accounts', href: '/infra/accounts' },
-			{ label: 'oci-2', href: '/infra/accounts/oci-2' },
+			{ label: '1a2b3c4d', mono: true, href: `/infra/accounts/${id}` },
 			{ label: 'Nodes' },
 		]);
 		expect(level.section?.path).toBe('/accounts');
-		expect(titleOf(level, where)).toBe('oci-2');
+		expect(titleOf(level, where)).toBe('1a2b3c4d');
 	});
 
-	it('enters a domain, its first page left out of the trail', () => {
-		const level = levelOf({ url: at('/domains/home'), view: 'all', domain: 'home' });
+	it('leaves its first page out of the trail', () => {
+		const level = levelOf({
+			url: at('/accounts/1a2b3c4d5e6f7a8b'),
+			view: 'all',
+			account: '1a2b3c4d5e6f7a8b',
+		});
 		expect(level.current).toBe('overview');
-		expect(level.up).toEqual({ label: 'Domains', href: '/domains' });
-		expect(level.trail).toEqual([{ label: 'Domains', href: '/domains' }, { label: 'home' }]);
+		expect(level.trail).toEqual([
+			{ label: 'Accounts', href: '/accounts' },
+			{ label: '1a2b3c4d', mono: true },
+		]);
 	});
 
 	it('keeps a task in Tasks, named by its id beside its service', () => {

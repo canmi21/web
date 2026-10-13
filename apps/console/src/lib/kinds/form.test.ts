@@ -38,7 +38,7 @@ const ACCOUNT: Field[] = [
 const NODE: Field[] = [
 	{ name: 'address', type: 'string', editable: true, required: true },
 	{ name: 'tier', type: 'choice', choices: ['datacenter', 'home'], editable: true, required: true },
-	{ name: 'domain', type: 'reference', kind: 'domain', editable: true, required: true },
+	{ name: 'account', type: 'reference', kind: 'account', editable: true, required: true },
 	{ name: 'core', type: 'boolean', editable: true, required: false },
 	{ name: 'expiry', type: 'integer', editable: true, required: false },
 	{ name: 'roles', type: 'list', choices: ['compute', 'core'], editable: true, required: false },
@@ -67,7 +67,7 @@ describe('inputOf', () => {
 	});
 
 	it('names every kind a form refers to, an item’s fields included', () => {
-		expect(referred(NODE)).toEqual(['domain']);
+		expect(referred(NODE)).toEqual(['account']);
 	});
 });
 
@@ -91,7 +91,7 @@ describe('read', () => {
 			roles: ['compute'],
 			release: { run: 4 },
 		});
-		expect(reading.missing).toEqual(['spec.domain']);
+		expect(reading.missing).toEqual(['spec.account']);
 		expect(reading.invalid).toEqual([]);
 	});
 
@@ -150,13 +150,15 @@ describe('edited', () => {
 	});
 
 	it('changes nothing where nothing was changed, and takes out a field left blank', () => {
-		const node = { address: 'a', tier: 'home', domain: 'd', core: true };
+		const node = { address: 'a', tier: 'home', account: 'd', core: true };
 		expect(
-			patchOf(node, edited(node, { address: 'a', tier: 'home', domain: 'd', core: true }, NODE)),
+			patchOf(node, edited(node, { address: 'a', tier: 'home', account: 'd', core: true }, NODE)),
 		).toEqual({});
-		expect(patchOf(node, edited(node, { address: 'a', tier: 'home', domain: 'd' }, NODE))).toEqual({
-			core: null,
-		});
+		expect(patchOf(node, edited(node, { address: 'a', tier: 'home', account: 'd' }, NODE))).toEqual(
+			{
+				core: null,
+			},
+		);
 	});
 });
 

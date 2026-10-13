@@ -49,7 +49,7 @@ async function mocked(): Promise<Catalog> {
 describe('the catalog, as a page reads it', () => {
 	it("is the mock's, read through the generated schema", async () => {
 		const catalog = await mocked();
-		expect(catalog.items.map((one) => one.name)).toEqual(['node', 'app', 'account', 'domain']);
+		expect(catalog.items.map((one) => one.name)).toEqual(['node', 'app', 'account']);
 	});
 
 	it('finds a kind by its name or its route', async () => {

@@ -5,7 +5,6 @@ import type { Env } from './edge.ts';
 import {
 	API,
 	CORES,
-	LEDGER,
 	catalog,
 	create,
 	patch,
@@ -129,13 +128,35 @@ describe('a write, as the console sends it', () => {
 		});
 	});
 
-	it('creates by name at revision 0', async () => {
+	it('creates a named kind by its name at revision 0', async () => {
 		const { sent, edge } = bound(
 			registry(() => envelope({ revision: 1, task: '0123456789abcdef' }, 202)),
 		);
-		await create(edge, 'author@example.com', { kind: 'domain', name: 'oci-3', spec: {} });
-		expect(sent.at(-1)).toMatchObject({ method: 'PUT', url: `${API}/registry/v1/domains/oci-3` });
+		await create(edge, 'author@example.com', { kind: 'app', name: 'shot', spec: {} });
+		expect(sent.at(-1)).toMatchObject({ method: 'PUT', url: `${API}/registry/v1/apps/shot` });
 		expect(JSON.parse(sent.at(-1)?.body ?? '')).toMatchObject({ revision: 0 });
+	});
+
+	it('creates a kind with no name by a POST to its collection, answering the id drawn', async () => {
+		const answer = { revision: 2, task: '0123456789abcdef', id: 'fedcba9876543210' };
+		const { sent, edge } = bound(registry(() => envelope(answer, 202)));
+		const made = await create(edge, 'author@example.com', { kind: 'account', spec: {} });
+		expect(made).toEqual({ ok: true, ...answer });
+		expect(sent.at(-1)).toMatchObject({ method: 'POST', url: `${API}/registry/v1/accounts` });
+		expect(JSON.parse(sent.at(-1)?.body ?? '')).toEqual({
+			by: 'author@example.com',
+			revision: 0,
+			spec: {},
+		});
+	});
+
+	it('refuses a name for a kind with none, and none for a named kind, sending nothing', async () => {
+		const { sent, edge } = bound(registry(() => envelope({})));
+		const named = await create(edge, 'a', { kind: 'account', name: 'oci-2', spec: {} });
+		expect(!named.ok && named.failure.code).toBe('invalid_name');
+		const unnamed = await create(edge, 'a', { kind: 'app', spec: {} });
+		expect(!unnamed.ok && unnamed.failure.code).toBe('invalid_name');
+		expect(sent.filter((one) => one.method !== 'GET').length).toBe(0);
 	});
 
 	it('says unchanged where nothing changed, and passes a refusal on with its code', async () => {
@@ -185,10 +206,10 @@ describe('the ledger, as the console reaches it', () => {
 			cursor: `${100 - index}:t${index}`,
 		}));
 
-	it("is its one node's scope, narrowed by the query, with the next page's cursor when full", async () => {
+	it("is the nearest core's scope, narrowed by the query, with the next page's cursor when full", async () => {
 		const { sent, edge } = bound(() => envelope(listed(2)));
 		const page = await tasks(edge, { service: 'registry', limit: '2', kind: '' });
-		expect(sent.map((one) => one.node)).toEqual([LEDGER]);
+		expect(sent.map((one) => one.node)).toEqual(['tyo']);
 		expect(sent[0]?.url).toBe(`${API}/ledger/tasks?service=registry&limit=2`);
 		expect(page.ok && page.data.next).toBe('99:t1');
 		const last = await tasks(bound(() => envelope(listed(1))).edge, { limit: '2' });
@@ -232,17 +253,28 @@ describe('mock mode', () => {
 	});
 
 	it("keeps an identity's masked value as written and answers it, as the registry does", async () => {
-		const read = await resource(edge, 'account', 'oci-2');
-		if (!read.ok) throw new Error(read.failure.message);
+		const listed = await resources(edge, 'account');
+		const account = listed.ok ? listed.data.items[0] : undefined;
+		if (!account) throw new Error('no account made up');
+		expect(account.name).toBeNull();
 		const identities = [{ kind: 'email', value: 'author@example.com' }];
 		await patch(edge, 'developer', {
 			kind: 'account',
-			ref: 'oci-2',
-			revision: read.data.revision,
+			ref: account.id,
+			revision: account.revision,
 			patch: { identities },
 		});
-		const after = await resource(edge, 'account', 'oci-2');
+		const after = await resource(edge, 'account', account.id);
 		expect(after.ok && after.data.spec.identities).toEqual(identities);
+	});
+
+	it('makes an account with no name by its POST, read back by the id it answered', async () => {
+		const spec = { provider: 'backblaze', identities: [{ kind: 'email', value: 'b@example.com' }] };
+		const made = await create(edge, 'developer', { kind: 'account', spec });
+		if (!made.ok || !('id' in made) || made.id === undefined) throw new Error('not made');
+		expect(made.id).toMatch(/^[0-9a-f]{16}$/);
+		const read = await resource(edge, 'account', made.id);
+		expect(read.ok && read.data).toMatchObject({ id: made.id, name: null, spec });
 	});
 });
 
@@ -259,6 +291,6 @@ function placements(service: string): string[] | undefined {
 describe('where the console looks for the registry and the ledger', () => {
 	it.skipIf(placements('registry') === undefined)('is where the platform places them', () => {
 		expect([...CORES].toSorted()).toEqual(placements('registry')?.toSorted());
-		expect([LEDGER]).toEqual(placements('ledger'));
+		expect([...CORES].toSorted()).toEqual(placements('ledger')?.toSorted());
 	});
 });

@@ -6,7 +6,12 @@ describe("a command's body", () => {
 	it('is read where it is whole', () => {
 		const body = { kind: 'node', ref: 'tyo', revision: 4, patch: { retired: null } };
 		expect(COMMANDS.patch.body(body)).toEqual(body);
-		expect(COMMANDS.create.body({ kind: 'domain', name: 'oci-3', spec: {} })).toBeDefined();
+		expect(COMMANDS.create.body({ kind: 'app', name: 'shot', spec: {} })).toBeDefined();
+		// A kind with no name, an account's, is made with none.
+		expect(COMMANDS.create.body({ kind: 'account', spec: {} })).toEqual({
+			kind: 'account',
+			spec: {},
+		});
 	});
 
 	it.each([

@@ -39,9 +39,12 @@ async function sent<N extends CommandName>(name: N, body: BodyOf<N>): Promise<Wr
 	}
 }
 
-/** A resource of `kind` made by its name, at revision 0; its task, or why not. */
-export function create(kind: Kind, name: string, spec: Spec): Promise<Written> {
-	return sent('create', { kind, name, spec });
+/**
+ * A resource of `kind` made at revision 0, by its name where the kind has one and with none where
+ * it does not; its task and, for one with no name, the id the registry drew -- or why not.
+ */
+export function create(kind: Kind, name: string | undefined, spec: Spec): Promise<Written> {
+	return sent('create', name === undefined ? { kind, spec } : { kind, name, spec });
 }
 
 /**

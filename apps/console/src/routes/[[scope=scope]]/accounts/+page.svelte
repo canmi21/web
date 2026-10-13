@@ -11,5 +11,5 @@
 
 <Unpolished rfc="ott7y">
 	<PageHeader title="Accounts" />
-	<KindPage read={data.read} href={(one) => to(`/accounts/${encodeURIComponent(one.name)}`)} />
+	<KindPage read={data.read} href={(id) => to(`/accounts/${encodeURIComponent(id)}`)} />
 </Unpolished>

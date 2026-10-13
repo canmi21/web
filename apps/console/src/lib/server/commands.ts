@@ -27,7 +27,11 @@ const SPEC = v.custom<Spec>(
 );
 const NAMED = v.pipe(v.string(), v.minLength(1));
 
-const CREATE: v.GenericSchema<Create> = v.strictObject({ kind: Kind, name: NAMED, spec: SPEC });
+const CREATE: v.GenericSchema<Create> = v.strictObject({
+	kind: Kind,
+	name: v.exactOptional(NAMED),
+	spec: SPEC,
+});
 
 const PATCH: v.GenericSchema<Patch> = v.strictObject({
 	kind: Kind,
@@ -45,7 +49,7 @@ const read =
 	};
 
 export const COMMANDS = {
-	/** A resource made by its name. */
+	/** A resource made by its name, or with none where its kind has none. */
 	create: command({
 		revision: 1,
 		body: read(CREATE),

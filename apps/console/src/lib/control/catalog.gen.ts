@@ -22,6 +22,11 @@ export type Description = {
 	fields: Field[];
 	name: Kind;
 	/**
+	 * False for a kind whose resources have no name, an account's: each is its id, made by a `POST`
+	 * to its collection, and shown by its fields and its id's first eight digits -- RFC 32hd9.
+	 */
+	named: boolean;
+	/**
 	 * Its collection's segment of a route, `/v1/<plural>`, so no reader derives one.
 	 */
 	plural: string;
@@ -31,6 +36,7 @@ export const Description: v.GenericSchema<Description> = v.object({
 	columns: v.array(v.string()),
 	fields: v.array(v.lazy(() => Field)),
 	name: v.lazy(() => Kind),
+	named: v.boolean(),
 	plural: v.string(),
 });
 
@@ -84,8 +90,8 @@ export const Field: v.GenericSchema<Field> = v.object({
 /**
  * Every kind of resource the registry holds, answered by its name.
  */
-export type Kind = 'node' | 'app' | 'account' | 'domain';
-export const Kind: v.GenericSchema<Kind> = v.picklist(['node', 'app', 'account', 'domain']);
+export type Kind = 'node' | 'app' | 'account';
+export const Kind: v.GenericSchema<Kind> = v.picklist(['node', 'app', 'account']);
 
 /**
  * `object`: A value of named keys of its own, as an app's `release`; app.rs holds its shape.

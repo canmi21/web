@@ -28,11 +28,11 @@ import { controlMock } from './mock-control.ts';
 import { type Node, order } from './nodes.ts';
 import { type Edge, type Failure, type Read, failed, opened } from './read.ts';
 
-/** The cores the registry runs on, any of them answering alike: its `service.toml`'s placements. */
+/**
+ * The cores the registry and the ledger run on, any of them answering alike: each one's
+ * `service.toml`'s placements.
+ */
 export const CORES = ['tyo', 'sin', 'rdu'] as const satisfies readonly Node[];
-
-/** The one node the ledger runs on: its `service.toml`'s placements. */
-export const LEDGER: Node = 'rdu';
 
 /** The API host on the tunnel's side of Caddy, which VPC sends as the `Host`. */
 export const API = `http://${new URL(URLS.internal.api.private).hostname.split('.')[0]}.${
@@ -46,7 +46,7 @@ const WRITE_TIMEOUT = 10_000;
 const PAGE = 50;
 
 interface Asking {
-	method: 'GET' | 'PUT' | 'PATCH';
+	method: 'GET' | 'POST' | 'PUT' | 'PATCH';
 	body?: string;
 	token?: string;
 	timeout: number;
@@ -122,13 +122,19 @@ async function catalogNow(edge: Edge): Promise<Read<Catalog>> {
 	return failed(502, 'upstream_unavailable', `The catalog does not read at ${where}.`);
 }
 
-/** The route of `kind`, as the catalog names it, or why there is none. */
-async function pluralOf(edge: Edge, catalogRead: Promise<Read<Catalog>>, kind: string) {
+/** `kind` as the catalog describes it, or why there is none. */
+async function describedAs(catalogRead: Promise<Read<Catalog>>, kind: string) {
 	const read = await catalogRead;
 	if (!read.ok) return read;
 	const described = describe(read.data, kind);
 	if (described === undefined) return failed(404, 'no_such_resource', `No kind is named ${kind}.`);
-	return { ...read, data: described.plural };
+	return { ...read, data: described };
+}
+
+/** The route of `kind`, as the catalog names it, or why there is none. */
+async function pluralOf(catalogRead: Promise<Read<Catalog>>, kind: string) {
+	const described = await describedAs(catalogRead, kind);
+	return described.ok ? { ...described, data: described.data.plural } : described;
 }
 
 const segment = (ref: string) => encodeURIComponent(ref);
@@ -139,7 +145,7 @@ export async function resources(
 	kind: string,
 	catalogRead = catalog(edge),
 ): Promise<Read<List>> {
-	const plural = await pluralOf(edge, catalogRead, kind);
+	const plural = await pluralOf(catalogRead, kind);
 	return plural.ok ? registry<List>(edge, `/${plural.data}`) : plural;
 }
 
@@ -150,56 +156,73 @@ export async function resource(
 	ref: string,
 	catalogRead = catalog(edge),
 ): Promise<Read<Resource>> {
-	const plural = await pluralOf(edge, catalogRead, kind);
+	const plural = await pluralOf(catalogRead, kind);
 	return plural.ok ? registry<Resource>(edge, `/${plural.data}/${segment(ref)}`) : plural;
 }
 
 /** The registry's answer to a write as the console reports it. */
-function writtenOf(read: Read<{ revision?: number; task?: string }>): Written {
+function writtenOf(read: Read<{ revision?: number; task?: string; id?: string }>): Written {
 	if (!read.ok) return read;
-	const { revision, task: id } = read.data;
-	if (id === undefined) return { ok: true, unchanged: true };
-	return { ok: true, task: id, revision: revision ?? 0 };
+	const { revision, task, id } = read.data;
+	if (task === undefined) return { ok: true, unchanged: true };
+	return { ok: true, task, revision: revision ?? 0, ...(id === undefined ? {} : { id }) };
 }
 
+const refused = (status: number, code: string, message: string): Written => ({
+	ok: false,
+	failure: { status, code, message },
+});
+
+/** A refusal where this console holds no token to write with, so nothing is asked first. */
+const unwritable = (edge: Edge): Written | undefined =>
+	edge.mock || edge.env.REGISTRY_TOKEN
+		? undefined
+		: refused(503, 'service_unavailable', 'This console does not write.');
+
+/** `body` sent by `method` to `path` under the registry's `/v1`, with the Worker's token. */
 async function write(
 	edge: Edge,
-	method: 'PUT' | 'PATCH',
-	kind: string,
-	ref: string,
+	method: 'POST' | 'PUT' | 'PATCH',
+	path: string,
 	body: { by: string; revision: number; spec: Spec },
 ): Promise<Written> {
 	const token = edge.env.REGISTRY_TOKEN;
-	if (!edge.mock && !token) {
-		return {
-			ok: false,
-			failure: {
-				status: 503,
-				code: 'service_unavailable',
-				message: 'This console does not write.',
-			},
-		};
-	}
-	const plural = await pluralOf(edge, catalog(edge), kind);
-	if (!plural.ok) return plural;
-	const path = `/${plural.data}/${segment(ref)}`;
 	const asking = { method, body: JSON.stringify(body), token, timeout: WRITE_TIMEOUT };
 	return writtenOf(await registry(edge, path, asking));
 }
 
-/** A resource made by its name, at revision 0, as `by`. */
-export function create(edge: Edge, by: string, { kind, name, spec }: Create): Promise<Written> {
-	return write(edge, 'PUT', kind, name, { by, revision: 0, spec });
+/**
+ * A resource made at revision 0, as `by`: a named kind's by `PUT` at its name, a kind with no name
+ * by `POST` to its collection, answered with the id the registry drew -- platform's RFC 32hd9.
+ */
+export async function create(edge: Edge, by: string, made: Create): Promise<Written> {
+	const { kind, name, spec } = made;
+	const closed = unwritable(edge);
+	if (closed) return closed;
+	const described = await describedAs(catalog(edge), kind);
+	if (!described.ok) return described;
+	const { named, plural } = described.data;
+	const body = { by, revision: 0, spec };
+	if (!named) {
+		if (name !== undefined) return refused(400, 'invalid_name', `The ${kind} kind has no name.`);
+		return write(edge, 'POST', `/${plural}`, body);
+	}
+	if (!name) return refused(400, 'invalid_name', `The ${kind} kind is made by its name.`);
+	return write(edge, 'PUT', `/${plural}/${segment(name)}`, body);
 }
 
 /** A resource changed by a merge patch, held to the revision it was read at, as `by`. */
-export function patch(edge: Edge, by: string, change: Patch): Promise<Written> {
+export async function patch(edge: Edge, by: string, change: Patch): Promise<Written> {
 	const { kind, ref, revision, patch: spec } = change;
-	return write(edge, 'PATCH', kind, ref, { by, revision, spec });
+	const closed = unwritable(edge);
+	if (closed) return closed;
+	const plural = await pluralOf(catalog(edge), kind);
+	if (!plural.ok) return plural;
+	return write(edge, 'PATCH', `/${plural.data}/${segment(ref)}`, { by, revision, spec });
 }
 
 function ledger<T>(edge: Edge, path: string): Promise<Read<T>> {
-	return asked<T>(edge, [LEDGER], `/ledger${path}`, { method: 'GET', timeout: TIMEOUT });
+	return asked<T>(edge, cores(edge), `/ledger${path}`, { method: 'GET', timeout: TIMEOUT });
 }
 
 const QUERIED = ['service', 'state', 'kind', 'caller', 'parent', 'before', 'limit'] as const;
