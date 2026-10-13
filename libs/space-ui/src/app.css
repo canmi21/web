@@ -8,6 +8,12 @@
 
 @custom-variant dark (&:where([data-theme='dark'], [data-theme='dark'] *));
 
+/* The kit's ring reads this name, which mono's palette still sets to Geist's blue on each theme's
+   mark; the ring is the contract's focus blue, named on the same marks -- RFC qb7r9. */
+[data-theme] {
+	--color-accent: var(--interaction-focus);
+}
+
 /* Over mono's own `html` rule, so the document's ground is the contract's. */
 html {
 	background-color: var(--background-base);

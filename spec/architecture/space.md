@@ -174,10 +174,12 @@ is a relation, one level for the grounds in both themes, not the size of a step,
 draws -- `src/lib/specimen/relief.svelte`.
 
 **A pointer on a specimen shows its tip, and the keyboard alone draws a ring**: on `:focus-visible`,
-flush, `0.125rem` in `--interaction-focus`, on the shape it has -- spec/styling/focus.md. **Bare
-words are ringed on their ink, one `0.25rem` room off it on every side, the corner growing with the
-words, `2/7em`**: their box trimmed to their capitals and their baseline, or their descent where a
-letter falls below it, the room taken back from the margin so nothing moves -- RFC mpy16.
+flush, `0.125rem` in `--interaction-focus`, on the shape it has -- spec/styling/focus.md. Space
+names the kit's `--color-accent` as that blue on every theme's mark. **Bare words are ringed on
+their ink, one `0.25rem` room off it on every side, the corner growing with the words, `2/7em`**:
+their box trimmed to their capitals and their baseline, the ring alone reaching down past a letter
+that falls below it, the room taken back from the margin so nothing moves -- RFC mpy16 and RFC
+z3y37, `@canmi/space-ui/ring`.
 
 **Every mark of a color copies its token on a press**, `var(--token)` as code reads it, and ticks
 the mark it was pressed on, each tick on its own clock: a swatch, a ramp's cell, a stop on a way,
@@ -190,7 +192,8 @@ tip and a press that copies. Each group follows on a card of its own, with when 
 value under its specimen. A swatch is a well on the surface, ringed, with the color set into it and
 its corner the well's less the inset -- `src/lib/specimen/swatch.svelte`.
 
-**A card's head is its title, one sentence of the rule, and the RFC behind it.** The sentence is the
+**A card's head is its title, one sentence of the rule, and the RFC behind it**, save on home, whose
+cards stand each for a category, a glimpse of it and its pages, and cite none. The sentence is the
 shortest that says the rule, one where one will do, with commas and periods and no other stops: no
 colon, semicolon or dash, and no derivation, which is the RFC's. **It states the rule as it stands,
 in the present and objectively**: neither a command, no must or only, nor a reason, and with no

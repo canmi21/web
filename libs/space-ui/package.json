@@ -11,6 +11,7 @@
 		"./prose.svelte": "./src/prose/prose.svelte",
 		"./prose/directives": "./src/prose/directives.ts",
 		"./prose/text": "./src/prose/text.ts",
+		"./ring": "./src/ring.ts",
 		"./vite": "./src/vite.ts"
 	},
 	"dependencies": {

@@ -13,6 +13,7 @@
 	import MenuContent from './menu/menu-content.svelte';
 	import MenuRow from './menu/menu-row.svelte';
 	import { PARTS, reached, type Part } from './parts.ts';
+	import { descends, ring } from './ring.ts';
 
 	let { part, dev }: { part: Part; dev: boolean } = $props();
 
@@ -54,7 +55,11 @@
 </script>
 
 <div bind:this={corner} class={stylex.attrs(styles.corner).class}>
-	<a href={here.href} class={stylex.attrs(styles.name).class}>{here.label}</a>
+	<a href={here.href} class={stylex.attrs(styles.name, ring.host).class}
+		><span class={stylex.attrs(ring.ink, descends(here.label) && ring.descends).class}
+			>{here.label}</span
+		></a
+	>
 	<DropdownMenu.Root>
 		<DropdownMenu.Trigger
 			aria-label="Parts of canmi.app"

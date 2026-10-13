@@ -3,6 +3,7 @@
 	import * as stylex from '@stylexjs/stylex';
 	import { page } from '$app/state';
 	import { duration, fontSize, radius } from '@canmi/design/scale.stylex';
+	import { descends, ring } from '@canmi/space-ui/ring';
 	import { LAYERS, entryOf, layerOf } from './pages.ts';
 
 	const styles = stylex.create({
@@ -34,11 +35,17 @@
 			<a
 				{href}
 				aria-current={held === section.label ? 'true' : undefined}
-				class={stylex.attrs(styles.link, held === section.label && styles.current).class}
-				>{section.label}</a
+				class={stylex.attrs(styles.link, held === section.label && styles.current, ring.host).class}
+				><span class={stylex.attrs(ring.ink, descends(section.label) && ring.descends).class}
+					>{section.label}</span
+				></a
 			>
 		{:else}
-			<span class={stylex.attrs(styles.link, styles.absent).class}>{section.label}</span>
+			<span class={stylex.attrs(styles.link, styles.absent).class}
+				><span class={stylex.attrs(ring.ink, descends(section.label) && ring.descends).class}
+					>{section.label}</span
+				></span
+			>
 		{/if}
 	{/each}
 </nav>

@@ -7,6 +7,7 @@
 	 * is where the two read alike -- RFC trwdn.
 	 */
 	import * as stylex from '@stylexjs/stylex';
+	import { ring } from '@canmi/space-ui/ring';
 	import { borderWidth, radius } from '@canmi/design/scale.stylex';
 	import Point from '@canmi/design/components/point.svelte';
 	import ThemeScope from '@canmi/design/components/theme-scope.svelte';
@@ -236,6 +237,12 @@
 				borderColor: 'var(--border-strong)',
 				borderRadius: radius.full,
 				backgroundColor: 'var(--background-surface)',
+				// The keyboard's ring, on the knob it moves rather than on the range's box -- web's
+				// spec/styling/focus.md, "Where the control is not a rectangle".
+				outlineWidth: 'var(--ring, 0)',
+				outlineStyle: 'solid',
+				outlineColor: 'var(--interaction-focus)',
+				outlineOffset: 0,
 			},
 			'::-moz-range-thumb': {
 				width: '0.875rem',
@@ -245,6 +252,12 @@
 				borderColor: 'var(--border-strong)',
 				borderRadius: radius.full,
 				backgroundColor: 'var(--background-surface)',
+				// The keyboard's ring, on the knob it moves rather than on the range's box -- web's
+				// spec/styling/focus.md, "Where the control is not a rectangle".
+				outlineWidth: 'var(--ring, 0)',
+				outlineStyle: 'solid',
+				outlineColor: 'var(--interaction-focus)',
+				outlineOffset: 0,
 			},
 		},
 		/** The track, and the knob's reading over it. */
@@ -313,7 +326,7 @@
 		<span class={stylex.attrs(styles.slot).class}>
 			<input
 				type="range"
-				class={stylex.attrs(styles.range).class}
+				class={stylex.attrs(styles.range, ring.host).class}
 				style:--fill="{share * 100}%"
 				min={LEAST}
 				max={MOST}

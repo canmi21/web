@@ -17,7 +17,7 @@
 	import CheckIcon from '@tabler/icons-svelte-runes/icons/check';
 	import Box from '#lib/specimen/box.svelte';
 	import Card from '#lib/specimen/card.svelte';
-	import { descends, ring } from '#lib/specimen/ring.ts';
+	import { descends, ring } from '@canmi/space-ui/ring';
 	import { Ticks } from '#lib/specimen/ticks.svelte.ts';
 	import { SIZES, constOf, type Kind, type Size } from '#lib/specimen/type.ts';
 

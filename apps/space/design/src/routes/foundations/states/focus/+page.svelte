@@ -11,7 +11,7 @@
 	import SearchIcon from '@tabler/icons-svelte-runes/icons/search';
 	import Box from '#lib/specimen/box.svelte';
 	import Card from '#lib/specimen/card.svelte';
-	import { descends, ring } from '#lib/specimen/ring.ts';
+	import { descends, ring } from '@canmi/space-ui/ring';
 
 	/** A thing the ring lands on: a control of some shape, or words at a size. */
 	type Mark =
