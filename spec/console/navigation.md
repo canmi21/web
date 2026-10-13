@@ -16,17 +16,16 @@ all read from it, so none of them works out where the reader is by itself.
 
 ```
 All, Infra, Platform, Services   Overview, Nodes (Infra and All), Deployments, Apps, Tasks, Events,
-                                 Accounts and Domains (Infra and All)
+                                 Accounts (Infra and All)
   a node                         Overview, Apps, Events, Disk, Spec, Drift
   an app                         Overview, Usage, Deploy history, Spec
   an account                     Overview, Nodes
-  a domain                       Overview, Nodes
 ```
 
 **What the registry holds has pages, and what is written there is a task**, added with the author
 on 2026-10-13 -- platform's RFC cpc2b. A node's and an app's `Spec` is the registry's resource, read
 and edited from the catalog; a node's `Drift` is what its host reports as wanted and not running,
-running and not wanted, or behind; `Accounts` and `Domains` list those kinds, each a level. Tasks
+running and not wanted, or behind; `Accounts` lists that kind, each a level, an account shown by its provider and its id's first eight digits, since it has no name -- platform's RFC 32hd9; a node's failure domain is its account and is not a page. Tasks
 lists the ledger's tasks, and a task opened from it is a record with one page, as a run is. A kind
 the registry comes to hold without a page of its own is reached under `/kinds/<plural>`, drawn from
 the catalog alone, so nothing it holds is out of reach while its page waits.
