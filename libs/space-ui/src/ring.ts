@@ -68,6 +68,14 @@ export const ring = stylex.create({
 			bottom: `calc(-1 * ${ROOM} - ${DESCENDER})`,
 		},
 	},
+	/**
+	 * Words a tip names, which it points at on their ink as it points at a control on its shape:
+	 * `line` around the tip, set in the words' size, keeps the line they set; `fit` on their host
+	 * draws no line of its own; `fitted` on their ink starts the host at their capitals.
+	 */
+	line: { display: 'block' },
+	fit: { display: 'inline-flex' },
+	fitted: { marginTop: 'calc(var(--font-sans-cap-height) - 1cap)' },
 	/** The ring at rest, for a page that shows it: on a control, and on words through their host. */
 	shownControl: { outlineWidth: WIDTH },
 	shownWords: { '--ring': WIDTH },
@@ -75,3 +83,43 @@ export const ring = stylex.create({
 
 /** Whether words have a letter that falls below their baseline. */
 export const descends = (words: string) => /[gjpqy]/.test(words);
+
+/**
+ * Where a pointer counts as on a mark with a tip, unseen: marks in a row share the gaps between
+ * them, so the pointer crossing the row never falls between two and the tips follow it without a
+ * break -- lib's spec/design/components.md, "Marks with tips in a row share the gaps between
+ * them". A row sets `--reach`, half its gap, and `--reach-up` and `--reach-down` on a mark shorter
+ * than the row, as far as the row stands past it.
+ */
+const SIDE = 'var(--reach, 0px)';
+const UP = 'var(--reach-up, 0px)';
+const DOWN = 'var(--reach-down, 0px)';
+
+export const reach = stylex.create({
+	/** A control's: its shape, and the row's share around it. */
+	mark: {
+		position: 'relative',
+		'::after': {
+			content: '""',
+			position: 'absolute',
+			top: `calc(-1 * ${UP})`,
+			bottom: `calc(-1 * ${DOWN})`,
+			left: `calc(-1 * ${SIDE})`,
+			right: `calc(-1 * ${SIDE})`,
+		},
+	},
+	/** Words': their ring's box round their ink, and the row's share around that. */
+	words: {
+		position: 'relative',
+		'::after': {
+			content: '""',
+			position: 'absolute',
+			top: `calc(-1 * (${UP} + ${ROOM}))`,
+			bottom: `calc(-1 * (${DOWN} + ${ROOM}))`,
+			left: `calc(-1 * max(${SIDE}, ${ROOM}))`,
+			right: `calc(-1 * max(${SIDE}, ${ROOM}))`,
+		},
+	},
+	/** Words with a letter below their baseline, reached down to it. */
+	descends: { '::after': { bottom: `calc(-1 * (${DOWN} + ${ROOM} + ${DESCENDER}))` } },
+});

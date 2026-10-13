@@ -11,7 +11,8 @@
 	import SearchIcon from '@tabler/icons-svelte-runes/icons/search';
 	import Box from '#lib/specimen/box.svelte';
 	import Card from '#lib/specimen/card.svelte';
-	import { descends, ring } from '@canmi/space-ui/ring';
+	import { descends, reach, ring } from '@canmi/space-ui/ring';
+	import { SIZES } from '#lib/specimen/type.ts';
 
 	/** A thing the ring lands on: a control of some shape, or words at a size. */
 	type Mark =
@@ -33,6 +34,27 @@
 		{ kind: 'words', name: 'Display', size: 'display', text: 'Focus' },
 	];
 
+	/**
+	 * How far a mark's pointer area reaches up and down to its row's band: a pill to the controls'
+	 * height beside it, words in a row of words to the largest's capitals, and words among controls
+	 * to the controls' height. See `reach` in @canmi/space-ui/ring.
+	 */
+	const PILL_BAND = 'calc((2rem - 0.75rem * 1.5 - 0.25rem) / 2)';
+	const TALLEST = Math.max(...WORDS.map((mark) => remOf(mark)));
+	function remOf(mark: Mark): number {
+		return SIZES.find((size) => mark.kind === 'words' && size.name === mark.size)?.rem ?? 1;
+	}
+	function bandOf(mark: Mark, among: 'words' | 'controls'): { up: string; down: string } {
+		if (among === 'words') {
+			return {
+				up: `calc((${TALLEST / remOf(mark)} - 1) * var(--font-sans-cap-height))`,
+				down: '0px',
+			};
+		}
+		const around = 'calc((2rem - var(--font-sans-cap-height)) / 2 - 0.25rem)';
+		return { up: around, down: around };
+	}
+
 	/** The first card's row and the row the cards after it are measured against, in rem. */
 	const ALL_ROW = 29.5;
 	const ROW = 29.5;
@@ -44,9 +66,10 @@
 			alignItems: 'center',
 			justifyContent: 'center',
 			gap: '1.25rem',
+			'--reach': '0.625rem',
 		},
 		/** Words on one baseline, far enough apart that no two rings meet. */
-		words: { alignItems: 'baseline', columnGap: '2rem' },
+		words: { alignItems: 'baseline', columnGap: '2rem', '--reach': '1rem' },
 		rows: { display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '2.5rem' },
 		/** A thing pressed or reached, drawn only as its kind says. */
 		reset: {
@@ -117,20 +140,32 @@
 	<title>Focus</title>
 </svelte:head>
 
-{#snippet drawn(mark: Mark, live: boolean)}
-	<Tooltip label={mark.name}>
-		{#if mark.kind === 'words'}
-			<button
-				type="button"
-				tabindex={live ? 0 : -1}
-				class={stylex.attrs(styles.reset, styles.text, ring.host, !live && ring.shownWords).class}
-				style:font-size={fontSize[mark.size]}
-			>
-				<span class={stylex.attrs(ring.ink, descends(mark.text) && ring.descends).class}
-					>{mark.text}</span
+{#snippet drawn(mark: Mark, live: boolean, among: 'words' | 'controls')}
+	{#if mark.kind === 'words'}
+		<span class={stylex.attrs(styles.text, ring.line).class} style:font-size={fontSize[mark.size]}>
+			<Tooltip label={mark.name}>
+				<button
+					type="button"
+					tabindex={live ? 0 : -1}
+					class={stylex.attrs(
+						styles.reset,
+						ring.host,
+						ring.fit,
+						reach.words,
+						!live && ring.shownWords,
+					).class}
+					style:--reach-up={bandOf(mark, among).up}
+					style:--reach-down={bandOf(mark, among).down}
 				>
-			</button>
-		{:else}
+					<span
+						class={stylex.attrs(ring.ink, ring.fitted, descends(mark.text) && ring.descends).class}
+						>{mark.text}</span
+					>
+				</button>
+			</Tooltip>
+		</span>
+	{:else}
+		<Tooltip label={mark.name}>
 			<button
 				type="button"
 				tabindex={live ? 0 : -1}
@@ -139,8 +174,11 @@
 					styles[mark.kind === 'primary' ? 'button' : mark.kind],
 					mark.kind === 'primary' && styles.primary,
 					ring.control,
+					reach.mark,
 					!live && ring.shownControl,
 				).class}
+				style:--reach-up={mark.kind === 'pill' ? PILL_BAND : undefined}
+				style:--reach-down={mark.kind === 'pill' ? PILL_BAND : undefined}
 			>
 				{#if mark.kind === 'icon'}
 					<Icon icon={SearchIcon} size={16} />
@@ -150,8 +188,8 @@
 					{mark.text}
 				{/if}
 			</button>
-		{/if}
-	</Tooltip>
+		</Tooltip>
+	{/if}
 {/snippet}
 
 <div class="flex flex-col gap-6">
@@ -164,12 +202,12 @@
 			<div class={stylex.attrs(styles.rows).class}>
 				<div class={stylex.attrs(styles.row).class}>
 					{#each CONTROLS as mark, index (index)}
-						{@render drawn(mark, false)}
+						{@render drawn(mark, false, 'controls')}
 					{/each}
 				</div>
 				<div class={stylex.attrs(styles.row, styles.words).class}>
 					{#each WORDS as mark, index (index)}
-						{@render drawn(mark, false)}
+						{@render drawn(mark, false, 'words')}
 					{/each}
 				</div>
 			</div>
@@ -180,7 +218,7 @@
 		<Box row="{ROW}rem" ratio="1/2">
 			<div class={stylex.attrs(styles.row).class}>
 				{#each CONTROLS as mark, index (index)}
-					{@render drawn(mark, false)}
+					{@render drawn(mark, false, 'controls')}
 				{/each}
 			</div>
 		</Box>
@@ -194,7 +232,7 @@
 		<Box row="{ROW}rem" ratio="1/2">
 			<div class={stylex.attrs(styles.row, styles.words).class}>
 				{#each WORDS as mark, index (index)}
-					{@render drawn(mark, false)}
+					{@render drawn(mark, false, 'words')}
 				{/each}
 			</div>
 		</Box>
@@ -208,7 +246,7 @@
 		<Box row="{ROW}rem" ratio="1/2">
 			<div class={stylex.attrs(styles.row).class}>
 				{#each [...CONTROLS.slice(0, 3), ...WORDS.slice(1, 2)] as mark, index (index)}
-					{@render drawn(mark, true)}
+					{@render drawn(mark, true, 'controls')}
 				{/each}
 			</div>
 		</Box>

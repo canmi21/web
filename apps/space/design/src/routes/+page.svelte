@@ -10,7 +10,7 @@
 	import Tooltip from '@canmi/design/components/tooltip.svelte';
 	import CheckIcon from '@tabler/icons-svelte-runes/icons/check';
 	import SearchIcon from '@tabler/icons-svelte-runes/icons/search';
-	import { ring } from '@canmi/space-ui/ring';
+	import { reach, ring } from '@canmi/space-ui/ring';
 	import Card from '#lib/specimen/card.svelte';
 	import Swatch from '#lib/specimen/swatch.svelte';
 	import { Ticks } from '#lib/specimen/ticks.svelte.ts';
@@ -44,6 +44,15 @@
 	const ANCHOR = '21.75rem';
 	/** The tallest of the cards' rows, so every stage stands as high. */
 	const TALLEST = '3.125rem';
+
+	/** The largest size, whose capitals the type card's row stands as tall as. */
+	const LARGEST = Math.max(...SIZES.map((size) => size.rem));
+	/**
+	 * How far a pill and words reach up and down to the controls' height beside them, so the row is
+	 * one band to the pointer -- `reach` in @canmi/space-ui/ring.
+	 */
+	const PILL_BAND = 'calc((2rem - 0.75rem * 1.5 - 0.25rem) / 2)';
+	const WORDS_BAND = 'calc((2rem - var(--font-sans-cap-height)) / 2 - 0.25rem)';
 
 	const ticks = new Ticks();
 	const nameOf = (name: string) => name[0]!.toUpperCase() + name.slice(1);
@@ -92,16 +101,17 @@
 		above: { position: 'relative', zIndex: 2 },
 		row: { display: 'flex', alignItems: 'center', gap: '0.75rem', minHeight: TALLEST },
 		/** Rings drawn at rest, far enough apart that neither meets the other. */
-		apart: { gap: '1.25rem' },
-		ladder: { display: 'flex', alignItems: 'baseline', gap: '0.875rem', minHeight: TALLEST },
-		glyphs: {
-			padding: 0,
-			borderWidth: 0,
-			backgroundColor: 'transparent',
-			fontWeight: fontWeight.medium,
-			color: 'var(--foreground-strong)',
-			cursor: 'copy',
+		apart: { gap: '1.25rem', '--reach': '0.625rem' },
+		ladder: {
+			display: 'flex',
+			alignItems: 'baseline',
+			gap: '0.875rem',
+			minHeight: TALLEST,
+			'--reach': '0.4375rem',
 		},
+		/** A size's line, in its size, holding the press that copies it. */
+		glyphs: { fontWeight: fontWeight.medium, color: 'var(--foreground-strong)' },
+		press: { cursor: 'copy' },
 		button: {
 			display: 'flex',
 			alignItems: 'center',
@@ -152,23 +162,26 @@
 		<div class={stylex.attrs(styles.row).class}>
 			{#each GRAYS as gray (gray.token)}
 				<span class={stylex.attrs(styles.above).class}>
-					<Swatch name={gray.name} token={gray.token} size="3rem" />
+					<Swatch name={gray.name} token={gray.token} size="3rem" reach="0.375rem" />
 				</span>
 			{/each}
 		</div>
 	{:else if category.slug === 'typography'}
 		<div class={stylex.attrs(styles.ladder).class}>
 			{#each SIZES as size (size.name)}
-				<span class={stylex.attrs(styles.above).class}>
+				<span
+					class={stylex.attrs(styles.above, styles.glyphs, ring.line).class}
+					style:font-size="{size.rem}rem"
+				>
 					<Tooltip label={nameOf(size.name)} icon={ticks.has(size.name) ? CheckIcon : undefined}>
 						<button
 							type="button"
 							aria-label="Copy {constOf(size)}"
-							class={stylex.attrs(styles.glyphs, ring.host).class}
-							style:font-size="{size.rem}rem"
+							class={stylex.attrs(styles.press, ring.host, ring.fit, reach.words).class}
+							style:--reach-up="calc(({LARGEST / size.rem} - 1) * var(--font-sans-cap-height))"
 							onclick={() => ticks.write(constOf(size), size.name)}
 						>
-							<span class={stylex.attrs(ring.ink).class}>Aa</span>
+							<span class={stylex.attrs(ring.ink, ring.fitted).class}>Aa</span>
 						</button>
 					</Tooltip>
 				</span>
@@ -181,8 +194,13 @@
 					<button
 						type="button"
 						aria-label="Search"
-						class={stylex.attrs(styles.button, styles.icon, ring.control, ring.shownControl).class}
-						><Icon icon={SearchIcon} size={16} /></button
+						class={stylex.attrs(
+							styles.button,
+							styles.icon,
+							ring.control,
+							reach.mark,
+							ring.shownControl,
+						).class}><Icon icon={SearchIcon} size={16} /></button
 					>
 				</Tooltip>
 			</span>
@@ -190,7 +208,7 @@
 				<Tooltip label="Button">
 					<button
 						type="button"
-						class={stylex.attrs(styles.button, ring.control, ring.shownControl).class}
+						class={stylex.attrs(styles.button, ring.control, reach.mark, ring.shownControl).class}
 						>Secondary</button
 					>
 				</Tooltip>
@@ -199,8 +217,13 @@
 				<Tooltip label="Button">
 					<button
 						type="button"
-						class={stylex.attrs(styles.button, styles.primary, ring.control, ring.shownControl)
-							.class}>Primary</button
+						class={stylex.attrs(
+							styles.button,
+							styles.primary,
+							ring.control,
+							reach.mark,
+							ring.shownControl,
+						).class}>Primary</button
 					>
 				</Tooltip>
 			</span>
@@ -208,14 +231,20 @@
 				<Tooltip label="Pill">
 					<button
 						type="button"
-						class={stylex.attrs(styles.pill, ring.control, ring.shownControl).class}>Tag</button
+						class={stylex.attrs(styles.pill, ring.control, reach.mark, ring.shownControl).class}
+						style:--reach-up={PILL_BAND}
+						style:--reach-down={PILL_BAND}>Tag</button
 					>
 				</Tooltip>
 			</span>
-			<span class={stylex.attrs(styles.above).class}>
+			<span class={stylex.attrs(styles.above, styles.words, ring.line).class}>
 				<Tooltip label="Words">
-					<button type="button" class={stylex.attrs(styles.words, ring.host, ring.shownWords).class}
-						><span class={stylex.attrs(ring.ink).class}>Focus</span></button
+					<button
+						type="button"
+						class={stylex.attrs(ring.host, ring.fit, reach.words, ring.shownWords).class}
+						style:--reach-up={WORDS_BAND}
+						style:--reach-down={WORDS_BAND}
+						><span class={stylex.attrs(ring.ink, ring.fitted).class}>Focus</span></button
 					>
 				</Tooltip>
 			</span>

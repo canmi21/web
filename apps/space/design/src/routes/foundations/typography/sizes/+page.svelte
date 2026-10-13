@@ -17,7 +17,7 @@
 	import CheckIcon from '@tabler/icons-svelte-runes/icons/check';
 	import Box from '#lib/specimen/box.svelte';
 	import Card from '#lib/specimen/card.svelte';
-	import { descends, ring } from '@canmi/space-ui/ring';
+	import { descends, reach, ring } from '@canmi/space-ui/ring';
 	import { Ticks } from '#lib/specimen/ticks.svelte.ts';
 	import { SIZES, constOf, type Kind, type Size } from '#lib/specimen/type.ts';
 
@@ -64,6 +64,9 @@
 	const ALL_ROW = 22;
 	const ROW = 36;
 
+	/** The largest size, whose capitals the ladder's row stands as tall as. */
+	const TALLEST = Math.max(...SIZES.map((size) => size.rem));
+
 	/** A size's name as the page writes it. */
 	const nameOf = (size: Size) => size.name[0]!.toUpperCase() + size.name.slice(1);
 
@@ -81,6 +84,7 @@
 			justifyContent: 'center',
 			columnGap: `${GAP}rem`,
 			rowGap: '1rem',
+			'--reach': `${GAP / 2}rem`,
 		},
 		/** A size pressed to copy it, its words kept in place under the tick. */
 		press: {
@@ -186,24 +190,17 @@
 			backgroundColor: 'var(--interaction-muted)',
 		},
 		/** Each line as wide as its words, so a ring on it is too. */
-		note: {
-			alignSelf: 'flex-start',
-			marginTop: '0.25rem',
-			fontSize: fontSize.caption,
-			color: 'var(--foreground-muted)',
-		},
-		line: {
-			alignSelf: 'flex-start',
-			marginTop: '1rem',
-			fontSize: fontSize.body,
-			color: 'var(--foreground-default)',
-		},
+		note: { display: 'flex', alignSelf: 'flex-start', marginTop: '0.25rem' },
+		noteWords: { fontSize: fontSize.caption, color: 'var(--foreground-muted)' },
+		line: { display: 'flex', alignSelf: 'flex-start', marginTop: '1rem' },
+		lineWords: { fontSize: fontSize.body, color: 'var(--foreground-default)' },
 		actions: {
 			display: 'flex',
 			alignSelf: 'stretch',
 			justifyContent: 'flex-end',
 			gap: '0.5rem',
 			marginTop: '1.25rem',
+			'--reach': '0.25rem',
 		},
 		action: {
 			display: 'flex',
@@ -244,24 +241,30 @@
 		<Box row="{ALL_ROW}rem" ratio="1/3">
 			<div class={stylex.attrs(styles.all).class}>
 				{#each SIZES as size (size.name)}
-					<Tooltip label={nameOf(size)}>
-						<button
-							type="button"
-							aria-label="Copy {constOf(size)}"
-							class={stylex.attrs(styles.press, styles.glyphs, ring.host).class}
-							style:font-size="{size.rem}rem"
-							onclick={() => ticks.write(constOf(size), size.name)}
-						>
-							<span class={stylex.attrs(ring.ink, ticks.has(size.name) && styles.hidden).class}
-								>Aa</span
+					<span
+						class={stylex.attrs(styles.glyphs, ring.line).class}
+						style:font-size="{size.rem}rem"
+					>
+						<Tooltip label={nameOf(size)}>
+							<button
+								type="button"
+								aria-label="Copy {constOf(size)}"
+								class={stylex.attrs(styles.press, ring.host, ring.fit, reach.words).class}
+								style:--reach-up="calc(({TALLEST / size.rem} - 1) * var(--font-sans-cap-height))"
+								onclick={() => ticks.write(constOf(size), size.name)}
 							>
-							{#if ticks.has(size.name)}
-								<span class={stylex.attrs(styles.tick).class}>
-									<Icon icon={CheckIcon} size={16} stroke={3} />
-								</span>
-							{/if}
-						</button>
-					</Tooltip>
+								<span
+									class={stylex.attrs(ring.ink, ring.fitted, ticks.has(size.name) && styles.hidden)
+										.class}>Aa</span
+								>
+								{#if ticks.has(size.name)}
+									<span class={stylex.attrs(styles.tick).class}>
+										<Icon icon={CheckIcon} size={16} stroke={3} />
+									</span>
+								{/if}
+							</button>
+						</Tooltip>
+					</span>
 				{/each}
 			</div>
 		</Box>
@@ -310,8 +313,17 @@
 			{@render word('body', 'name', styles.mockName, 'Example')}
 			{@render word('caption', 'tag', styles.pill, 'Tag')}
 		</div>
-		{@render word('caption', 'note', styles.note, 'A caption under the name')}
-		{@render word('body', 'line', styles.line, 'A line of body text, as an interface sets it.')}
+		<div class={stylex.attrs(styles.note).class}>
+			{@render word('caption', 'note', styles.noteWords, 'A caption under the name')}
+		</div>
+		<div class={stylex.attrs(styles.line).class}>
+			{@render word(
+				'body',
+				'line',
+				styles.lineWords,
+				'A line of body text, as an interface sets it.',
+			)}
+		</div>
 		<div class={stylex.attrs(styles.actions).class}>
 			{@render word('label', 'secondary', styles.action, 'Secondary')}
 			{@render word('label', 'primary', [styles.action, styles.primary], 'Primary')}
@@ -319,20 +331,40 @@
 	</div>
 {/snippet}
 
+<!-- A shape's tip points at the shape, words' at their capitals, their line kept around it. -->
 {#snippet word(size: string, key: string, look: stylex.StyleXStyles, text: string)}
 	{@const ticked = ticks.has(`interface-${key}`)}
-	<Tooltip label={size[0]!.toUpperCase() + size.slice(1)} icon={ticked ? CheckIcon : undefined}>
-		<button
-			type="button"
-			aria-label="Copy fontSize.{size}"
-			class={stylex.attrs(styles.reset, look, shaped.has(key) ? ring.control : ring.host).class}
-			onclick={() => ticks.write(`fontSize.${size}`, `interface-${key}`)}
-		>
-			{#if shaped.has(key)}
-				{text}
-			{:else}
-				<span class={stylex.attrs(ring.ink, descends(text) && ring.descends).class}>{text}</span>
-			{/if}
-		</button>
-	</Tooltip>
+	{@const label = size[0]!.toUpperCase() + size.slice(1)}
+	{#if shaped.has(key)}
+		<Tooltip {label} icon={ticked ? CheckIcon : undefined}>
+			<button
+				type="button"
+				aria-label="Copy fontSize.{size}"
+				class={stylex.attrs(styles.reset, look, ring.control, reach.mark).class}
+				onclick={() => ticks.write(`fontSize.${size}`, `interface-${key}`)}>{text}</button
+			>
+		</Tooltip>
+	{:else}
+		{@const falls = descends(text)}
+		<span class={stylex.attrs(look, ring.line).class}>
+			<Tooltip {label} icon={ticked ? CheckIcon : undefined}>
+				<button
+					type="button"
+					aria-label="Copy fontSize.{size}"
+					class={stylex.attrs(
+						styles.reset,
+						ring.host,
+						ring.fit,
+						reach.words,
+						falls && reach.descends,
+					).class}
+					onclick={() => ticks.write(`fontSize.${size}`, `interface-${key}`)}
+				>
+					<span class={stylex.attrs(ring.ink, ring.fitted, falls && ring.descends).class}
+						>{text}</span
+					>
+				</button>
+			</Tooltip>
+		</span>
+	{/if}
 {/snippet}

@@ -186,6 +186,13 @@ with the words, `2/7em`**: their box trimmed to their capitals and their baselin
 as far up as down past a letter that falls below it, so it stays centered on the capitals, and
 nothing beside them within its room and width -- RFC mpy16 and RFC 4zzb2, `@canmi/space-ui/ring`.
 
+**A tip points at what is drawn, 9px off it: a control's shape, words' capitals.** Words with a tip
+are held in a line of their own, in their size, around the tip, so the tip's box is their capitals
+and the line they set does not move -- `line`, `fit` and `fitted` in `@canmi/space-ui/ring`. **Every
+row of marks with tips takes `reach` from the same file**, and none draws its own: each mark's
+pointer area reaches into half of each gap beside it, and up or down to the row's height where it
+is shorter, so the row is one band to the pointer -- RFC rp9av, and lib's spec/design/components.md.
+
 **Every mark of a color copies its token on a press**, `var(--token)` as code reads it, and ticks
 the mark it was pressed on, each tick on its own clock: a swatch, a ramp's cell, a stop on a way,
 wherever a color stands to be looked at -- `src/lib/specimen/ticks.svelte.ts`. A mark that stands

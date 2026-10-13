@@ -7,6 +7,7 @@
 	 * on its own clock.
 	 */
 	import * as stylex from '@stylexjs/stylex';
+	import { reach as share } from '@canmi/space-ui/ring';
 	import { borderWidth, radius } from '@canmi/design/scale.stylex';
 	import Icon from '@canmi/design/components/icon.svelte';
 	import Tooltip from '@canmi/design/components/tooltip.svelte';
@@ -53,20 +54,6 @@
 			boxShadow: `0 0 0 ${borderWidth.hairline} var(--border-default)`,
 			cursor: 'copy',
 		},
-		/**
-		 * The well's unseen reach into half of each gap beside it, so the pointer crossing from one
-		 * swatch to the next never leaves both and the tips follow it without a break.
-		 */
-		reach: {
-			'::before': {
-				content: '""',
-				position: 'absolute',
-				top: 0,
-				bottom: 0,
-				left: 'calc(-1 * var(--reach))',
-				right: 'calc(-1 * var(--reach))',
-			},
-		},
 		/** The color, ringed inside its own edge so one close to the well still has one. */
 		color: {
 			flexGrow: 1,
@@ -97,7 +84,7 @@
 	<button
 		type="button"
 		aria-label="Copy {token}, {name}"
-		class={stylex.attrs(styles.well, reach !== undefined && styles.reach).class}
+		class={stylex.attrs(styles.well, reach !== undefined && share.mark).class}
 		style:--reach={reach}
 		style:width={size}
 		style:height={size}
