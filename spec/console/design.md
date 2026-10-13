@@ -216,6 +216,11 @@ the site's fonts spec calls unreachable stay unreached here too -- web's
 `spec/architecture/fonts.md`, "Only the regular cut of the monospace face is reachable, and the
 rest stay". A figure's label stays a word, short: `Nodes`, `Deploy time`, not a phrase.
 
+**A resource's id is shown as its first eight digits and used whole.** An id is 16 hexadecimal
+digits -- platform's RFC 2kuvi -- and a figure, in the shell's face: `a3f8c91d`. What is copied, put
+in a URL or sent in a request is all sixteen. Its kind is never written beside it, since the page,
+the column or the route already says it.
+
 ## A page is named once, in the top bar
 
 **A page's name is the top bar's trail and nowhere else on the screen.** The page itself carries no
