@@ -126,7 +126,12 @@
 			value: (row) => row.architecture ?? '',
 			text: (row) => row.architecture ?? '–',
 		},
-		{ key: 'system', label: 'System', value: (row) => row.facts.system },
+		{
+			key: 'system',
+			label: 'System',
+			value: (row) => row.facts.system ?? '',
+			text: (row) => row.facts.system ?? '–',
+		},
 		{
 			key: 'domain',
 			label: 'Domain',

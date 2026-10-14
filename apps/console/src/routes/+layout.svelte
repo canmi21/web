@@ -9,6 +9,7 @@
 	import { learnApps, viewOf } from '#lib/scope/scope.js';
 	import Unread from '#lib/scope/unread.svelte';
 	import { learnPlaces } from '#lib/map/places.js';
+	import { learnFacts } from '#lib/nodes/facts.js';
 	import { trackFocusSource } from '@canmi/kit/behavior/focus-source';
 	import { discloseGlobals, disclosureHead } from '@canmi/web/disclose';
 	import { CLIENT_TITLE, pageOf, statusText } from '@canmi/web/error';
@@ -56,6 +57,7 @@
 	function learn(facts: LayoutData['facts']) {
 		learnApps(facts.apps);
 		learnPlaces(facts.nodes);
+		learnFacts(facts.nodes);
 	}
 	learn(untrack(() => data.facts));
 	$effect.pre(() => learn(data.facts));

@@ -28,15 +28,23 @@ const FIXED = Object.keys(NODES) as Node[];
 /** Latitude and longitude in degrees. */
 export type Coordinates = readonly [number, number];
 
+/** The tiers and systems a node may declare, as the registry validates them. */
+export const TIERS = ['datacenter', 'home', 'transient'] as const;
+export const SYSTEMS = ['debian', 'alpine'] as const;
+
 /**
  * What the console reads of a node in the registry: where it is, what it is called, whether it is a
- * core, and whether it is at home.
+ * core, whether it is at home, its tier and system, and until when it is expected to be held.
  */
 export interface NodeFact {
 	readonly coordinates?: Coordinates;
 	readonly place?: string;
 	readonly core: boolean;
 	readonly home?: boolean;
+	readonly tier?: (typeof TIERS)[number];
+	readonly system?: (typeof SYSTEMS)[number];
+	/** A year; none for a node at home. */
+	readonly expiry?: number;
 }
 
 /** Where each node is, as the registry last said; empty until it has said anything. */

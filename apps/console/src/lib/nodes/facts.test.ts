@@ -1,5 +1,6 @@
-import { describe, expect, it } from 'vitest';
-import { FACTS, PROVIDERS, providerName } from './facts.ts';
+import { afterEach, describe, expect, it } from 'vitest';
+import { PLACED } from '../server/nodes.fixture.ts';
+import { FACTS, PROVIDERS, learnFacts, providerName } from './facts.ts';
 
 describe('failure domains', () => {
 	it('are provider codes, each one the copy of the registry names', () => {
@@ -32,5 +33,30 @@ describe('failure domains', () => {
 		expect(providerName('xyz')).toBe('xyz');
 		expect(providerName('xyz-2')).toBe('xyz-2');
 		expect(providerName('racknerd')).toBe('racknerd');
+	});
+});
+
+describe('learnFacts', () => {
+	afterEach(() => learnFacts({}));
+
+	it('knows each node by its domain alone before the registry has said anything', () => {
+		learnFacts({});
+		expect(FACTS.tyo).toEqual({ domain: 'oci' });
+		expect(FACTS.tyo.tier).toBeUndefined();
+		expect(FACTS.tyo.system).toBeUndefined();
+		expect(FACTS.tyo.expiry).toBeUndefined();
+	});
+
+	it('takes in the tier, system and expiry the registry says, keeping the domain', () => {
+		learnFacts(PLACED);
+		expect(FACTS.nrt).toEqual({
+			tier: 'datacenter',
+			domain: 'oci',
+			expiry: 2036,
+			system: 'alpine',
+		});
+		expect(FACTS.rdu).toEqual({ tier: 'home', domain: 'int', system: 'debian' });
+		learnFacts({ ...PLACED, nrt: { core: false } });
+		expect(FACTS.nrt).toEqual({ domain: 'oci' });
 	});
 });

@@ -109,15 +109,12 @@ code name small beside it, in a link and in the address; the display name is `di
 service's `service.toml`, infra's `spec/architecture/host.md`, "One name inside, and a domain label
 outside".
 
-**The console copies no fact another repository keeps** -- RFC 17b3o. Each app's display name and
-repository, and each node's coordinates, place and which nodes are cores, are read from the
-registry, its `/apps` and `/nodes`, which the import fills from the declarations. The server takes
+**The console copies no fact another repository keeps** -- RFC 17b3o. Each app's display name and repository, and each node's coordinates, place, tier, system and expiry and which nodes are cores, are read from the registry, its `/apps` and `/nodes`, which the import fills from the declarations. The server takes
 them in before any page or facet runs: its isolate's copy for a minute, else the last answer kept in
 the edge's cache for thirty days, read again behind the request once a minute old; only where
 nothing is kept is the registry asked first. The browser takes them from the root layout's data.
 Where the registry has never answered and nothing is kept, every app is its code name and in
-Services, every node its code and a relay, the nodes are tried in continent order, and the page says
-so in one line. **The registry is found first at `CORES`**, `tyo`, `sin` and `rdu` in
+Services, every node its code and a relay with its tier, system and expiry unread, the nodes are tried in continent order, and the page says so in one line. Each node's failure domain is still a copy, `DOMAINS` in `src/lib/nodes/facts.ts`, named as such until RFC 32hd9 settles where it is kept. **The registry is found first at `CORES`**, `tyo`, `sin` and `rdu` in
 `src/lib/server/control.ts`, a bootstrap as host's `REGISTRY` is; once it has answered, the cores it
 names are where the registry and the ledger are asked. The world map is built by `pnpm map` from
 infra's `nodes/nodes.toml` in the checkout beside this one; no test reads another repository.

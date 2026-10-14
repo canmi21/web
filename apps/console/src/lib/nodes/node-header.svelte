@@ -56,14 +56,22 @@
 					label: `${what}: ${bytes(used)} of ${bytes(total)} · ${percent(used / total)}`,
 				};
 	const facts = $derived([
-		{ label: 'Tier', value: capital(row.facts.tier) },
+		{ label: 'Tier', value: row.facts.tier ? capital(row.facts.tier) : '' },
 		{
 			label: 'Failure domain',
 			value: providerName(row.facts.domain),
 			title: row.facts.domain,
 		},
-		{ label: 'Held until', value: row.facts.expiry ? String(row.facts.expiry) : 'Not set' },
-		{ label: 'System', value: capital(row.facts.system) },
+		{
+			label: 'Held until',
+			// Unread where the registry has not said its tier, which every node declares.
+			value: row.facts.expiry
+				? String(row.facts.expiry)
+				: row.facts.tier === undefined
+					? ''
+					: 'Not set',
+		},
+		{ label: 'System', value: row.facts.system ? capital(row.facts.system) : '' },
 		{ label: 'Architecture', value: architecture(info?.kernel) ?? '–' },
 		{
 			label: 'Memory',

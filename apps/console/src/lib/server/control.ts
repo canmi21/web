@@ -24,6 +24,7 @@ import type {
 } from '../control/types.ts';
 import { type AppFact, learnApps } from '../scope/scope.ts';
 import { learnPlaces } from '../map/places.ts';
+import { learnFacts } from '../nodes/facts.ts';
 import { kept } from './cache.ts';
 import { TIMEOUT, bindingOf } from './edge.ts';
 import { controlMock } from './mock-control.ts';
@@ -31,6 +32,8 @@ import {
 	type Coordinates,
 	type Node,
 	type NodeFact,
+	SYSTEMS,
+	TIERS,
 	learnNodes,
 	learnedCores,
 	order,
@@ -258,8 +261,8 @@ export function task(edge: Edge, service: string, id: string): Promise<Read<Task
 
 /**
  * The facts the console shows of other repositories, from where they are kept: each app's display
- * name and repository, and where each node is and which are cores, all as the registry holds them
- * -- RFC 17b3o. `read` is false where it has never answered and nothing is kept.
+ * name and repository, and each node's place, role, tier, system and expiry, all as the registry
+ * holds them -- RFC 17b3o. `read` is false where it has never answered and nothing is kept.
  */
 export interface Facts {
 	readonly apps: Readonly<Record<string, AppFact>>;
@@ -283,6 +286,10 @@ export const FACTS_FRESH_MS = 60_000;
 const FACTS_KEPT_SECONDS = 30 * 86_400;
 
 const text = (value: unknown) => (typeof value === 'string' && value ? value : undefined);
+
+/** `value` where it is one of `known`. */
+const oneOf = <T extends string>(value: unknown, known: readonly T[]) =>
+	known.find((one) => one === value);
 
 function coordinatesOf(value: unknown): Coordinates | undefined {
 	if (!Array.isArray(value) || value.length !== 2) return undefined;
@@ -308,7 +315,12 @@ function factsOf(apps: List, nodes: List): Facts {
 				const core = roles.includes('core') || spec.core === true;
 				const home = spec.hosting === 'selfhost' || spec.tier === 'home';
 				const at = { coordinates: coordinatesOf(spec.coordinates), place: text(spec.place) };
-				return [name, { ...at, core, home }];
+				const declared = {
+					tier: oneOf(spec.tier, TIERS),
+					system: oneOf(spec.system, SYSTEMS),
+					expiry: Number.isInteger(spec.expiry) ? (spec.expiry as number) : undefined,
+				};
+				return [name, { ...at, core, home, ...declared }];
 			}),
 		),
 		read: true,
@@ -323,6 +335,7 @@ function learn(facts: Facts, at: number): Facts {
 	learnApps(facts.apps);
 	learnNodes(facts.nodes);
 	learnPlaces(facts.nodes);
+	learnFacts(facts.nodes);
 	if (facts.read) latest = { facts, at };
 	return facts;
 }

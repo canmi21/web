@@ -4,9 +4,11 @@ import type { Held } from '../wire.ts';
 import { architecture, machineFor, machineOf, nodeRow, share, uptime } from './machine.ts';
 import { PLACED } from '../server/nodes.fixture.ts';
 import { learnPlaces } from '../map/places.ts';
+import { learnFacts } from './facts.ts';
 
-// Where the registry places each node; see RFC 17b3o.
+// Where the registry places each node, and what it declares of it; see RFC 17b3o.
 learnPlaces(PLACED);
+learnFacts(PLACED);
 
 const HEARD = '2026-10-06T12:00:00Z';
 const NOW = Date.parse(HEARD) + 2000;
@@ -84,7 +86,12 @@ describe('nodeRow', () => {
 			uptime: 3600,
 			cores: 4,
 		});
-		expect(row.facts.domain).toBe('oci');
+		expect(row.facts).toEqual({
+			tier: 'datacenter',
+			domain: 'oci',
+			expiry: 2036,
+			system: 'debian',
+		});
 	});
 
 	it('counts a node the relay holds nothing of as gone, never heard', () => {

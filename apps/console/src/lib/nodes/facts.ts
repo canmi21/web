@@ -1,11 +1,13 @@
 /**
- * What a person declares of each node rather than what it measures: mirrors infra's
- * nodes/nodes.toml, whose axes are infra's spec/architecture/nodes.md.
+ * What a person declares of each node rather than what it measures, the axes infra's
+ * spec/architecture/nodes.md names: its tier, system and expiry as the registry says them -- RFC
+ * 17b3o -- and its failure domain, still a copy of infra's nodes/nodes.toml.
  */
-import type { Node } from '../server/nodes.ts';
+import type { Node, NodeFact } from '../server/nodes.ts';
 
 export interface Facts {
-	tier: 'datacenter' | 'home' | 'transient';
+	/** None until the registry has said. */
+	tier?: NodeFact['tier'];
 	/**
 	 * The account it is held under, as its provider's code -- `oci`, or `oci-2` for a second account
 	 * there: nodes in one fail together, save `int`, where each node is a domain of its own --
@@ -14,23 +16,41 @@ export interface Facts {
 	domain: string;
 	/** Until when it is expected to be held, a year; none for a node at home. */
 	expiry?: number;
-	system: 'debian' | 'alpine';
+	/** None until the registry has said. */
+	system?: NodeFact['system'];
 }
 
-export const FACTS: Record<Node, Facts> = {
-	tyo: { tier: 'datacenter', domain: 'oci', expiry: 2036, system: 'debian' },
-	nrt: { tier: 'datacenter', domain: 'oci', expiry: 2036, system: 'alpine' },
-	hnd: { tier: 'datacenter', domain: 'oci', expiry: 2036, system: 'alpine' },
-	sin: { tier: 'datacenter', domain: 'oci-2', expiry: 2036, system: 'debian' },
-	gvx: { tier: 'datacenter', domain: 'az', expiry: 2030, system: 'debian' },
-	bru: { tier: 'datacenter', domain: 'az', expiry: 2030, system: 'debian' },
-	buf: { tier: 'datacenter', domain: 'rkn', expiry: 2027, system: 'debian' },
-	rdu: { tier: 'home', domain: 'int', system: 'debian' },
-	sha: { tier: 'home', domain: 'int', system: 'debian' },
+/** Each node's failure domain, a copy of infra's nodes/nodes.toml until RFC 32hd9 settles it. */
+const DOMAINS: Record<Node, string> = {
+	tyo: 'oci',
+	nrt: 'oci',
+	hnd: 'oci',
+	sin: 'oci-2',
+	gvx: 'az',
+	bru: 'az',
+	buf: 'rkn',
+	rdu: 'int',
+	sha: 'int',
 };
 
-/** Every node, in the order the table declares them: by failure domain, home last. */
-export const CODES = Object.keys(FACTS) as Node[];
+/** Every node, in the order the domains are declared: by failure domain, home last. */
+export const CODES = Object.keys(DOMAINS) as Node[];
+
+/**
+ * Each node's facts as the registry last said them, kept in the one object every reader holds;
+ * its domain alone until it has said anything.
+ */
+export const FACTS = Object.fromEntries(
+	CODES.map((code) => [code, { domain: DOMAINS[code] }]),
+) as Record<Node, Facts>;
+
+/** What the registry said of the nodes, taken in, on the server and in the browser alike. */
+export function learnFacts(facts: Readonly<Record<string, NodeFact>>): void {
+	for (const code of CODES) {
+		const { tier, system, expiry } = facts[code] ?? {};
+		FACTS[code] = { tier, domain: DOMAINS[code], expiry, system };
+	}
+}
 
 /**
  * Each provider's name as a person reads it, by its code: platform's

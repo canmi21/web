@@ -186,7 +186,7 @@ function state(): Held {
 			coordinates: [...AT[node]],
 			place: PLACE[node],
 			...(CORES.has(node) ? { core: true } : {}),
-			...(home ? {} : { account: account.id }),
+			...(home ? {} : { account: account.id, expiry: 2036 }),
 		};
 		return made('node', node, ++revision, spec);
 	});
