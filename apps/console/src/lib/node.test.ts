@@ -7,7 +7,7 @@ const at = (seconds: number) => Date.parse(HEARD) + seconds * 1000;
 const held = (state?: State, heardAt = HEARD): Held => ({
 	version: 1,
 	heard_at: heardAt,
-	snapshot: { taken_at: heardAt, events: [], apps: [] },
+	snapshot: { taken_at: heardAt, apps: [] },
 	state,
 });
 

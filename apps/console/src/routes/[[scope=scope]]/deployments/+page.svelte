@@ -10,7 +10,7 @@
 	import Events from '#lib/deployments/events.svelte';
 	import { Fresh } from '#lib/deployments/fresh.svelte.js';
 	import Queue from '#lib/deployments/queue.svelte';
-	import { stirring } from '#lib/deployments/stir.js';
+	import { Stirred } from '#lib/deployments/stir.svelte.js';
 	import { live } from '#lib/live.svelte.js';
 	import { nodeLabel } from '#lib/map/places.js';
 	import Empty from '#lib/scope/empty.svelte';
@@ -33,10 +33,10 @@
 	// Kept while the next poll's read is on its way, so the page does not blank every few seconds.
 	const read = new Landed(() => data.runs);
 	const runs = $derived(read.value?.runs ?? []);
-	const newest = $derived(runs.length ? Math.max(...runs.map((run) => run.run)) : undefined);
+	const stirred = new Stirred(() => held.view.nodes);
 	const fresh = new Fresh(
 		() => data.now,
-		() => runs.some((run) => run.running > 0) || stirring(held.view.nodes, newest),
+		() => runs.some((run) => run.running > 0) || stirred.moved,
 	);
 
 	const TABS = ['runs', 'apart'] as const;

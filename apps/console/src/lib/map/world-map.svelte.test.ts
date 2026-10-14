@@ -13,7 +13,6 @@ function held(secondsAgo: number, cpu?: number, gib?: number): Held {
 		heard_at: new Date(NOW - secondsAgo * 1000).toISOString(),
 		snapshot: {
 			taken_at: '2026-10-06T12:00:00Z',
-			events: [],
 			apps: [{ name: 'geo', image: 'geo:1', deployed_at: '', running: true, held: false }],
 			machine:
 				cpu === undefined && gib === undefined

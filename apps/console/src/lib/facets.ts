@@ -18,6 +18,7 @@ export const NAMES = [
 	'history',
 	'steps',
 	'now',
+	'recent',
 	'nodes',
 	'timeline',
 	'cluster',

@@ -160,13 +160,14 @@ function detail(app: App): AppDetail {
 }
 
 function held(node: string): Held {
+	const newest = events(node, Infinity, 1)[0];
 	return {
 		version: Date.now(),
 		heard_at: iso(now()),
 		state: 'live',
+		...(newest ? { runs: Date.parse(newest.started_at) } : {}),
 		snapshot: {
 			taken_at: iso(now()),
-			events: events(node, Infinity, 10),
 			apps: apps(node),
 			machine: { info: info(node), sample: { at: now(), values: values(node, now()) } },
 			round_trip: Object.fromEntries(

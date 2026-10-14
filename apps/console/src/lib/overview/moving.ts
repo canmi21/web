@@ -1,12 +1,12 @@
 /**
- * What is deploying now and what failed last, kept live: seeded from the events a load read, then
- * overtaken by the events each node's snapshot carries as the relay passes them on. A step is one
- * app on one node at its latest event, within its CI run, or apart from any run where it was done
- * by hand, from an upload or by keeper. Steps are grouped by run, and the rest by node.
+ * What is deploying now and what failed last, kept live: seeded from the runs a load read, then
+ * overtaken by the runs read again each time a node's runs move; see ./recent.svelte.ts. A step is
+ * one app on one node at its latest event, within its CI run, or apart from any run where it was
+ * done by hand, from an upload or by keeper. Steps are grouped by run, and the rest by node.
  */
 import type { FleetEvent } from '../server/fleet.ts';
 import type { Run } from '../server/runs.ts';
-import type { Entry, Event } from '../wire.ts';
+import type { Event } from '../wire.ts';
 
 export interface Step {
 	/** The CI run it belongs to; none for a step no run started. */
@@ -193,13 +193,6 @@ export function fromHistory(
  */
 const isDone = (step: Step) => !['running', 'failed', 'skipped'].includes(step.outcome);
 
-/** Every event each node's snapshot holds. */
-export function fromLive(nodes: Readonly<Record<string, Entry>>): Step[] {
-	return Object.entries(nodes).flatMap(([node, held]) =>
-		(held.snapshot?.events ?? []).map((event) => stepOf(node, event)),
-	);
-}
-
 /** One step's place: within its run, or, apart from any, its source's on its node. */
 const keyOf = (step: Trace): string =>
 	step.run === undefined
@@ -240,7 +233,7 @@ function latest(a: Step, b: Step): number {
 	return Date.parse(b.finished_at ?? b.started_at) - Date.parse(a.finished_at ?? a.started_at);
 }
 
-/** `seed` overtaken by `live` wherever both hold a step: a snapshot's event is the newer. */
+/** `seed` overtaken by `live` wherever both hold a step: the read made later is the newer. */
 export function merged<T extends Trace>(seed: T[], live: T[]): T[] {
 	const held = new Map<string, T>();
 	for (const step of seed) held.set(keyOf(step), step);

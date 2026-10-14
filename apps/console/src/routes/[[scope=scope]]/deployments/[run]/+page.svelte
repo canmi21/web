@@ -9,7 +9,7 @@
 	import { Fresh } from '#lib/deployments/fresh.svelte.js';
 	import Matrix from '#lib/deployments/matrix.svelte';
 	import { TONE, matrix, runState, said } from '#lib/deployments/state.js';
-	import { stirring } from '#lib/deployments/stir.js';
+	import { Stirred } from '#lib/deployments/stir.svelte.js';
 	import { STAGE_KEYS, tracks } from '#lib/deployments/tracks.js';
 	import { live } from '#lib/live.svelte.js';
 	import NodeName from '#lib/nodes/node-name.svelte';
@@ -36,10 +36,10 @@
 		() => data.run,
 	);
 	const run = $derived(read.value?.found);
+	const stirred = new Stirred(() => held.view.nodes);
 	const fresh = new Fresh(
 		() => data.now,
-		() =>
-			(run?.running ?? 0) > 0 || stirring(held.view.nodes, run ? data.run : data.run - 1, data.run),
+		() => (run?.running ?? 0) > 0 || stirred.moved,
 	);
 
 	const unknown = $derived(new Set(Object.keys(read.value?.failures ?? {}) as Node[]));

@@ -1,7 +1,9 @@
 /**
  * What a relay sends a browser, as apps/system/relay writes it: `live.rs` for the socket's two
  * messages, `own.rs` for a snapshot, `host.rs` for its events and apps. A word host owns -- an
- * action, an outcome, a stage -- stays a string, since host may add to it.
+ * action, an outcome, a stage -- stays a string, since host may add to it. A snapshot carries no
+ * events; they are read from the runs, `/runs`, whenever a node's `runs` moves -- platform's RFC
+ * grmtb.
  */
 
 /** The contract this console reads; a relay speaking another is not read. */
@@ -42,7 +44,6 @@ export interface App {
 
 export interface Snapshot {
 	taken_at: string;
-	events: Event[];
 	apps: App[];
 	/** The meter's `{ info, sample }`, passed on whole; absent where no meter is deployed. */
 	machine?: unknown;
@@ -72,11 +73,8 @@ export interface Held {
 	snapshot: Snapshot;
 	/** Absent from a relay on the build before it; see ./node.ts, `stateOf`. */
 	state?: State;
-	/**
-	 * The console's own mark, never a relay's: held lean for the first paint, events that are not
-	 * running left out, so the socket's whole copy replaces it at an equal version.
-	 */
-	partial?: true;
+	/** The version of the node's runs the answering relay holds; see `Unheard.runs`. */
+	runs?: number;
 }
 
 /** A peer the answering relay has not heard since it started, `waiting` and then `gone`. */
@@ -85,6 +83,11 @@ export interface Unheard {
 	version?: undefined;
 	heard_at?: undefined;
 	snapshot?: undefined;
+	/**
+	 * The version of the node's runs the answering relay holds, absent where it holds none or is on
+	 * a build before it: a page reads the runs again when it moves.
+	 */
+	runs?: number;
 }
 
 /** One node as a relay sends it: what it holds, or its state alone. */

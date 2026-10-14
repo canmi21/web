@@ -7,7 +7,7 @@ const NODES: Record<string, Entry> = {
 	tyo: {
 		version: 1,
 		heard_at: '2026-10-09T00:00:00Z',
-		snapshot: { taken_at: '', events: [], apps: [app('relay'), app('geo')] },
+		snapshot: { taken_at: '', apps: [app('relay'), app('geo')] },
 	},
 	rdu: { state: 'waiting' },
 };

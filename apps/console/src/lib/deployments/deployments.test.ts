@@ -14,7 +14,6 @@ import {
 	said,
 	share,
 } from './state.ts';
-import { stirring } from './stir.ts';
 import { FEW, STAGE_KEYS, segment, tracks } from './tracks.ts';
 
 let ids = 0;
@@ -186,22 +185,5 @@ describe('runs per day', () => {
 		expect(west.series.find((one) => one.key === 'succeeded')?.values).toEqual([1, 0, 0]);
 		expect(within([run()], now, 24)).toBe(0);
 		expect(within([run()], now, 48)).toBe(1);
-	});
-});
-
-describe('the live store', () => {
-	const held = (events: FleetEvent[]) => ({
-		tyo: { version: 1, heard_at: '', snapshot: { taken_at: '', events, apps: [] } },
-	});
-
-	it('stirs on a run deploying or one newer than the page holds, and only that run if asked', () => {
-		expect(stirring(held([at('tyo', 'web')]), 7)).toBe(false);
-		expect(stirring(held([at('tyo', 'web')]), 6)).toBe(true);
-		const going = held([at('tyo', 'web', { outcome: 'running', source: { kind: 'run', run: 5 } })]);
-		expect(stirring(going, 7)).toBe(true);
-		expect(stirring(going, 7, 7)).toBe(false);
-		expect(stirring(held([at('tyo', 'web', { source: { kind: 'upload' } })]), undefined)).toBe(
-			false,
-		);
 	});
 });

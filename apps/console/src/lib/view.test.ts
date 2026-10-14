@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { EMPTY, merge, mergeCluster } from './view.ts';
+import { EMPTY, merge, mergeCluster, runsOf } from './view.ts';
 import type { Held } from './wire.ts';
 
 function held(version: number, app = 'geo'): Held {
@@ -9,7 +9,6 @@ function held(version: number, app = 'geo'): Held {
 		heard_at: '2026-10-06T12:00:00Z',
 		snapshot: {
 			taken_at: '2026-10-06T12:00:00Z',
-			events: [],
 			apps: [{ name: app, ...deployed, running: true, held: false }],
 		},
 	};
@@ -47,6 +46,25 @@ describe('merge', () => {
 		).toBe('late');
 	});
 
+	it('takes the same version again where its runs moved, so a page reads the runs again', () => {
+		const view = merge(EMPTY, { type: 'node', node: 'tyo', state: { ...held(200), runs: 7 } });
+		const moved = merge(view, { type: 'node', node: 'tyo', state: { ...held(200), runs: 9 } });
+		expect(moved.nodes.tyo?.runs).toBe(9);
+		expect(merge(moved, { type: 'node', node: 'tyo', state: { ...held(200), runs: 9 } })).toBe(
+			moved,
+		);
+		// A peer not heard gives its runs too, beside its state.
+		const unheard = merge(moved, { type: 'node', node: 'tyo', state: { state: 'gone', runs: 11 } });
+		expect([unheard.nodes.tyo?.version, unheard.nodes.tyo?.runs]).toEqual([200, 11]);
+	});
+
+	it('takes a node from a relay whose snapshots still carry events, and reads nothing of them', () => {
+		const old = { ...held(200), snapshot: { ...held(200).snapshot, events: [{ id: 1 }] } };
+		const view = merge(EMPTY, { type: 'node', node: 'tyo', state: old });
+		expect(view.nodes.tyo?.version).toBe(200);
+		expect(runsOf(view.nodes)).toBe('');
+	});
+
 	it('takes a peer its relay has not heard as its state alone, keeping what was held of it', () => {
 		const waiting = merge(EMPTY, { type: 'node', node: 'rdu', state: { state: 'waiting' } });
 		expect(waiting.nodes.rdu).toEqual({ state: 'waiting' });
@@ -80,5 +98,17 @@ describe('merge', () => {
 		expect(view.nodes).toEqual({});
 		expect(view.refused).toBe(2);
 		expect(mergeCluster(view, { version: 1, node: 'tyo', nodes: {} }).refused).toBeUndefined();
+	});
+});
+
+describe('runsOf', () => {
+	it("moves when any node's runs do, and is empty where no relay says", () => {
+		const one = runsOf({ tyo: { ...held(1), runs: 7 }, gvx: { state: 'waiting', runs: 2 } });
+		expect(one).toBe('gvx:2 tyo:7');
+		expect(runsOf({ tyo: { ...held(9), runs: 7 }, gvx: { state: 'waiting', runs: 2 } })).toBe(one);
+		expect(runsOf({ tyo: { ...held(1), runs: 8 }, gvx: { state: 'waiting', runs: 2 } })).not.toBe(
+			one,
+		);
+		expect(runsOf({ tyo: held(1) })).toBe('');
 	});
 });

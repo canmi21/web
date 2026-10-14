@@ -14,7 +14,7 @@ const node = (apps: ReturnType<typeof app>[], state: Entry['state'] = 'live'): E
 	version: 1,
 	heard_at: '2026-10-09T12:00:00Z',
 	state,
-	snapshot: { taken_at: '', events: [], apps },
+	snapshot: { taken_at: '', apps },
 });
 
 describe('health', () => {

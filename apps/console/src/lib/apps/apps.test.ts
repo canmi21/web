@@ -19,7 +19,7 @@ const app = (name: string, image: string, over: Partial<App> = {}): App => ({
 const held = (apps: App[]) => ({
 	version: 1,
 	heard_at: '',
-	snapshot: { taken_at: '', events: [], apps },
+	snapshot: { taken_at: '', apps },
 });
 
 const cluster = {

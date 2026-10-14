@@ -2,8 +2,9 @@
  * Every node as this browser last heard it. Per node the highest version it has been sent is kept,
  * whichever relay or path sent it: an older one arriving late is dropped. See platform's
  * spec/architecture/relay.md, "A snapshot's version is its origin's clock". The same version
- * with another `state` is taken too, which time alone changed, and a peer the relay has not heard
- * gives its state alone -- the same file, "A node says it is leaving before it goes".
+ * with another `state` is taken too, which time alone changed, or another `runs`, which a deploy
+ * moved; and a peer the relay has not heard gives its state alone -- the same file, "A node says it
+ * is leaving before it goes".
  */
 import { CONTRACT, type Cluster, type Entry, type Live } from './wire.ts';
 
@@ -47,11 +48,24 @@ function taken(view: View, offered: Readonly<Record<string, Entry>>): View {
 function after(kept: Entry | undefined, entry: Entry): Entry {
 	if (!kept) return entry;
 	if (entry.version === undefined) {
-		// What this browser holds stays, under the state the relay says now.
-		return kept.state === entry.state ? kept : { ...kept, state: entry.state };
+		// What this browser holds stays, under the state and the runs the relay says now.
+		if (kept.state === entry.state && kept.runs === entry.runs) return kept;
+		return { ...kept, state: entry.state, runs: entry.runs };
 	}
 	if (kept.version === undefined || entry.version > kept.version) return entry;
-	// A lean first paint's node, given whole at last.
-	if (kept.partial && !entry.partial && entry.version === kept.version) return entry;
-	return entry.version === kept.version && entry.state !== kept.state ? entry : kept;
+	const moved = entry.state !== kept.state || entry.runs !== kept.runs;
+	return entry.version === kept.version && moved ? entry : kept;
+}
+
+/**
+ * Every node's runs version as `nodes` holds them, as one key that moves when any node's runs do:
+ * what a page reads its runs again on, since no snapshot carries events. Empty from a relay on a
+ * build before it.
+ */
+export function runsOf(nodes: Readonly<Record<string, Entry>>): string {
+	return Object.entries(nodes)
+		.filter(([, entry]) => entry.runs !== undefined)
+		.map(([node, entry]) => `${node}:${entry.runs}`)
+		.toSorted()
+		.join(' ');
 }

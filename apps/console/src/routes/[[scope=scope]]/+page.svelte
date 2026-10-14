@@ -13,7 +13,8 @@
 	import Heard from '#lib/nodes/heard.svelte';
 	import Figures from '#lib/overview/figures.svelte';
 	import NodeList from '#lib/overview/node-list.svelte';
-	import { type Step, type Trace, current, fromLive, merged } from '#lib/overview/moving.js';
+	import { type Step, type Trace, current, merged } from '#lib/overview/moving.js';
+	import { Recent } from '#lib/overview/recent.svelte.js';
 	import { Settled } from '#lib/settled.svelte.js';
 	import { Detail } from '#lib/overview/detail.svelte.js';
 	import { DIMENSION_GLYPHS } from '#lib/overview/glyphs.js';
@@ -40,7 +41,9 @@
 	const live = liveOf();
 	const keep = (app: string) => shows(data.view, app);
 
-	/** What is running and what failed lately once it lands, overtaken by the live store's. */
+	/** The day's steps, read again whenever a node's runs move on the live store. */
+	const recent = new Recent(() => ({ view: data.view, nodes: live.view.nodes }));
+	/** What is running and what failed lately once it lands, overtaken by the runs read since. */
 	const seed = new Landed(
 		() => data.now,
 		() => data.view,
@@ -49,7 +52,7 @@
 		seed.value &&
 			current(
 				seed.value,
-				fromLive(live.view.nodes).filter((step) => keep(step.app)),
+				recent.steps.filter((step) => keep(step.app)),
 			),
 	);
 	/** The timeline's first paint, as the server cut it for the span, dimension and axis it read. */
@@ -107,10 +110,10 @@
 		back === data.back && dimension === data.dimension && by === data.by ? dried.value : undefined,
 	);
 	/**
-	 * The nodes' own events, kept as they were until one of them changes: a node reports every few
-	 * seconds and its events seldom move, and the timeline is laid out again on each new array.
+	 * The day's steps as last read, kept as they were until one of them changes: a read finds the
+	 * same steps more often than not, and the timeline is laid out again on each new array.
 	 */
-	const happening = new Settled<Step[]>(() => fromLive(live.view.nodes), JSON.stringify);
+	const happening = new Settled<Step[]>(() => recent.steps, JSON.stringify);
 	/** Every step of the span known, read and live together, once the span is read. */
 	const steps = $derived(detail.current && merged<Trace>(detail.current.steps, happening.current));
 	// Anything the card is asked to draw that the first paint did not cut wants the rest now.

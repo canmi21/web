@@ -1,17 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import type { FleetEvent } from '../server/fleet.ts';
 import type { Run } from '../server/runs.ts';
-import type { Event, Held } from '../wire.ts';
-import {
-	current,
-	fromHistory,
-	fromLive,
-	packed,
-	type Step,
-	type Trace,
-	unpacked,
-	what,
-} from './moving.ts';
+import { current, fromHistory, packed, type Step, type Trace, unpacked, what } from './moving.ts';
 import { marks } from './timeline.ts';
 
 const step = (over: Partial<Step>): Step => ({
@@ -24,26 +14,6 @@ const step = (over: Partial<Step>): Step => ({
 	started_at: '2026-10-06T10:00:00Z',
 	...over,
 });
-
-function held(events: Partial<Event>[]): Held {
-	return {
-		version: 1,
-		heard_at: '2026-10-06T10:00:00Z',
-		snapshot: {
-			taken_at: '2026-10-06T10:00:00Z',
-			apps: [],
-			events: events.map((one, index) => ({
-				id: index + 1,
-				app: 'web',
-				action: 'deploy',
-				source: { kind: 'run', run: 1 },
-				outcome: 'running',
-				started_at: '2026-10-06T10:00:00Z',
-				...one,
-			})),
-		},
-	};
-}
 
 const apartEvent = (over: Partial<FleetEvent>): FleetEvent => ({
 	id: 1,
@@ -118,18 +88,6 @@ describe('what is deploying now', () => {
 		]);
 	});
 
-	it('reads every event a snapshot holds, a run or not', () => {
-		const live = fromLive({
-			tyo: held([{}, { source: { kind: 'upload' } }]),
-			gvx: held([{ outcome: 'failed', stage: 'starting' }]),
-		});
-		expect(live.map((one) => [one.node, one.run, one.source, one.outcome, one.id])).toEqual([
-			['tyo', 1, 'run', 'running', 1],
-			['tyo', undefined, 'upload', 'running', 2],
-			['gvx', 1, 'run', 'failed', 1],
-		]);
-	});
-
 	it('groups what no run started by node, beside the runs, newest first', () => {
 		const apart = (over: Partial<Step>) =>
 			step({ run: undefined, source: 'panel', action: 'redeploy', ...over });
@@ -169,12 +127,20 @@ describe('what is deploying now', () => {
 	});
 
 	it("lists keeper's finished acts on host among the failures, never as deploying", () => {
-		const live = fromLive({
-			rdu: held([
-				keeper('succeeded', "recreated from the image it runs, on the node's .env as it now is", 1),
-			]),
-			nrt: held([keeper('failed', 'the new host did not answer its health check', 1)]),
-		});
+		const live = fromHistory(
+			[],
+			[
+				{
+					...keeper(
+						'succeeded',
+						"recreated from the image it runs, on the node's .env as it now is",
+						1,
+					),
+					node: 'rdu',
+				},
+				{ ...keeper('failed', 'the new host did not answer its health check', 1), node: 'nrt' },
+			],
+		);
 		const now = current([], live);
 		expect(now.running).toEqual([]);
 		expect(now.failed.map((one) => [one.node, one.app, one.source, what(one)])).toEqual([
@@ -189,7 +155,7 @@ describe('what is deploying now', () => {
 		expect(what({ action: 'deploy', source: 'keeper' })).toBe('Deploy by keeper');
 	});
 
-	it('lets a snapshot overtake the seed, and the newer event win within a node', () => {
+	it('lets a later read overtake the seed, and the newer event win within a node', () => {
 		const seed = [step({ node: 'tyo' }), step({ node: 'gvx', stage: 'downloading' })];
 		const live = [
 			step({ node: 'tyo', outcome: 'succeeded', id: 4 }),

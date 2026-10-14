@@ -8,25 +8,16 @@
 import { AXES, type Axis, DIMENSIONS, type Dimension, asked } from '../overview/history.ts';
 import { type Dry, dried } from '../overview/judge.ts';
 import { figures } from '../overview/deploys.ts';
-import {
-	type Packed,
-	type Step,
-	type Trace,
-	fromHistory,
-	fromLive,
-	merged,
-	packed,
-	traced,
-} from '../overview/moving.ts';
+import { type Packed, type Step, fromHistory, packed, traced } from '../overview/moving.ts';
 import { DAY, SPANS, type Span } from '../overview/timeline.ts';
 import { VIEWS, type View, shows } from '../scope/scope.ts';
 import { offsetIn } from '../ui/time-zone.ts';
 import type { Zone } from '../chart/series.ts';
-import type { Cluster, Entry, History, Live } from '../wire.ts';
+import type { History, Live } from '../wire.ts';
 import { CONTROL_FACETS } from './control-facets.ts';
 import { type Env, openLive } from './edge.ts';
 import { order } from './nodes.ts';
-import { type Read, minuteOf } from './read.ts';
+import { minuteOf } from './read.ts';
 import type { Sources } from './sources.ts';
 
 /** What every facet is cut with: the request's reads, the reader's zone, and the moment. */
@@ -79,16 +70,6 @@ async function stepsSince(
 const reachOf = (span: Span) =>
 	Math.min(SPANS.find((one) => one.key === span)?.span ?? 0, 30 * DAY);
 
-/**
- * A node as the first paint needs it: its snapshot without the events that are not running, which
- * the socket brings whole once it opens. Marked partial, so the socket's equal version replaces it.
- */
-function lean(entry: Entry): Entry {
-	if (!entry.snapshot) return entry;
-	const events = entry.snapshot.events.filter((event) => event.outcome === 'running');
-	return { ...entry, partial: true as const, snapshot: { ...entry.snapshot, events } };
-}
-
 export const FACETS = {
 	/** Every node's minutes over a span, which the timeline's hover and its next minutes read. */
 	history: facet({
@@ -126,6 +107,19 @@ export const FACETS = {
 			const steps = await stepsSince(context, view, context.now - DAY, true);
 			return steps.filter((step) => step.outcome === 'running' || step.outcome === 'failed');
 		},
+	}),
+
+	/**
+	 * The view's steps of the last day and every one still running, whatever came of them: what the
+	 * overview reads again each time a node's runs move, since no snapshot carries its events.
+	 */
+	recent: facet({
+		revision: 1,
+		params: (query) => {
+			const view = viewOf(query);
+			return view && { view };
+		},
+		read: (context, { view }) => stepsSince(context, view, context.now - DAY, true),
 	}),
 
 	/** Every node whole, as the relay holds it: the live store's, polled while the socket is down. */
@@ -166,18 +160,11 @@ export const FACETS = {
 		},
 	}),
 
-	/** Every node, lean: what the shell, the map and the place list draw. */
+	/** Every node: what the shell, the map and the place list draw. */
 	nodes: facet({
 		revision: 1,
 		params: () => ({}),
-		read: async (context): Promise<Read<Cluster>> => {
-			const read = await context.sources.cluster();
-			if (!read.ok) return read;
-			const nodes = Object.fromEntries(
-				Object.entries(read.data.nodes).map(([code, entry]) => [code, lean(entry)]),
-			);
-			return { ...read, data: { ...read.data, nodes } };
-		},
+		read: (context) => context.sources.cluster(),
 	}),
 
 	/** The timeline's first paint: its lines and each slot's color, for every count. */
@@ -199,7 +186,7 @@ export const FACETS = {
 			const nodes = cluster.ok ? cluster.data.nodes : {};
 			return dried(
 				{
-					steps: merged<Trace>(steps.map(traced), fromLive(nodes)),
+					steps: steps.map(traced),
 					history,
 					nodes,
 					keep: (app) => shows(view, app),

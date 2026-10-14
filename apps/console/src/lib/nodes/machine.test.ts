@@ -23,7 +23,7 @@ const machine = (cpu: number): Now => ({
 const held = (snapshot: Partial<Held['snapshot']> = {}): Held => ({
 	version: 1,
 	heard_at: HEARD,
-	snapshot: { taken_at: HEARD, events: [], apps: [], ...snapshot },
+	snapshot: { taken_at: HEARD, apps: [], ...snapshot },
 });
 
 describe('machineOf', () => {
