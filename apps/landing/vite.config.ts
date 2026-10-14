@@ -53,6 +53,10 @@ export default defineConfig({
 	// Hashed file names in hex, as the site's are.
 	// The commit, the build's moment and what the app is made of; see lib's spec/web/build.md.
 	define: buildDefine(fileURLToPath(new URL('.', import.meta.url))),
+	// One Svelte, one SvelteKit and one Sentry, whatever a package `mise run lib-local --link`
+	// points at would resolve them from beside it; see lib's spec/repository.md, "Trying a
+	// change before it is released".
+	resolve: { dedupe: ['svelte', '@sveltejs/kit', '@sentry/sveltekit'] },
 	build: {
 		target: esbuildTarget(BROWSERSLIST),
 		rollupOptions: { output: { hashCharacters: 'hex' } },

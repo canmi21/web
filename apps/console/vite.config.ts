@@ -88,6 +88,10 @@ export default defineConfig(({ mode }) => ({
 			},
 		},
 	],
+	// One Svelte, one SvelteKit and one Sentry, whatever a package `mise run lib-local --link`
+	// points at would resolve them from beside it; see lib's spec/repository.md, "Trying a
+	// change before it is released".
+	resolve: { dedupe: ['svelte', '@sveltejs/kit', '@sentry/sveltekit'] },
 	build: {
 		target: 'es2023',
 		sourcemap: sourcemapSetting(upload),

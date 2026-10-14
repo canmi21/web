@@ -238,6 +238,10 @@ export default defineConfig(({ mode }) => {
 			// development SSR path cross the same compilation boundary.
 			noExternal: ['bits-ui', '@inlang/paraglide-js-svelte', '@canmi/prose'],
 		},
+		// One Svelte, one SvelteKit and one Sentry, whatever a package `mise run lib-local --link`
+		// points at would resolve them from beside it; see lib's spec/repository.md, "Trying a
+		// change before it is released".
+		resolve: { dedupe: ['svelte', '@sveltejs/kit', '@sentry/sveltekit'] },
 		build: {
 			// Stated rather than left to Vite's default, which is a baseline of its own choosing
 			// and can move under a major. See BROWSERSLIST above.
