@@ -10,7 +10,8 @@ import type { Cluster, Live } from './wire.ts';
 export type Mode = 'connecting' | 'live' | 'polling';
 
 export interface Listener {
-	live(message: Live): void;
+	/** Takes a message; false where the stream must be opened again, whole. */
+	live(message: Live): boolean;
 	polled(cluster: Cluster): void;
 	mode(mode: Mode): void;
 	/** Why the last poll failed, or undefined once one succeeds. */
@@ -30,6 +31,8 @@ const SILENCE_MS = 30_000;
 /** Starts listening; the returned function stops. */
 export function listen(listener: Listener): () => void {
 	const socketUrl = streamUrl('live');
+	// Each node's changes rather than its entry whole, after the cluster; platform's RFC grmtb.
+	socketUrl.searchParams.set('deltas', 'true');
 
 	let socket: WebSocket | undefined;
 	let retry = FIRST_RETRY_MS;
@@ -52,7 +55,10 @@ export function listen(listener: Listener): () => void {
 			watch();
 			if (typeof message.data !== 'string') return;
 			try {
-				listener.live(JSON.parse(message.data) as Live);
+				if (!listener.live(JSON.parse(message.data) as Live)) {
+					retry = FIRST_RETRY_MS;
+					opened.close();
+				}
 			} catch {
 				// Not JSON: nothing a relay sends, so nothing to read.
 			}

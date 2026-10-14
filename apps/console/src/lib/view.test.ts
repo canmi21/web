@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { EMPTY, merge, mergeCluster, runsOf } from './view.ts';
+import { EMPTY, fits, merge, mergeCluster, runsOf } from './view.ts';
 import type { Live } from './wire.ts';
 import type { Held } from './wire.ts';
 
@@ -97,6 +97,35 @@ describe('merge', () => {
 			state: { ...held(200), readings: minute('2026-10-06T12:01:00Z') },
 		});
 		expect(next.nodes.tyo?.readings?.at).toBe('2026-10-06T12:01:00Z');
+	});
+
+	it("applies a delta to the version it was taken from, the snapshot's apps by name", () => {
+		const view = merge(EMPTY, { type: 'node', node: 'tyo', state: { ...held(200), runs: 2 } });
+		const delta = {
+			type: 'delta' as const,
+			node: 'tyo',
+			base: 200,
+			set: { version: 300, heard_at: '2026-10-06T12:00:30Z' },
+			unset: ['runs'],
+			snapshot: { apps: { set: [{ name: 'apt', image: 'apt:1', running: true }] } },
+		};
+		expect(fits(view, delta)).toBe(true);
+		const next = merge(view, delta);
+		expect(next.nodes.tyo?.version).toBe(300);
+		expect(next.nodes.tyo?.runs).toBeUndefined();
+		expect(next.nodes.tyo?.snapshot?.apps.map((app) => app.name)).toEqual(['geo', 'apt']);
+		// From a version this browser does not hold, it does not fit, and is not applied.
+		const late = { ...delta, base: 100 };
+		expect(fits(next, late)).toBe(false);
+		expect(merge(next, late)).toBe(next);
+		// An order moves the rows, and a gone name takes its row out.
+		const moved = merge(next, {
+			type: 'delta',
+			node: 'tyo',
+			base: 300,
+			snapshot: { apps: { unset: ['geo'], order: ['apt'] } },
+		});
+		expect(moved.nodes.tyo?.snapshot?.apps.map((app) => app.name)).toEqual(['apt']);
 	});
 
 	it('passes over a message of a type it does not know', () => {

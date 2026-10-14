@@ -85,7 +85,10 @@ async function join(
 	const { order } = await server.ssrLoadModule('/src/lib/server/nodes.ts');
 	// No `Origin`: the binding's local end refuses an upgrade from a page on another host, and
 	// localhost is one; the relay admits a socket that names none.
-	const upgrade = new Request('http://localhost/live', { headers: { upgrade: 'websocket' } });
+	const asked = new URL(request.url ?? '/', 'http://localhost').search;
+	const upgrade = new Request(`http://localhost/live${asked}`, {
+		headers: { upgrade: 'websocket' },
+	});
 	const relay = (await socketOf(upgrade, platform.env, order(platform.cf))) as Relay | undefined;
 	if (relay === undefined) {
 		socket.end('HTTP/1.1 502 Bad Gateway\r\nconnection: close\r\n\r\n');

@@ -294,7 +294,8 @@ node's second, the `watch` command renewing it every thirty seconds while shown,
 its stream is on, `via`. A node's charts read its own host, and where it does not answer, the
 nearest relay's minutes of it, `/history?readings=true&node=` -- platform's RFC grmtb. A message
 of a type the page does not know is passed over, so a relay may add one before the console reads
-it.
+it. The console asks its stream for deltas, `/live?deltas=true`, and applies one only to the
+version it was taken from; one that does not fit opens the stream again, whole.
 
 ## The pipeline
 

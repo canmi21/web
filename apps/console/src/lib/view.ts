@@ -8,7 +8,17 @@
  * `heard_at`, a watched node's second its `sample`, and a message of a type this console does not
  * know is passed over.
  */
-import { CONTRACT, type Cluster, type Entry, type Held, type Live, type Second } from './wire.ts';
+import {
+	CONTRACT,
+	type Changes,
+	type Cluster,
+	type Entry,
+	type EntryDelta,
+	type Held,
+	type Live,
+	type Rows,
+	type Second,
+} from './wire.ts';
 
 export interface View {
 	nodes: Readonly<Record<string, Entry>>;
@@ -31,6 +41,8 @@ export function merge(view: View, message: Live): View {
 			return heard(view, message.node, message.heard_at);
 		case 'readings':
 			return sampled(view, message.node, message.sample);
+		case 'delta':
+			return fits(view, message) ? changed(view, message) : view;
 		default:
 			// A relay ahead of this console: what it cannot read, it leaves.
 			return view;
@@ -42,6 +54,49 @@ function heard(view: View, node: string, at: string): View {
 	const kept = view.nodes[node];
 	if (kept?.heard_at === undefined || !(Date.parse(at) > Date.parse(kept.heard_at))) return view;
 	return { ...view, nodes: { ...view.nodes, [node]: { ...kept, heard_at: at } } };
+}
+
+/** Whether `delta` applies to what `view` holds of its node: the version it was taken from. */
+export function fits(view: View, delta: EntryDelta): boolean {
+	return view.nodes[delta.node]?.version === delta.base;
+}
+
+/** `row`'s name, where it has one. */
+const nameOf = (row: Record<string, unknown>) =>
+	typeof row.name === 'string' ? row.name : undefined;
+
+/** `base` with `rows` applied: gone names out, new or changed rows in place or at the end. */
+function rowsAfter(base: Record<string, unknown>[], rows: Rows): Record<string, unknown>[] {
+	let next = base.filter((row) => !rows.unset?.includes(nameOf(row) ?? ''));
+	for (const row of rows.set ?? []) {
+		const at = next.findIndex((held) => nameOf(held) === nameOf(row));
+		if (at === -1) next.push(row);
+		else next = next.with(at, row);
+	}
+	if (!rows.order) return next;
+	return rows.order.flatMap((name) => next.filter((row) => nameOf(row) === name));
+}
+
+/** `base` with `changes` applied, as a relay's delta says them. */
+function objectAfter(base: Record<string, unknown>, changes: Changes): Record<string, unknown> {
+	const next: Record<string, unknown> = { ...base };
+	for (const key of changes.unset ?? []) delete next[key];
+	Object.assign(next, changes.set ?? {});
+	if (changes.apps) {
+		const held = Array.isArray(next.apps) ? (next.apps as Record<string, unknown>[]) : [];
+		next.apps = rowsAfter(held, changes.apps);
+	}
+	return next;
+}
+
+/** `view` with `delta` applied to its node, which it fits. */
+function changed(view: View, delta: EntryDelta): View {
+	const kept = (view.nodes[delta.node] ?? {}) as Record<string, unknown>;
+	const next = objectAfter(kept, { set: delta.set, unset: delta.unset });
+	if (delta.snapshot && typeof next.snapshot === 'object' && next.snapshot !== null) {
+		next.snapshot = objectAfter(next.snapshot as Record<string, unknown>, delta.snapshot);
+	}
+	return { ...view, nodes: { ...view.nodes, [delta.node]: next as unknown as Entry } };
 }
 
 /** `view` with a watched node's latest second. */

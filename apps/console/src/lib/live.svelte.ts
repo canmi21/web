@@ -5,7 +5,7 @@
  */
 import { createContext } from 'svelte';
 import { listen, type Mode } from './feed.ts';
-import { EMPTY, merge, mergeCluster } from './view.ts';
+import { EMPTY, fits, merge, mergeCluster } from './view.ts';
 import type { Cluster } from './wire.ts';
 
 const TICK_MS = 1_000;
@@ -27,7 +27,12 @@ export class Live {
 	start(): () => void {
 		const tick = setInterval(() => (this.now = Date.now()), TICK_MS);
 		const stop = listen({
-			live: (message) => (this.view = merge(this.view, message)),
+			live: (message) => {
+				// A delta from a version this browser does not hold: the stream is opened again, whole.
+				if (message.type === 'delta' && !fits(this.view, message)) return false;
+				this.view = merge(this.view, message);
+				return true;
+			},
 			polled: (cluster) => (this.view = mergeCluster(this.view, cluster)),
 			mode: (next) => (this.mode = next),
 			failure: (why) => (this.failure = why),

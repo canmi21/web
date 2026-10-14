@@ -79,7 +79,8 @@ export async function socketOf(
 	headers.delete('host');
 	const opened = await first(
 		nodes,
-		(node) => reach(env, node, '/live', { headers }),
+		// The browser's query, `deltas` among it, is the relay's to read.
+		(node) => reach(env, node, `/live${new URL(request.url).search}`, { headers }),
 		(answer) => answer.status === 101 && answer.webSocket !== null,
 	);
 	return opened?.answer.webSocket ?? undefined;

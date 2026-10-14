@@ -133,13 +133,43 @@ export interface Cluster {
 	nodes: Record<string, Entry>;
 }
 
+/** What changed of a list of rows keyed by `name`: rows new or changed, names gone, a new order. */
+export interface Rows {
+	set?: Record<string, unknown>[];
+	unset?: string[];
+	order?: string[];
+}
+
+/** What changed of an object: keys set whole, keys gone, and its `apps` as rows by name. */
+export interface Changes {
+	set?: Record<string, unknown>;
+	unset?: string[];
+	apps?: Rows;
+}
+
 /**
- * A relay's message: the whole cluster, a node's entry, that a node was heard, or a watched node's
- * second. A type this console does not know is passed over, so a relay ahead of it never breaks it.
+ * What changed of a node's entry since the one this socket was last sent, to a socket that asked
+ * for deltas: its own keys, and its snapshot's. `base` is the version that entry held; one this
+ * console does not hold means the socket is opened again. Platform's RFC grmtb.
+ */
+export interface EntryDelta {
+	type: 'delta';
+	node: string;
+	base?: number;
+	set?: Record<string, unknown>;
+	unset?: string[];
+	snapshot?: Changes;
+}
+
+/**
+ * A relay's message: the whole cluster, a node's entry, what changed of one, that a node was heard,
+ * or a watched node's second. A type this console does not know is passed over, so a relay ahead
+ * of it never breaks it.
  */
 export type Live =
 	| ({ type: 'cluster' } & Cluster)
 	| { type: 'node'; node: string; state: Entry }
+	| EntryDelta
 	| { type: 'beat'; node: string; heard_at: string }
 	| { type: 'readings'; node: string; sample: Second };
 
