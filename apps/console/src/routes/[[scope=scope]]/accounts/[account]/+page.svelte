@@ -1,5 +1,5 @@
 <script lang="ts">
-	import KindPage from '#lib/kinds/kind-page.svelte';
+	import AccountNodes from '#lib/kinds/account-nodes.svelte';
 	import ResourcePage from '#lib/kinds/resource-page.svelte';
 	import { scoped } from '#lib/scope/context.js';
 	import { labelOf, shortId } from '#lib/kinds/view.js';
@@ -26,6 +26,6 @@
 	{#if data.overview}
 		<ResourcePage read={data.overview} />
 	{:else if data.nodes}
-		<KindPage read={data.nodes} creates={false} href={(name) => node(name)} />
+		<AccountNodes read={data.nodes} account={data.id} href={(name) => node(name)} />
 	{/if}
 </Unpolished>

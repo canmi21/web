@@ -13,14 +13,15 @@
 	let {
 		id,
 		name,
-		value,
+		value = $bindable(''),
 		label,
 		required = false,
 		shown = $bindable(false),
 	}: {
 		id: string;
 		name: string;
-		value: string;
+		/** What it holds, bound where a flow keeps it across its steps. */
+		value?: string;
 		/** What the input is, which the control's name says. */
 		label: string;
 		required?: boolean;
@@ -35,6 +36,7 @@
 	{required}
 	type={shown ? 'text' : 'password'}
 	autocomplete="off"
+	oninput={(event) => (value = event.currentTarget.value)}
 	data-masked
 	spellcheck="false"
 />

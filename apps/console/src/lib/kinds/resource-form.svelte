@@ -9,12 +9,12 @@
 	import { goto, invalidateAll } from '$app/navigation';
 	import type { Description } from '../control/catalog.gen.ts';
 	import { patchOf } from '../control/patch.ts';
-	import { REGISTRY_SERVICE, type Resource, type Written } from '../control/types.ts';
+	import type { Resource, Written as Outcome } from '../control/types.ts';
 	import { create, patch } from '../control/write.ts';
 	import Button from '../ui/button.svelte';
 	import FieldInput from './field-input.svelte';
 	import { type Options, edited, read } from './form.ts';
-	import TaskFollow from './task-follow.svelte';
+	import Written from './written.svelte';
 
 	let {
 		description,
@@ -40,7 +40,7 @@
 	const creating = $derived(resource === undefined);
 	let busy = $state(false);
 	let problems: { missing: string[]; invalid: string[] } | undefined = $state();
-	let written: Written | undefined = $state();
+	let written: Outcome | undefined = $state();
 
 	async function submit(event: SubmitEvent & { currentTarget: HTMLFormElement }) {
 		event.preventDefault();
@@ -89,11 +89,7 @@
 			{#if problems.missing.length}Required: {problems.missing.join(', ')}.{/if}
 			{#if problems.invalid.length}Not readable: {problems.invalid.join(', ')}.{/if}
 		</p>
-	{:else if written && !written.ok}
-		<p role="alert">{written.failure.message} ({written.failure.code})</p>
-	{:else if written && 'unchanged' in written}
-		<p role="status">Nothing to change.</p>
-	{:else if written && 'task' in written}
-		<TaskFollow service={REGISTRY_SERVICE} id={written.task} onsettled={settled} />
+	{:else}
+		<Written {written} onsettled={settled} />
 	{/if}
 </form>

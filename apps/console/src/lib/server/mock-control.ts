@@ -66,7 +66,10 @@ const CATALOG = {
 				field('identities', 'list', {
 					required: true,
 					fields: [
-						field('kind', 'choice', { required: true, choices: ['user_id', 'tenancy', 'email'] }),
+						field('kind', 'choice', {
+							required: true,
+							choices: ['account_id', 'username', 'email'],
+						}),
 						field('value', 'string', { required: true, masked: true }),
 					],
 				}),
@@ -122,7 +125,7 @@ function state(): Held {
 		{
 			provider: 'oracle',
 			identities: [
-				{ kind: 'tenancy', value: `ocid1.tenancy.oc1..${idOf('tenancy')}` },
+				{ kind: 'account_id', value: `ocid1.tenancy.oc1..${idOf('account_id')}` },
 				{ kind: 'email', value: 'oracle@example.com' },
 			],
 		},
@@ -268,6 +271,8 @@ function written(
 	if (body.revision !== (found?.revision ?? 0))
 		return refused(409, 'invalid_revision', 'It changed since it was read.');
 	const spec = (method === 'PATCH' ? applied(found?.spec ?? {}, body.spec) : body.spec) as Spec;
+	const problem = invalid(all, kind, found, spec);
+	if (problem !== undefined) return refused(400, 'invalid_resource', problem);
 	if (found && same(found.spec, spec)) return success({});
 	const revision = ++all.revision;
 	const name = found ? found.name : UNNAMED.has(kind) ? null : ref;
@@ -287,6 +292,41 @@ function written(
 	);
 	const drawn = method === 'POST' ? { id: resource.id } : {};
 	return success({ revision, task: id, ...drawn }, 202);
+}
+
+/** An identity as the registry compares two: an email by its letters whatever their case. */
+const sameIdentity = (a: Spec, b: Spec) =>
+	a.kind === b.kind &&
+	(a.kind === 'email'
+		? String(a.value).toLowerCase() === String(b.value).toLowerCase()
+		: a.value === b.value);
+
+/**
+ * Why the registry refuses `spec` for what it holds: an account sharing an identity with another at
+ * the same provider, or a node naming an account it does not hold.
+ */
+function invalid(all: Held, kind: Resource['kind'], found: Resource | undefined, spec: Spec) {
+	if (kind === 'account') {
+		const mine = Array.isArray(spec.identities) ? (spec.identities as Spec[]) : [];
+		const shared = all.resources.find(
+			(one) =>
+				one.kind === 'account' &&
+				one.id !== found?.id &&
+				one.spec.provider === spec.provider &&
+				Array.isArray(one.spec.identities) &&
+				(one.spec.identities as Spec[]).some((theirs) =>
+					mine.some((ours) => sameIdentity(theirs, ours)),
+				),
+		);
+		if (shared) return `Another ${String(spec.provider)} account holds one of these identities.`;
+	}
+	const account = spec.account;
+	const held = (id: unknown) =>
+		all.resources.some((one) => one.kind === 'account' && one.id === id);
+	if (kind === 'node' && account !== undefined && !held(account)) {
+		return `No account is ${String(account)}.`;
+	}
+	return undefined;
 }
 
 function ledger(parts: string[], query: URLSearchParams): Response {

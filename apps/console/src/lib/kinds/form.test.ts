@@ -23,7 +23,7 @@ const IDENTITIES: Field = {
 		{
 			name: 'kind',
 			type: 'choice',
-			choices: ['user_id', 'tenancy', 'email'],
+			choices: ['username', 'account_id', 'email'],
 			editable: true,
 			required: true,
 		},
@@ -111,7 +111,7 @@ describe('read', () => {
 	it('reads a list of objects item by item, and never asks a secret again when editing', () => {
 		const sent = form([
 			['spec.provider', 'oracle'],
-			['spec.identities.0.kind', 'tenancy'],
+			['spec.identities.0.kind', 'account_id'],
 			['spec.identities.0.value', ''],
 			['spec.identities.2.kind', 'email'],
 			['spec.identities.2.value', 'a@b.c'],
@@ -119,7 +119,7 @@ describe('read', () => {
 		const reading = read(ACCOUNT, sent, 'spec', false);
 		expect(reading.spec).toEqual({
 			provider: 'oracle',
-			identities: [{ kind: 'tenancy' }, { kind: 'email', value: 'a@b.c' }],
+			identities: [{ kind: 'account_id' }, { kind: 'email', value: 'a@b.c' }],
 		});
 		expect(reading.missing).toEqual([]);
 	});
@@ -129,7 +129,7 @@ describe('edited', () => {
 	const before = {
 		provider: 'oracle',
 		identities: [
-			{ kind: 'tenancy', secret: 'accounts/registry/ACCOUNT_1_TENANCY' },
+			{ kind: 'account_id', secret: 'accounts/registry/ACCOUNT_1_ACCOUNT_ID' },
 			{ kind: 'email', secret: 'accounts/registry/ACCOUNT_1_EMAIL' },
 		],
 		unknown: 'kept',
@@ -138,11 +138,11 @@ describe('edited', () => {
 	it('keeps an item’s held secret where none was typed, and sends a typed one alone', () => {
 		const sent = {
 			provider: 'oracle',
-			identities: [{ kind: 'tenancy' }, { kind: 'email', value: 'x' }],
+			identities: [{ kind: 'account_id' }, { kind: 'email', value: 'x' }],
 		};
 		const after = edited(before, sent, ACCOUNT);
 		expect(after.identities).toEqual([
-			{ kind: 'tenancy', secret: 'accounts/registry/ACCOUNT_1_TENANCY' },
+			{ kind: 'account_id', secret: 'accounts/registry/ACCOUNT_1_ACCOUNT_ID' },
 			{ kind: 'email', value: 'x' },
 		]);
 		expect(after.unknown).toBe('kept');
@@ -188,7 +188,7 @@ describe('a masked field', () => {
 			{
 				name: 'kind',
 				type: 'choice',
-				choices: ['tenancy', 'email'],
+				choices: ['account_id', 'email'],
 				editable: true,
 				required: true,
 			},
@@ -205,23 +205,23 @@ describe('a masked field', () => {
 
 	it('is read and sent like any text, and asked for again where required and left blank', () => {
 		const sent = form([
-			['spec.identities.0.kind', 'tenancy'],
+			['spec.identities.0.kind', 'account_id'],
 			['spec.identities.0.value', ' ocid1.tenancy '],
 			['spec.identities.1.kind', 'email'],
 			['spec.identities.1.value', ''],
 		]);
 		const reading = read([MASKED_ITEMS], sent, 'spec', false);
 		expect(reading.spec).toEqual({
-			identities: [{ kind: 'tenancy', value: 'ocid1.tenancy' }, { kind: 'email' }],
+			identities: [{ kind: 'account_id', value: 'ocid1.tenancy' }, { kind: 'email' }],
 		});
 		expect(reading.missing).toEqual(['spec.identities.1.value']);
 	});
 
 	it('changes by what was typed, the list written whole', () => {
-		const before = { identities: [{ kind: 'tenancy', value: 'old' }] };
-		const after = edited(before, { identities: [{ kind: 'tenancy', value: 'new' }] }, [
+		const before = { identities: [{ kind: 'account_id', value: 'old' }] };
+		const after = edited(before, { identities: [{ kind: 'account_id', value: 'new' }] }, [
 			MASKED_ITEMS,
 		]);
-		expect(patchOf(before, after)).toEqual({ identities: [{ kind: 'tenancy', value: 'new' }] });
+		expect(patchOf(before, after)).toEqual({ identities: [{ kind: 'account_id', value: 'new' }] });
 	});
 });

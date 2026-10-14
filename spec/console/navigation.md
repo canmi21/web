@@ -25,7 +25,7 @@ All, Infra, Platform, Services   Overview, Nodes (Infra and All), Deployments, A
 **What the registry holds has pages, and what is written there is a task**, added with the author
 on 2026-10-13 -- platform's RFC cpc2b. A node's and an app's `Spec` is the registry's resource, read
 and edited from the catalog; a node's `Drift` is what its host reports as wanted and not running,
-running and not wanted, or behind; `Accounts` lists that kind, each a level, an account shown by its provider and its id's first eight digits, since it has no name -- platform's RFC 32hd9; a node's failure domain is its account and is not a page. Tasks
+running and not wanted, or behind; `Accounts` lists that kind, each a level, an account shown by its provider and its id's first eight digits, since it has no name -- platform's RFC 32hd9; a node's failure domain is its account and is not a page. **An account is made in two steps, its provider and then its identities**, both edited later as any field is; its `Nodes` page attaches a node to it and detaches one, each a write of that node's `account`, since a resource is under one account and keeps the reference -- decided with the author on 2026-10-13. Tasks
 lists the ledger's tasks, and a task opened from it is a record with one page, as a run is. A kind
 the registry comes to hold without a page of its own is reached under `/kinds/<plural>`, drawn from
 the catalog alone, so nothing it holds is out of reach while its page waits.

@@ -6,10 +6,10 @@ import Masked, { DOTS } from './masked.svelte';
 describe('a masked value on the server', () => {
 	it('is drawn as dots, the value nowhere in what is drawn, with a control that shows it', () => {
 		const { body } = render(Masked, {
-			props: { value: 'ocid1.tenancy.secretish', label: 'value' },
+			props: { value: 'ocid1.account.secretish', label: 'value' },
 		});
 		expect(body).toContain(DOTS);
-		expect(body).not.toContain('ocid1.tenancy.secretish');
+		expect(body).not.toContain('ocid1.account.secretish');
 		expect(body).toMatch(/aria-label="Show value"|>Show value</);
 		expect(body).toContain('aria-pressed="false"');
 	});

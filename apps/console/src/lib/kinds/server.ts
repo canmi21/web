@@ -5,7 +5,7 @@
  */
 import type { Catalog, Description } from '../control/catalog.gen.ts';
 import { describe } from '../control/catalog.ts';
-import type { Control } from '../control/types.ts';
+import type { Control, Resource } from '../control/types.ts';
 import { catalog, resource, resources } from '../server/control.ts';
 import type { Edge, Read } from '../server/read.ts';
 import { type Options, referred } from './form.ts';
@@ -77,8 +77,9 @@ export async function resourceRead(
 }
 
 /**
- * The nodes under an account: those whose `account` names its id. The list is the node kind's own,
- * so its columns are the catalog's for a node.
+ * The nodes under an account -- those whose `account` names its id -- and every other node, which
+ * its `Nodes` page may attach. The list is the node kind's own, so its columns are the catalog's
+ * for a node. spec/console/navigation.md.
  */
 export async function nodesUnder(edge: Edge, ref: string) {
 	const field = 'account';
@@ -88,13 +89,15 @@ export async function nodesUnder(edge: Edge, ref: string) {
 		resource(edge, field, ref, read),
 		resources(edge, 'node', read),
 	]);
-	if (!held.ok) return { description: nodeKind, list: held, options: {} };
+	const none = { others: [] as Resource[] };
+	if (!held.ok) return { description: nodeKind, list: held, options: {}, ...none };
 	const options = nodeKind.ok ? await optionsOf(edge, nodeKind.data, read) : {};
-	if (!nodes.ok) return { description: nodeKind, list: nodes, options };
-	const items = nodes.data.items.filter((one) => one.spec[field] === held.data.id);
+	if (!nodes.ok) return { description: nodeKind, list: nodes, options, ...none };
+	const under = (one: Resource) => one.spec[field] === held.data.id;
 	return {
 		description: nodeKind,
-		list: { ok: true as const, data: { ...nodes.data, items } },
+		list: { ok: true as const, data: { ...nodes.data, items: nodes.data.items.filter(under) } },
 		options,
+		others: nodes.data.items.filter((one) => !under(one)),
 	};
 }

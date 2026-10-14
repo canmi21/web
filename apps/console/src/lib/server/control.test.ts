@@ -2,17 +2,7 @@ import { existsSync, readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import type { Env } from './edge.ts';
-import {
-	API,
-	CORES,
-	catalog,
-	create,
-	patch,
-	resource,
-	resources,
-	task,
-	tasks,
-} from './control.ts';
+import { API, CORES, catalog, create, patch, resource, resources, task, tasks } from './control.ts';
 import { controlMock } from './mock-control.ts';
 import type { Edge } from './read.ts';
 
@@ -266,6 +256,97 @@ describe('mock mode', () => {
 		});
 		const after = await resource(edge, 'account', account.id);
 		expect(after.ok && after.data.spec.identities).toEqual(identities);
+	});
+
+	it("changes an account's provider later, as any field", async () => {
+		const listed = await resources(edge, 'account');
+		const account = listed.ok ? listed.data.items[0] : undefined;
+		if (!account) throw new Error('no account made up');
+		const changed = await patch(edge, 'developer', {
+			kind: 'account',
+			ref: account.id,
+			revision: account.revision,
+			patch: { provider: 'azure' },
+		});
+		expect(changed.ok && 'task' in changed).toBe(true);
+	});
+
+	it('refuses an identity another account at the same provider holds, an email in any case', async () => {
+		const spec = (value: string) => ({
+			provider: 'racknerd',
+			identities: [{ kind: 'email', value }],
+		});
+		const first = await create(edge, 'developer', {
+			kind: 'account',
+			spec: spec('ops@example.com'),
+		});
+		expect(first.ok).toBe(true);
+		const again = await create(edge, 'developer', {
+			kind: 'account',
+			spec: spec('OPS@example.com'),
+		});
+		expect(!again.ok && again.failure).toMatchObject({ status: 400, code: 'invalid_resource' });
+		expect(!again.ok && again.failure.message).toContain('racknerd');
+		// At another provider the same identity is another account's to hold.
+		const elsewhere = await create(edge, 'developer', {
+			kind: 'account',
+			spec: { ...spec('ops@example.com'), provider: 'backblaze' },
+		});
+		expect(elsewhere.ok).toBe(true);
+	});
+
+	it('refuses an edit that would make an identity shared, as it refuses a create', async () => {
+		const made = await create(edge, 'developer', {
+			kind: 'account',
+			spec: { provider: 'racknerd', identities: [{ kind: 'username', value: 'canmi' }] },
+		});
+		if (!made.ok || !('id' in made) || made.id === undefined) throw new Error('not made');
+		const read = await resource(edge, 'account', made.id);
+		if (!read.ok) throw new Error(read.failure.message);
+		const shared = await patch(edge, 'developer', {
+			kind: 'account',
+			ref: made.id,
+			revision: read.data.revision,
+			patch: { identities: [{ kind: 'email', value: 'Ops@Example.com' }] },
+		});
+		expect(!shared.ok && shared.failure.code).toBe('invalid_resource');
+	});
+
+	it("attaches a node to an account and detaches it, each a write of the node's account", async () => {
+		const listed = await resources(edge, 'account');
+		const account = listed.ok ? listed.data.items.at(-1) : undefined;
+		const before = await resource(edge, 'node', 'sha');
+		if (!account || !before.ok) throw new Error('nothing made up');
+		const attached = await patch(edge, 'developer', {
+			kind: 'node',
+			ref: 'sha',
+			revision: before.data.revision,
+			patch: { account: account.id },
+		});
+		expect(attached.ok && 'task' in attached).toBe(true);
+		const under = await resource(edge, 'node', 'sha');
+		expect(under.ok && under.data.spec.account).toBe(account.id);
+		if (!under.ok) return;
+		await patch(edge, 'developer', {
+			kind: 'node',
+			ref: 'sha',
+			revision: under.data.revision,
+			patch: { account: null },
+		});
+		const detached = await resource(edge, 'node', 'sha');
+		expect(detached.ok && 'account' in detached.data.spec).toBe(false);
+	});
+
+	it('refuses a node attached to an account the registry does not hold', async () => {
+		const before = await resource(edge, 'node', 'buf');
+		if (!before.ok) throw new Error('nothing made up');
+		const refused = await patch(edge, 'developer', {
+			kind: 'node',
+			ref: 'buf',
+			revision: before.data.revision,
+			patch: { account: 'ffffffffffffffff' },
+		});
+		expect(!refused.ok && refused.failure.code).toBe('invalid_resource');
 	});
 
 	it('makes an account with no name by its POST, read back by the id it answered', async () => {
