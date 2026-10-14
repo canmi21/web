@@ -299,8 +299,10 @@ slots.
 
 **The row is laid out again a minute at most, and a slot's tip is worked out on its hover
 alone.** Its slots are whole minutes at their finest, so the clock is read to the minute, and the
-nodes' messages -- every few seconds a node -- are read for the apps each runs and the events it
-holds, which seldom move; a message that changes neither lays nothing out again. Each is a state an
+nodes' messages -- every few seconds a node -- are read for the apps each runs, and the day's
+steps are read from the runs again only when a node's `runs` moves -- platform's RFC grmtb, no
+snapshot carrying events; a read that finds the same steps, or a message that changes neither, lays
+nothing out again. Each is a state an
 effect sets when it changes, never a `$derived` handing back the value it held: Svelte still wakes
 every slot downstream of a derived to ask whether it changed, which cost 12 ms four times a second
 and stuttered the place list's reorder until 2026-10-10. Every slot used to

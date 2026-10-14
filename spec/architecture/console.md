@@ -281,6 +281,13 @@ first step needs, a port on the tailnet. **Workers VPC carries the WebSocket**: 
 hands the upgrade to the nearest node's binding and gets the relay's 101 back, seen from a browser
 on 2026-10-06. While the socket is down the page polls the `cluster` facet.
 
+**What deploys reaches a page through the runs, not the socket.** A node's entry carries `runs`, the
+version of its runs on the answering relay, and the same version is sent again when only that
+moves. A page reads its steps again when one moves: the overview the last day's, the `recent` facet,
+past the edge's cache and at most every four seconds; Deployments its load, every four seconds
+while a version moved in the last ten. No snapshot carries events since platform's RFC grmtb, and
+an entry from a relay before it, still carrying them, is read for nothing else.
+
 ## The pipeline
 
 **What is deploying now is every act in progress, not only CI's**: the Now card groups a run's
