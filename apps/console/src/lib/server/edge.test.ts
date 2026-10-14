@@ -2,7 +2,7 @@ import { readFileSync, readdirSync } from 'node:fs';
 import { join } from 'node:path';
 import { URLS } from '@monoflake/sdk';
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { type Env, RELAY, TRIES, openLive, socketOf } from './edge.ts';
+import { type Env, RELAY, TRIES, openLive, socketOf, streamOf } from './edge.ts';
 import { NODES, type Node, order } from './nodes.ts';
 
 /** wrangler.jsonc as data: its comments and trailing commas taken off, strings left alone. */
@@ -135,5 +135,49 @@ describe('the live socket', () => {
 		const response = await openLive(asked('/live'), env);
 		expect(response.status).toBe(426);
 		expect(sent).toHaveLength(0);
+	});
+});
+
+describe('the live event stream', () => {
+	const STREAM = { headers: { accept: 'text/event-stream', origin: URLS.internal.app } };
+
+	/** A relay's stream that sends `first` and then holds on, as a live one does. */
+	function holding(first: string): Response {
+		const encoder = new TextEncoder();
+		const body = new ReadableStream<Uint8Array>({
+			start(controller) {
+				controller.enqueue(encoder.encode(first));
+			},
+		});
+		return new Response(body, { headers: { 'content-type': 'text/event-stream' } });
+	}
+
+	it('hands the stream on as it arrives, the first event before the stream ends', async () => {
+		const { sent, env } = bound({ tyo: () => holding('data: {"type":"cluster"}\n\n') });
+		const answer = await streamOf(asked('/live?deltas=true', STREAM), env, ['tyo']);
+		expect(answer.headers.get('content-type')).toBe('text/event-stream');
+		const reader = answer.body!.getReader();
+		const read = await Promise.race([
+			reader.read(),
+			new Promise((settle) => setTimeout(() => settle('held'), 1000)),
+		]);
+		expect(new TextDecoder().decode((read as { value: Uint8Array }).value)).toBe(
+			'data: {"type":"cluster"}\n\n',
+		);
+		expect(sent[0]?.url).toBe(`${RELAY}/live?deltas=true`);
+		expect(sent[0]?.headers.get('accept')).toBe('text/event-stream');
+		await reader.cancel();
+	});
+
+	it('passes over a relay that answers no stream, and says so where none does', async () => {
+		vi.spyOn(console, 'error').mockImplementation(() => {});
+		const refused = () => new Response(null, { status: 426 });
+		const { sent, env } = bound({ tyo: refused, hnd: () => holding(': ping\n\n') });
+		const answer = await openLive(asked('/live', STREAM), env);
+		expect(answer.status).toBe(200);
+		await answer.body?.cancel();
+		expect(sent.map(({ node }) => node)).toEqual(['tyo', 'hnd']);
+		const none = bound({ tyo: refused, hnd: refused, nrt: refused });
+		expect((await openLive(asked('/live', STREAM), none.env)).status).toBe(502);
 	});
 });

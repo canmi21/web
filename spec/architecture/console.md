@@ -295,7 +295,10 @@ its stream is on, `via`. A node's charts read its own host, and where it does no
 nearest relay's minutes of it, `/history?readings=true&node=` -- platform's RFC grmtb. A message
 of a type the page does not know is passed over, so a relay may add one before the console reads
 it. The console asks its stream for deltas, `/live?deltas=true`, and applies one only to the
-version it was taken from; one that does not fit opens the stream again, whole.
+version it was taken from; one that does not fit opens the stream again, whole. The console reads
+`/live` as an event stream, by fetch, and the Worker hands the first relay's stream on untouched,
+body and encoding as Caddy wrote them; where no relay answers with one, the page falls back to the
+WebSocket for the rest of its life.
 
 ## The pipeline
 

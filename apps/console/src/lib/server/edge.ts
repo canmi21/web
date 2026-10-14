@@ -86,12 +86,37 @@ export async function socketOf(
 	return opened?.answer.webSocket ?? undefined;
 }
 
+/** Whether a request that is no upgrade asks for an event stream. */
+const streams = (request: Request) =>
+	request.headers.get('accept')?.includes('text/event-stream') ?? false;
+
 /**
- * The browser's socket joined to the first relay that opens one, nearest first: the `live` stream
- * the API answers. `TIMEOUT` never bounds it, since an established socket outlives any request.
+ * The first relay's event stream, nearest first, handed on as it arrives: its body passed through
+ * untouched, encoded as Caddy encoded it, so nothing here runs per event. A relay before the
+ * stream answers 426 and is passed over. Platform's spec/architecture/relay.md, RFC grmtb.
+ */
+export async function streamOf(request: Request, env: Env, nodes: readonly Node[]) {
+	const headers = new Headers(request.headers);
+	headers.delete('host');
+	const opened = await first(
+		nodes,
+		(node) => reach(env, node, `/live${new URL(request.url).search}`, { headers }),
+		(answer) =>
+			answer.ok && (answer.headers.get('content-type') ?? '').startsWith('text/event-stream'),
+	);
+	if (opened === undefined) return failure(502, 'upstream_unavailable');
+	return new Response(opened.answer.body, opened.answer);
+}
+
+/**
+ * The browser's socket joined to the first relay that opens one, nearest first, or the first
+ * relay's event stream where the browser asks for one: the `live` stream the API answers.
+ * `TIMEOUT` never bounds either, since an established stream outlives any request.
  */
 export async function openLive(request: Request, env: Env): Promise<Response> {
 	if (request.headers.get('upgrade')?.toLowerCase() !== 'websocket') {
+		if (streams(request))
+			return streamOf(request, env, order(request.cf as Whereabouts | undefined));
 		return failure(426, 'invalid_method');
 	}
 	const socket = await socketOf(request, env, order(request.cf as Whereabouts | undefined));

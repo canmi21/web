@@ -77,9 +77,14 @@ export async function ask<N extends FacetName>(
 	}
 }
 
+/** Where `name` is read as an event stream, on the page's own host. */
+export function streamAddress(name: StreamName): URL {
+	return new URL(pathOf(ASKED, PREFIX, name), location.href);
+}
+
 /** Where `name`'s socket is opened, on the page's own host. */
 export function streamUrl(name: StreamName): URL {
-	const url = new URL(pathOf(ASKED, PREFIX, name), location.href);
+	const url = streamAddress(name);
 	url.protocol = url.protocol === 'http:' ? 'ws:' : 'wss:';
 	return url;
 }
