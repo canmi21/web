@@ -3,7 +3,8 @@ import { join } from 'node:path';
 import { URLS } from '@monoflake/sdk';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { type Env, RELAY, TRIES, openLive, socketOf, streamOf } from './edge.ts';
-import { NODES, type Node, order } from './nodes.ts';
+import { NODES, type Node, learnNodes, order } from './nodes.ts';
+import { PLACED } from './nodes.fixture.ts';
 
 /** wrangler.jsonc as data: its comments and trailing commas taken off, strings left alone. */
 function wrangler(): {
@@ -47,6 +48,7 @@ function down(): Response {
 
 /** Where Cloudflare places every reader here: Osaka, whose order is Tokyo's three first. */
 const OSAKA = { latitude: '34.6937', longitude: '135.5023' };
+learnNodes(PLACED);
 const NEAREST = order(OSAKA);
 
 function asked(path: string, init: RequestInit = {}): Request {

@@ -1,6 +1,11 @@
 import { describe, expect, it } from 'vitest';
 import type { Entry } from '../wire.ts';
 import { find, findable } from './finding.ts';
+import { PLACED } from '../server/nodes.fixture.ts';
+import { learnPlaces } from '../map/places.ts';
+
+// Where the registry places each node; see RFC 17b3o.
+learnPlaces(PLACED);
 
 const app = (name: string) => ({ name, image: 'x', deployed_at: '', running: true, held: false });
 const NODES: Record<string, Entry> = {

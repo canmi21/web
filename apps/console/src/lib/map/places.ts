@@ -1,12 +1,12 @@
 /**
  * What the console says of each node beyond where it is: its place, the name it is shown by, its
- * role in the relay, and how nodes in one place gather into one mark. A `Record<Node, ...>`, so a
- * node added to `server/nodes.ts` fails the type check here until it is placed. A role is one of
- * the relay's three core nodes, a relay, or a relay at home, which may go offline -- see
- * platform's spec/architecture/relay.md.
+ * role in the relay, and how nodes in one place gather into one mark, all from what the registry
+ * says of it -- RFC 17b3o. A role is one of the relay's three core nodes, a relay, or a relay at
+ * home, which may go offline -- see platform's spec/architecture/relay.md.
  */
-import type { Node } from '../server/nodes.ts';
+import type { Node, NodeFact } from '../server/nodes.ts';
 import type { State } from '../wire.ts';
+import { LOCATIONS } from './land.generated.ts';
 import { type Shown, shown, worst } from './marks.ts';
 
 export type Role = 'core' | 'relay' | 'home';
@@ -22,29 +22,49 @@ export interface Place {
 	cluster?: string;
 }
 
-export const PLACES: Record<Node, Place> = {
-	tyo: { place: 'Tokyo', city: 'Tokyo', country: 'Japan', role: 'core', cluster: 'tokyo' },
-	nrt: {
-		place: 'Tokyo, Narita',
-		city: 'Tokyo',
-		country: 'Japan',
-		role: 'relay',
-		cluster: 'tokyo',
-	},
-	hnd: {
-		place: 'Tokyo, Haneda',
-		city: 'Tokyo',
-		country: 'Japan',
-		role: 'relay',
-		cluster: 'tokyo',
-	},
-	gvx: { place: 'Gävle', city: 'Gävle', country: 'Sweden', role: 'relay' },
-	bru: { place: 'Brussels', city: 'Brussels', country: 'Belgium', role: 'relay' },
-	buf: { place: 'Buffalo', city: 'Buffalo', country: 'United States', role: 'relay' },
-	rdu: { place: 'Raleigh', city: 'Raleigh', country: 'United States', role: 'home' },
-	sha: { place: 'Shanghai', city: 'Shanghai', country: 'China', role: 'home' },
-	sin: { place: 'Singapore', city: 'Singapore', country: 'Singapore', role: 'core' },
-};
+/** A node the registry has not placed: named by its code, and a relay. */
+const unplaced = (code: string): Place => ({
+	place: code,
+	city: code,
+	country: code,
+	role: 'relay',
+});
+
+/**
+ * Each node as the registry last placed it, kept in the one object every reader holds; every node
+ * unplaced until it has said anything.
+ */
+export const PLACES = Object.fromEntries(
+	Object.keys(LOCATIONS).map((code) => [code, unplaced(code)]),
+) as Record<Node, Place>;
+
+/**
+ * What the registry said of the nodes, taken in, on the server and in the browser alike. A `place`
+ * is its city first and its country last, what tells it from another node in that city between
+ * them; nodes sharing a city gather into one mark.
+ */
+export function learnPlaces(facts: Readonly<Record<string, NodeFact>>): void {
+	const parts = (code: string) => facts[code]?.place?.split(', ') ?? [];
+	const cities = Object.keys(PLACES).map((code) => parts(code)[0]);
+	for (const code of Object.keys(PLACES) as Node[]) {
+		const fact = facts[code];
+		const named = parts(code);
+		const [city, country] = [named[0], named.at(-1)];
+		if (fact === undefined || city === undefined || country === undefined || named.length < 2) {
+			PLACES[code] = unplaced(code);
+			continue;
+		}
+		const shared = cities.filter((one) => one === city).length > 1;
+		PLACES[code] = {
+			place: named.slice(0, -1).join(', '),
+			city,
+			country,
+			// At home before a core: rdu is both, and may go offline.
+			role: fact.home ? 'home' : fact.core ? 'core' : 'relay',
+			...(shared ? { cluster: city.toLowerCase() } : {}),
+		};
+	}
+}
 
 /** The European Union's members, by the names `Place.country` spells them. */
 export const EU: ReadonlySet<string> = new Set([

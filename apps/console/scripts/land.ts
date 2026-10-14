@@ -1,11 +1,45 @@
 /**
- * Writes `src/lib/map/land.generated.ts` from `project.ts`. Run it with `pnpm map` after a node is
- * added to `src/lib/server/nodes.ts`; the map's test fails until it has been.
+ * Writes `src/lib/map/land.generated.ts` from `project.ts`, each node where infra's
+ * `nodes/nodes.toml` places it, in its checkout beside this one. Run it with `pnpm map` after a
+ * node is added there and to `src/lib/server/nodes.ts`; the map's test fails until it has been.
+ * See RFC 17b3o.
  */
-import { writeFileSync } from 'node:fs';
+import { existsSync, readFileSync, writeFileSync } from 'node:fs';
+import { NODES } from '../src/lib/server/nodes.ts';
 import { build, DOT, PITCH } from './project.ts';
 
-const geometry = build();
+const NODES_TOML = new URL('../../../../infra/nodes/nodes.toml', import.meta.url);
+if (!existsSync(NODES_TOML)) throw new Error(`${NODES_TOML.pathname}: clone infra beside web`);
+
+/**
+ * Each node's `coordinates`, read from nodes.toml's two shapes alone -- a `[code]` table, and
+ * `coordinates = [latitude, longitude]` in it -- which is all of it the map reads.
+ */
+function located(text: string): Record<string, [number, number]> {
+	const located: Record<string, [number, number]> = {};
+	let code: string | undefined;
+	for (const line of text.split('\n')) {
+		const table = /^\[([a-z]{3})\]$/.exec(line);
+		if (table) code = table[1];
+		const at = /^coordinates = \[(-?[\d.]+), (-?[\d.]+)\]$/.exec(line);
+		if (at && code) located[code] = [Number(at[1]), Number(at[2])];
+	}
+	return located;
+}
+
+/** Every node this Worker reaches, in its fixed order, each where nodes.toml places it. */
+function locations(): Record<string, [number, number]> {
+	const toml = located(readFileSync(NODES_TOML, 'utf8'));
+	return Object.fromEntries(
+		Object.keys(NODES).map((code) => {
+			const at = toml[code];
+			if (at === undefined) throw new Error(`${NODES_TOML.pathname}: ${code} has no coordinates`);
+			return [code, at];
+		}),
+	);
+}
+
+const geometry = build(locations());
 const literal = (value: unknown) => JSON.stringify(value);
 
 const source = `/**
@@ -27,7 +61,7 @@ export const PITCH = ${PITCH};
 /** A run of land cells per row, each a line through the middle of its dots. */
 export const DOTS = ${literal(geometry.dots)};
 
-/** Each node's latitude and longitude, as nodes.ts has it, for the globe. */
+/** Each node's latitude and longitude, as infra's nodes.toml has it, for the globe. */
 export const LOCATIONS: Record<Node, readonly [number, number]> = ${literal(geometry.locations)};
 
 /** Each node's place on the plot. */

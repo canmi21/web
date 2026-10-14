@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest';
+import { afterEach, describe, expect, it } from 'vitest';
 import {
 	displayName,
 	gather,
@@ -8,7 +8,12 @@ import {
 	nodeLabel,
 	PLACES,
 	rank,
+	learnPlaces,
 } from './places.ts';
+import { PLACED } from '../server/nodes.fixture.ts';
+
+// Where the registry places each node; see RFC 17b3o.
+learnPlaces(PLACED);
 
 const GIB = 2 ** 30;
 const member = (code: string, overrides: Partial<Member> = {}): Member => ({
@@ -161,5 +166,40 @@ describe('the node a relay is nearest', () => {
 	it('is none where it has timed no other lately', () => {
 		expect(nearestOf({})).toBeUndefined();
 		expect(nearestOf(undefined)).toBeUndefined();
+	});
+});
+
+describe('the places the registry gives the nodes', () => {
+	afterEach(() => learnPlaces(PLACED));
+
+	it('reads the city first, the country last, and the part between them', () => {
+		expect(PLACES.hnd).toEqual({
+			place: 'Tokyo, Haneda',
+			city: 'Tokyo',
+			country: 'Japan',
+			role: 'relay',
+			cluster: 'tokyo',
+		});
+		expect(PLACES.tyo).toMatchObject({ place: 'Tokyo', role: 'core', cluster: 'tokyo' });
+		expect(PLACES.rdu).toEqual({
+			place: 'Raleigh',
+			city: 'Raleigh',
+			country: 'United States',
+			role: 'home',
+		});
+	});
+
+	it('names a node by its code, a relay, until the registry has placed it', () => {
+		learnPlaces({});
+		expect(PLACES.tyo).toEqual({ place: 'tyo', city: 'tyo', country: 'tyo', role: 'relay' });
+		expect([nameOf('tyo').full, nodeLabel('tyo')]).toEqual(['tyo', 'tyo']);
+		learnPlaces({ ...PLACED, sin: { core: true, place: 'Singapore' } });
+		expect(PLACES.sin.city).toBe('sin');
+	});
+
+	it('gathers nodes into one mark only where they share a city', () => {
+		learnPlaces({ ...PLACED, hnd: { ...PLACED.hnd, place: 'Osaka, Japan', core: false } });
+		expect(PLACES.hnd.cluster).toBeUndefined();
+		expect([PLACES.tyo.cluster, PLACES.nrt.cluster]).toEqual(['tokyo', 'tokyo']);
 	});
 });

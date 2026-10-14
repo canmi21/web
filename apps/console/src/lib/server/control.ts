@@ -22,15 +22,24 @@ import type {
 	TaskQuery,
 	Written,
 } from '../control/types.ts';
+import { type AppFact, learnApps } from '../scope/scope.ts';
+import { learnPlaces } from '../map/places.ts';
 import { kept } from './cache.ts';
 import { TIMEOUT, bindingOf } from './edge.ts';
 import { controlMock } from './mock-control.ts';
-import { type Node, order } from './nodes.ts';
+import {
+	type Coordinates,
+	type Node,
+	type NodeFact,
+	learnNodes,
+	learnedCores,
+	order,
+} from './nodes.ts';
 import { type Edge, type Failure, type Read, failed, opened } from './read.ts';
 
 /**
- * The cores the registry and the ledger run on, any of them answering alike: each one's
- * `service.toml`'s placements.
+ * Where the console first looks for the registry and the ledger, before the registry has named its
+ * cores: the bootstrap, as host's `REGISTRY` is, and never read again once it has. See RFC 17b3o.
  */
 export const CORES = ['tyo', 'sin', 'rdu'] as const satisfies readonly Node[];
 
@@ -91,8 +100,11 @@ async function asked<T>(edge: Edge, nodes: readonly Node[], path: string, asking
 	return last;
 }
 
-/** The cores, nearest the reader first. */
-const cores = (edge: Edge) => order(edge.where).filter((node) => CORES.some((one) => one === node));
+/** The cores the registry last named, else the bootstrap's, nearest the reader first. */
+const cores = (edge: Edge) => {
+	const named: readonly Node[] = learnedCores() ?? CORES;
+	return order(edge.where).filter((node) => named.includes(node));
+};
 
 function registry<T>(edge: Edge, path: string, asking: Partial<Asking> = {}) {
 	return asked<T>(edge, cores(edge), `/registry/v1${path}`, {
@@ -242,4 +254,125 @@ export async function tasks(edge: Edge, query: TaskQuery = {}): Promise<Read<Tas
 /** One task, its events in order, and the tasks it started. */
 export function task(edge: Edge, service: string, id: string): Promise<Read<TaskDetail>> {
 	return ledger<TaskDetail>(edge, `/tasks/${segment(service)}/${segment(id)}`);
+}
+
+/**
+ * The facts the console shows of other repositories, from where they are kept: each app's display
+ * name and repository, and where each node is and which are cores, all as the registry holds them
+ * -- RFC 17b3o. `read` is false where it has never answered and nothing is kept.
+ */
+export interface Facts {
+	readonly apps: Readonly<Record<string, AppFact>>;
+	readonly nodes: Readonly<Record<string, NodeFact>>;
+	readonly read: boolean;
+}
+
+/** What the console shows before the registry has ever answered. */
+export const UNREAD: Facts = { apps: {}, nodes: {}, read: false };
+
+/** The registry's last answer, and when it was read, in milliseconds. */
+interface Held {
+	readonly facts: Facts;
+	readonly at: number;
+}
+
+const FACTS = 'control facts';
+/** How old a kept answer may be before it is read again behind the page that uses it. */
+export const FACTS_FRESH_MS = 60_000;
+/** How long the last answer is kept: the console draws from it while the registry is down. */
+const FACTS_KEPT_SECONDS = 30 * 86_400;
+
+const text = (value: unknown) => (typeof value === 'string' && value ? value : undefined);
+
+function coordinatesOf(value: unknown): Coordinates | undefined {
+	if (!Array.isArray(value) || value.length !== 2) return undefined;
+	const [latitude, longitude] = value;
+	return Number.isFinite(latitude) && Number.isFinite(longitude)
+		? [latitude as number, longitude as number]
+		: undefined;
+}
+
+/** The facts in two lists the registry answered. */
+function factsOf(apps: List, nodes: List): Facts {
+	const named = (list: List) => list.items.filter((item) => item.name !== null);
+	return {
+		apps: Object.fromEntries(
+			named(apps).map(({ name, spec }) => {
+				const fact = { display: text(spec.display_name), repository: text(spec.repository) };
+				return [name, fact];
+			}),
+		),
+		nodes: Object.fromEntries(
+			named(nodes).map(({ name, spec }) => {
+				const roles = Array.isArray(spec.roles) ? spec.roles : [];
+				const core = roles.includes('core') || spec.core === true;
+				const home = spec.hosting === 'selfhost' || spec.tier === 'home';
+				const at = { coordinates: coordinatesOf(spec.coordinates), place: text(spec.place) };
+				return [name, { ...at, core, home }];
+			}),
+		),
+		read: true,
+	};
+}
+
+/** The last answer this isolate took in, which it answers from for a minute without asking. */
+let latest: Held | undefined;
+
+/** `facts`, read at `at`, taken in by everything that draws a name, a scope or a nearest node. */
+function learn(facts: Facts, at: number): Facts {
+	learnApps(facts.apps);
+	learnNodes(facts.nodes);
+	learnPlaces(facts.nodes);
+	if (facts.read) latest = { facts, at };
+	return facts;
+}
+
+/** The last answer kept, asking no one, taken in; and whether it is due a read again. */
+export async function keptFacts(
+	edge: Edge,
+	now = Date.now(),
+): Promise<{ facts: Facts; stale: boolean }> {
+	const held = (await edge.store?.get(FACTS).catch(() => undefined)) as Held | undefined;
+	if (held === undefined) return { facts: UNREAD, stale: true };
+	return { facts: learn(held.facts, held.at), stale: now - held.at > FACTS_FRESH_MS };
+}
+
+/**
+ * The facts read from the registry now, kept as the last answer and their nodes taken in; where it
+ * does not answer, the last answer kept, else `UNREAD`.
+ */
+export async function readFacts(edge: Edge, now = Date.now()): Promise<Facts> {
+	const [apps, nodes] = await Promise.all([
+		registry<List>(edge, '/apps'),
+		registry<List>(edge, '/nodes'),
+	]);
+	if (!apps.ok || !nodes.ok) return (await keptFacts(edge, now)).facts;
+	const facts = learn(factsOf(apps.data, nodes.data), now);
+	await edge.store
+		?.put(FACTS, { facts, at: now } satisfies Held, FACTS_KEPT_SECONDS)
+		.catch(() => {});
+	return facts;
+}
+
+/**
+ * The facts, taken in before anything on the server reads them: this isolate's for a minute, else
+ * the kept answer, read again behind the request by `defer` once a minute old; only where nothing
+ * is kept is the registry asked first.
+ */
+export async function learned(
+	edge: Edge,
+	defer: (reading: Promise<unknown>) => void,
+	now = Date.now(),
+): Promise<Facts> {
+	if (latest !== undefined && now - latest.at <= FACTS_FRESH_MS) return latest.facts;
+	const kept = await keptFacts(edge, now);
+	if (!kept.facts.read) return readFacts(edge, now);
+	if (kept.stale) defer(readFacts(edge, now));
+	return kept.facts;
+}
+
+/** Forgets what this isolate took in, as a fresh one starts; for tests. */
+export function forget(): void {
+	latest = undefined;
+	learn(UNREAD, 0);
 }

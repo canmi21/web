@@ -3,6 +3,11 @@ import { describe, expect, it } from 'vitest';
 import { DOTS } from './land.generated.ts';
 import WorldMap from './world-map.svelte';
 import type { Held } from '../wire.ts';
+import { PLACED } from '../server/nodes.fixture.ts';
+import { learnPlaces } from './places.ts';
+
+// Where the registry places each node; see RFC 17b3o.
+learnPlaces(PLACED);
 
 const NOW = Date.parse('2026-10-06T12:00:00Z');
 const PLACES = ['tokyo', 'sin', 'gvx', 'buf', 'bru', 'rdu', 'sha'];

@@ -8,7 +8,6 @@ import { createRequire } from 'node:module';
 import { geoBounds, geoContains, geoMercator, type GeoProjection } from 'd3-geo';
 import type { FeatureCollection, MultiPolygon, Polygon } from 'geojson';
 import { feature } from 'topojson-client';
-import { NODES } from '../src/lib/server/nodes.ts';
 
 /** Dots across the whole world, on an even grid of the plot rather than of degrees. */
 const COLUMNS = 100;
@@ -61,27 +60,23 @@ export function projectionOf({ scale, translate }: Fit): GeoProjection {
 
 const round = (value: number) => Math.round(value * 100) / 100;
 
-export function build(): Geometry {
+/** The map built with each node at `locations`, latitude and longitude in degrees. */
+export function build(locations: Readonly<Record<string, readonly [number, number]>>): Geometry {
 	const projection: Fit = {
 		scale: round(SCALE),
 		translate: [WIDTH / 2, round(SCALE * mercator(NORTH))],
 	};
 	const world = projectionOf(projection);
 
-	const codes = Object.keys(NODES) as (keyof typeof NODES)[];
-	const at = (code: keyof typeof NODES): [number, number] => {
-		const [latitude, longitude] = NODES[code];
-		return [longitude, latitude];
-	};
-	const locations: Geometry['locations'] = {};
+	const kept: Geometry['locations'] = {};
 	const points: Geometry['points'] = {};
-	for (const code of codes) {
-		const [x, y] = world(at(code)) ?? [0, 0];
-		locations[code] = [...NODES[code]];
+	for (const [code, [latitude, longitude]] of Object.entries(locations)) {
+		const [x, y] = world([longitude, latitude]) ?? [0, 0];
+		kept[code] = [latitude, longitude];
 		points[code] = [round(x), round(y)];
 	}
 
-	return { width: WIDTH, height: HEIGHT, projection, dots: dots(world), locations, points };
+	return { width: WIDTH, height: HEIGHT, projection, dots: dots(world), locations: kept, points };
 }
 
 /**

@@ -31,7 +31,7 @@ https://developers.cloudflare.com/cloudflare-one/identity/authorization-cookie/.
 a node, and the nodes themselves -- then `Platform`, the services every layer above leans on, and
 `Services`, what the author deploys on top. A scope is the address's first segment, so a link
 keeps it, and every page shows what belongs to the scope it is read in; the nodes are infra's, and
-shown under `Infra` and `All`. An app's scope is the layer whose repository built it. Rules come in two levels: the
+shown under `Infra` and `All`. An app's scope is the layer of the repository the registry says declares it -- `monoflake/infra` Infra, `monoflake/platform` Platform, any other Services. Rules come in two levels: the
 shell's own a step fainter (`--border-subtle`), the page's cards and tables at `--border-default`. A page says what it is in its
 title and the facts beside it -- never a sentence about the page, under it or under a card. Its
 `<title>` is the one name the page is about and nothing around it -- `Nodes`, `tyo`, `#123`, an
@@ -101,15 +101,26 @@ countries are too small for a city to say more. **Each name has a short form bes
 `Raleigh, US`, `Sweden, EU`, the United States, the United Kingdom and the union written `US`, `UK`
 and `EU` -- kept for a place too narrow for the whole, and used only where the author has said one
 is; none has yet, as of 2026-10-09, when the short form stopped being what the console writes.
-Several nodes may share one; the
+The city and the country are the node's `place` as the registry holds it -- RFC 17b3o; its role is
+home where it is self-hosted, else core where it is a core, else relay. Several nodes may share one; the
 three-letter code is the one unique name, written small beside the city where two must be told
 apart, in a link, and in the address. A service is shown by its display name the same way, its
 code name small beside it, in a link and in the address; the display name is `display_name` in the
 service's `service.toml`, infra's `spec/architecture/host.md`, "One name inside, and a domain label
-outside". The console keeps a copy of every display name beside its
-scope lists, so the server writes it in the first response, for a Worker no host reports and for an
-event of an app since removed; a test compares the copy with the declarations wherever infra's and
-platform's checkouts sit beside this one. A display name the copy lacks is written as the code name.
+outside".
+
+**The console copies no fact another repository keeps** -- RFC 17b3o. Each app's display name and
+repository, and each node's coordinates, place and which nodes are cores, are read from the
+registry, its `/apps` and `/nodes`, which the import fills from the declarations. The server takes
+them in before any page or facet runs: its isolate's copy for a minute, else the last answer kept in
+the edge's cache for thirty days, read again behind the request once a minute old; only where
+nothing is kept is the registry asked first. The browser takes them from the root layout's data.
+Where the registry has never answered and nothing is kept, every app is its code name and in
+Services, every node its code and a relay, the nodes are tried in continent order, and the page says
+so in one line. **The registry is found first at `CORES`**, `tyo`, `sin` and `rdu` in
+`src/lib/server/control.ts`, a bootstrap as host's `REGISTRY` is; once it has answered, the cores it
+names are where the registry and the ledger are asked. The world map is built by `pnpm map` from
+infra's `nodes/nodes.toml` in the checkout beside this one; no test reads another repository.
 
 **A figure is drawn before it is written.** A share of something -- memory, storage, CPU, a disk --
 is a small ring or bar filled to the share, the figure beside it short, and the full sentence
@@ -294,7 +305,8 @@ node's second, the `watch` command renewing it every thirty seconds while shown,
 its stream is on, `via`. A node's charts read its own host, and where it does not answer, the
 nearest relay's minutes of it, `/history?readings=true&node=` -- platform's RFC grmtb. A message
 of a type the page does not know is passed over, so a relay may add one before the console reads
-it. The console asks its stream for deltas, `/live?deltas=true`, and applies one only to the
+it. A round's `beats` moves each node it names to its `heard_at`, only forward, as a single
+`beat` does; the page still reads `beat` from a relay before it. The console asks its stream for deltas, `/live?deltas=true`, and applies one only to the
 version it was taken from; one that does not fit opens the stream again, whole. The console reads
 `/live` as an event stream, by fetch, and the Worker hands the first relay's stream on untouched,
 body and encoding as Caddy wrote them; where no relay answers with one, the page falls back to the

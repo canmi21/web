@@ -1,5 +1,12 @@
 import { describe, expect, it } from 'vitest';
 import { levelOf, titleOf } from './levels.ts';
+import { learnApps } from './scope/scope.ts';
+import { PLACED } from './server/nodes.fixture.ts';
+import { learnPlaces } from './map/places.ts';
+
+// What the registry says of the nodes and the one app named below; see RFC 17b3o.
+learnPlaces(PLACED);
+learnApps({ relay: { display: 'Relay', repository: 'monoflake/platform' } });
 
 const at = (href: string) => new URL(href, 'http://localhost');
 

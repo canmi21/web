@@ -8,6 +8,8 @@ import { handleErrorWithSentry } from '@sentry/sveltekit';
 import { sequence, type Handle } from '@sveltejs/kit/hooks';
 import { PREFIX } from '#lib/facets.js';
 import api from '#lib/server/api.js';
+import { learned } from '#lib/server/control.js';
+import { edgeOf } from '#lib/server/platform.js';
 
 /** Every page, through Sentry's handles first; development loads them and sends nothing. */
 const pages = sequence(
@@ -33,7 +35,9 @@ const context = { waitUntil, passThroughOnException: () => {}, props: {} } as Ex
  * See src/lib/server/api.ts and spec/architecture/console.md, "Errors go to Sentry, and
  * development sends nothing".
  */
-export const handle: Handle = (input) => {
+export const handle: Handle = async (input) => {
+	// What the console shows of other repositories, taken in before any page or facet reads it.
+	await learned(edgeOf(input.event), waitUntil);
 	const { pathname } = input.event.url;
 	if (pathname.startsWith(PREFIX)) return api.fetch(input.event.request, env, context);
 	return pages(input);

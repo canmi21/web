@@ -15,6 +15,11 @@ import {
 	share,
 } from './state.ts';
 import { FEW, STAGE_KEYS, segment, tracks } from './tracks.ts';
+import { PLACED } from '../server/nodes.fixture.ts';
+import { learnPlaces } from '../map/places.ts';
+
+// Where the registry places each node; see RFC 17b3o.
+learnPlaces(PLACED);
 
 let ids = 0;
 function at(node: Node, app: string, over: Partial<FleetEvent> = {}): FleetEvent {

@@ -50,9 +50,14 @@ const CATALOG = {
 			name: 'app',
 			plural: 'apps',
 			named: true,
-			fields: [field('placements', 'list', { required: true }), field('release', 'object')],
+			fields: [
+				field('placements', 'list', { required: true }),
+				field('release', 'object'),
+				field('display_name', 'string'),
+				field('repository', 'string'),
+			],
 			actions: [],
-			columns: ['placements'],
+			columns: ['display_name', 'placements'],
 		},
 		{
 			name: 'account',
@@ -89,6 +94,38 @@ const APPS: Record<string, Node[]> = {
 	gateway: ['tyo', 'rdu'],
 	objects: ['tyo', 'sin', 'gvx'],
 	shot: ['sin', 'buf'],
+};
+
+/** Made-up display names, and where each made-up node stands: near enough its code's place. */
+const NAMED: Record<string, string> = {
+	relay: 'Relay',
+	registry: 'Node Registry',
+	ledger: 'Task Ledger',
+	gateway: 'API Gateway',
+	objects: 'Object Storage',
+	shot: 'Screenshots',
+};
+const PLACE: Record<Node, string> = {
+	tyo: 'Tokyo, Japan',
+	sin: 'Singapore, Singapore',
+	gvx: 'Gävle, Sweden',
+	buf: 'Buffalo, United States',
+	nrt: 'Tokyo, Narita, Japan',
+	hnd: 'Tokyo, Haneda, Japan',
+	bru: 'Brussels, Belgium',
+	rdu: 'Raleigh, United States',
+	sha: 'Shanghai, China',
+};
+const AT: Record<Node, readonly [number, number]> = {
+	tyo: [35.68, 139.65],
+	sin: [1.36, 103.99],
+	gvx: [60.59, 16.95],
+	buf: [42.94, -78.73],
+	nrt: [35.77, 140.39],
+	hnd: [35.55, 139.78],
+	bru: [50.9, 4.48],
+	rdu: [35.88, -78.79],
+	sha: [31.23, 121.47],
 };
 
 const now = () => new Date().toISOString();
@@ -146,6 +183,8 @@ function state(): Held {
 			system: 'debian',
 			hosting: home ? 'selfhost' : 'datacenter',
 			roles: CORES.has(node) ? ['compute', 'core'] : ['compute'],
+			coordinates: [...AT[node]],
+			place: PLACE[node],
 			...(CORES.has(node) ? { core: true } : {}),
 			...(home ? {} : { account: account.id }),
 		};
@@ -157,7 +196,13 @@ function state(): Held {
 			run: 400 + index,
 			commit: idOf(name).repeat(3).slice(0, 40),
 		};
-		return made('app', name, ++revision, { placements, release });
+		const repository = 'monoflake/platform';
+		return made('app', name, ++revision, {
+			placements,
+			release,
+			display_name: NAMED[name],
+			repository,
+		});
 	});
 	held = { revision, resources: [account, cloud, ...nodes, ...apps], tasks: [] };
 	for (const [index, service] of ['shot', 'deployer', 'shot', 'cron'].entries()) {

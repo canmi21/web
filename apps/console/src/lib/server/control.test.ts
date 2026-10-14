@@ -1,9 +1,26 @@
-import { existsSync, readFileSync } from 'node:fs';
-import { fileURLToPath } from 'node:url';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import type { Env } from './edge.ts';
-import { API, CORES, catalog, create, patch, resource, resources, task, tasks } from './control.ts';
+import { memoryStore } from './cache.ts';
+import {
+	API,
+	CORES,
+	FACTS_FRESH_MS,
+	UNREAD,
+	catalog,
+	create,
+	forget,
+	keptFacts,
+	learned,
+	patch,
+	readFacts,
+	resource,
+	resources,
+	task,
+	tasks,
+} from './control.ts';
 import { controlMock } from './mock-control.ts';
+import { displayOf } from '../scope/scope.ts';
+import { learnedCores } from './nodes.ts';
 import type { Edge } from './read.ts';
 
 const TOKEN = 'registry-token';
@@ -359,19 +376,106 @@ describe('mock mode', () => {
 	});
 });
 
-/** Each service's placements as its `service.toml` in the platform's checkout declares them. */
-function placements(service: string): string[] | undefined {
-	const path = fileURLToPath(
-		new URL(`../../../../../../platform/apps/data/${service}/service.toml`, import.meta.url),
-	);
-	if (!existsSync(path)) return undefined;
-	const line = readFileSync(path, 'utf8').match(/^placements = (\[.*\])$/m)?.[1];
-	return line === undefined ? undefined : (JSON.parse(line) as string[]);
-}
+const app = (name: string, spec: Record<string, unknown>) => ({
+	kind: 'app',
+	id: `${name}`.padEnd(16, '0'),
+	name,
+	revision: 1,
+	spec,
+});
+const node = (name: string, spec: Record<string, unknown>) => ({
+	...app(name, spec),
+	kind: 'node',
+});
 
-describe('where the console looks for the registry and the ledger', () => {
-	it.skipIf(placements('registry') === undefined)('is where the platform places them', () => {
-		expect([...CORES].toSorted()).toEqual(placements('registry')?.toSorted());
-		expect([...CORES].toSorted()).toEqual(placements('ledger')?.toSorted());
+/** A registry holding two apps and three nodes, sin a core it names beside the bootstrap's. */
+const holding = (node_: string, url: URL) => {
+	if (url.pathname === '/registry/v1/apps') {
+		const apps = [
+			app('host', { placements: ['tyo'], display_name: 'Host', repository: 'monoflake/infra' }),
+			app('console', { placements: [], display_name: 'Console', repository: 'canmi21/web' }),
+		];
+		return envelope({ items: apps, revision: 9 });
+	}
+	if (url.pathname === '/registry/v1/nodes') {
+		const nodes = [
+			node('tyo', {
+				roles: ['compute', 'core'],
+				coordinates: [35.6762, 139.6503],
+				place: 'Tokyo, Japan',
+			}),
+			node('sin', { roles: ['compute', 'core'], coordinates: [1.3644, 103.9915] }),
+			node('gvx', { roles: ['compute'], hosting: 'selfhost', coordinates: ['north', 17] }),
+		];
+		return envelope({ items: nodes, revision: 9 });
+	}
+	return refusal(404, 'no_such_route');
+};
+
+describe('the facts the console shows, as the registry holds them', () => {
+	afterEach(() => forget());
+
+	it("reads each app's name and repository and each node's place, and keeps them", async () => {
+		const { edge } = bound(holding);
+		const store = memoryStore();
+		const facts = await readFacts({ ...edge, store }, 1_000);
+		expect(facts.apps).toEqual({
+			host: { display: 'Host', repository: 'monoflake/infra' },
+			console: { display: 'Console', repository: 'canmi21/web' },
+		});
+		expect(facts.nodes).toEqual({
+			tyo: { coordinates: [35.6762, 139.6503], place: 'Tokyo, Japan', core: true, home: false },
+			sin: { coordinates: [1.3644, 103.9915], place: undefined, core: true, home: false },
+			gvx: { coordinates: undefined, place: undefined, core: false, home: true },
+		});
+		expect(await keptFacts({ ...edge, store }, 1_000 + FACTS_FRESH_MS)).toEqual({
+			facts: JSON.parse(JSON.stringify(facts)),
+			stale: false,
+		});
+		expect((await keptFacts({ ...edge, store }, 2_000 + FACTS_FRESH_MS)).stale).toBe(true);
+	});
+
+	it('asks the cores the registry names once it has named them, the bootstrap before', async () => {
+		const { sent, edge } = bound(holding);
+		await readFacts(edge);
+		expect(learnedCores()).toEqual(['tyo', 'sin']);
+		expect(displayOf('host')).toBe('Host');
+		sent.length = 0;
+		vi.spyOn(console, 'error').mockImplementation(() => {});
+		await catalog(edge);
+		expect(sent.map((one) => one.node)).toEqual(['tyo', 'sin']);
+		forget();
+		expect(learnedCores()).toBeUndefined();
+		expect(CORES).toEqual(['tyo', 'sin', 'rdu']);
+	});
+
+	it('asks first only where nothing is kept, then reads again behind a request a minute on', async () => {
+		const { sent, edge } = bound(holding);
+		const store = memoryStore();
+		const deferred: Promise<unknown>[] = [];
+		const defer = (reading: Promise<unknown>) => void deferred.push(reading);
+		expect((await learned({ ...edge, store }, defer, 1_000)).read).toBe(true);
+		expect(sent.length).toBeGreaterThan(0);
+		sent.length = 0;
+		await learned({ ...edge, store }, defer, 1_000 + FACTS_FRESH_MS);
+		expect([sent.length, deferred.length]).toEqual([0, 0]);
+		forget();
+		expect((await learned({ ...edge, store }, defer, 2_000 + FACTS_FRESH_MS)).read).toBe(true);
+		expect(deferred.length).toBe(1);
+		await Promise.all(deferred);
+		expect(sent.length).toBeGreaterThan(0);
+	});
+
+	it('draws from the last answer while the registry is down, and from nothing before any', async () => {
+		vi.spyOn(console, 'error').mockImplementation(() => {});
+		const store = memoryStore();
+		const up = bound(holding);
+		const kept = await readFacts({ ...up.edge, store });
+		const down = bound(() => {
+			throw new Error('unreachable');
+		});
+		expect(await readFacts({ ...down.edge, store })).toEqual(JSON.parse(JSON.stringify(kept)));
+		expect(await readFacts({ ...down.edge, store: memoryStore() })).toEqual(UNREAD);
+		expect((await keptFacts({ ...down.edge, store: memoryStore() })).facts.read).toBe(false);
 	});
 });

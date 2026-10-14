@@ -6,7 +6,9 @@
 	import { Live, provideLive } from '#lib/live.svelte.js';
 	import { setView } from '#lib/scope/context.js';
 	import { levelOf, titleOf } from '#lib/levels.js';
-	import { viewOf } from '#lib/scope/scope.js';
+	import { learnApps, viewOf } from '#lib/scope/scope.js';
+	import Unread from '#lib/scope/unread.svelte';
+	import { learnPlaces } from '#lib/map/places.js';
 	import { trackFocusSource } from '@canmi/kit/behavior/focus-source';
 	import { discloseGlobals, disclosureHead } from '@canmi/web/disclose';
 	import { CLIENT_TITLE, pageOf, statusText } from '@canmi/web/error';
@@ -48,6 +50,15 @@
 			void import('virtual:stylex:runtime');
 		});
 	}
+
+	// What the registry says of the apps and the nodes, taken in before anything below draws a name,
+	// a scope or a place, and again on each load after. See RFC 17b3o.
+	function learn(facts: LayoutData['facts']) {
+		learnApps(facts.apps);
+		learnPlaces(facts.nodes);
+	}
+	learn(untrack(() => data.facts));
+	$effect.pre(() => learn(data.facts));
 
 	const live = provideLive(new Live());
 	const actions = provideActions();
@@ -144,6 +155,7 @@
 	{#snippet start()}<Switcher {view} section={level.section} />{/snippet}
 	{#snippet center()}<Trail trail={level.trail} />{/snippet}
 	{#snippet end()}<BarEnd actions={actions.current} />{/snippet}
+	{#if !data.facts.read}<Unread />{/if}
 	{@render children()}
 </Shell>
 <!-- A reload at its place before the first frame, which the hydrated page would reach a frame

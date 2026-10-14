@@ -1,84 +1,46 @@
-import { existsSync, readdirSync, readFileSync } from 'node:fs';
-import { join } from 'node:path';
-import { describe, expect, it } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import {
-	DISPLAY_NAMES,
-	PLATFORM_APPS,
 	appHref,
 	appLabel,
 	displayOf,
 	isScope,
+	learnApps,
 	nodeHref,
 	scopeOf,
 	viewOf,
 	within,
 } from './scope.ts';
 
-const REPOS = join(import.meta.dirname, '../../../../../..');
+/** What the registry says of a few apps, as its import writes them from their declarations. */
+const HELD = {
+	host: { display: 'Host', repository: 'monoflake/infra' },
+	relay: { display: 'Relay', repository: 'monoflake/platform' },
+	console: { display: 'Console', repository: 'canmi21/web' },
+};
 
-/**
- * The platform's `apps/`, in its checkout beside this one, and infra's. Absent where only this
- * repository is cloned, and the checks are skipped there rather than failed; see the workspace's
- * spec/architecture/repos.md.
- */
-const APPS = join(REPOS, 'platform/apps');
-const BESIDE = [join(REPOS, 'infra/apps'), APPS];
-
-const folders = (path: string): string[] =>
-	readdirSync(path, { withFileTypes: true })
-		.filter((one) => one.isDirectory())
-		.map((one) => join(path, one.name));
-
-/** Every `service.toml` under `apps`, read: `apps/<group>/<app>/`, or `apps/<app>/` here. */
-function declarations(apps: string, grouped = true): string[] {
-	return (grouped ? folders(apps).flatMap(folders) : folders(apps))
-		.map((app) => join(app, 'service.toml'))
-		.filter((path) => existsSync(path))
-		.map((path) => readFileSync(path, 'utf8'));
-}
-
-const field = (key: string, toml: string): string | undefined =>
-	new RegExp(`^${key} = "([^"]+)"`, 'm').exec(toml)?.[1];
-
-/** Every `name` the platform's declarations hold, sorted. */
-const manifests = (): string[] =>
-	declarations(APPS)
-		.flatMap((toml) => field('name', toml) ?? [])
-		.toSorted();
-
-/** Each declaration's `display_name` by its `name`, this repository's own among them. */
-const displayNames = (): Record<string, string | undefined> =>
-	Object.fromEntries(
-		[
-			...declarations(join(REPOS, 'web/apps'), false),
-			...BESIDE.flatMap((apps) => declarations(apps)),
-		].map((toml) => [field('name', toml), field('display_name', toml)]),
-	);
+beforeEach(() => learnApps(HELD));
+afterEach(() => learnApps({}));
 
 describe('scopeOf', () => {
-	it.skipIf(!existsSync(APPS))("lists every app the platform's manifests name", () => {
-		expect([...PLATFORM_APPS].toSorted()).toEqual(manifests());
-	});
-
 	it("puts infra's apps in Infra, the platform's in Platform, and anything else in Services", () => {
 		expect(['host', 'relay', 'console'].map(scopeOf)).toEqual(['infra', 'platform', 'services']);
+	});
+
+	it('puts every app in Services while the registry has said nothing', () => {
+		learnApps({});
+		expect(['host', 'relay'].map(scopeOf)).toEqual(['services', 'services']);
 	});
 });
 
 describe('displayOf', () => {
-	it.skipIf(!BESIDE.every(existsSync))('holds every display name the declarations do', () => {
-		const declared = displayNames();
-		expect(
-			Object.keys(declared)
-				.filter((app) => declared[app] !== undefined)
-				.toSorted(),
-		).toEqual(Object.keys(DISPLAY_NAMES).toSorted());
-		for (const [app, name] of Object.entries(declared)) expect(displayOf(app)).toBe(name ?? app);
-	});
-
 	it('writes a name it lacks as the code name, and the code name beside one it has', () => {
 		expect([displayOf('relay'), displayOf('my-app')]).toEqual(['Relay', 'my-app']);
 		expect([appLabel('relay'), appLabel('my-app')]).toEqual(['Relay (relay)', 'my-app']);
+	});
+
+	it('writes every app as its code name while the registry has said nothing', () => {
+		learnApps({});
+		expect([displayOf('relay'), appLabel('relay')]).toEqual(['relay', 'relay']);
 	});
 });
 

@@ -1,6 +1,11 @@
 import { describe, expect, it } from 'vitest';
 import type { Entry } from '../wire.ts';
 import { healthOf, worstOf } from './health.ts';
+import { PLACED } from '../server/nodes.fixture.ts';
+import { learnPlaces } from '../map/places.ts';
+
+// Where the registry places each node; see RFC 17b3o.
+learnPlaces(PLACED);
 
 const NOW = Date.parse('2026-10-09T12:00:00Z');
 const app = (name: string, running: boolean, held = false) => ({

@@ -2,6 +2,11 @@ import { render } from 'svelte/server';
 import { describe, expect, it } from 'vitest';
 import PlaceCard from './place-card.svelte';
 import type { Member, Site } from './places.ts';
+import { PLACED } from '../server/nodes.fixture.ts';
+import { learnPlaces } from './places.ts';
+
+// Where the registry places each node; see RFC 17b3o.
+learnPlaces(PLACED);
 
 const NOW = Date.parse('2026-10-06T12:00:00Z');
 const GIB = 2 ** 30;

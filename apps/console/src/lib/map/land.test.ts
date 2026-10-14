@@ -3,13 +3,18 @@ import { build, DOT, PITCH, projectionOf } from '../../../scripts/project.ts';
 import { NODES } from '../server/nodes.ts';
 import * as generated from './land.generated.ts';
 import { SIZES } from './marks.ts';
-import { gather, PLACES } from './places.ts';
+import { gather, PLACES, learnPlaces } from './places.ts';
+import { PLACED } from '../server/nodes.fixture.ts';
+
+// Where the registry places each node; see RFC 17b3o.
+learnPlaces(PLACED);
 
 describe('the generated map', () => {
 	it('places every node of nodes.ts where the projection puts it', () => {
 		expect(Object.keys(generated.POINTS).toSorted()).toEqual(Object.keys(NODES).toSorted());
+		expect(Object.keys(generated.LOCATIONS).toSorted()).toEqual(Object.keys(NODES).toSorted());
 		const world = projectionOf(generated.PROJECTION);
-		for (const [code, [latitude, longitude]] of Object.entries(NODES)) {
+		for (const [code, [latitude, longitude]] of Object.entries(generated.LOCATIONS)) {
 			const [x, y] = world([longitude, latitude]) ?? [NaN, NaN];
 			const [gx, gy] = generated.POINTS[code as keyof typeof NODES];
 			expect(gx).toBeCloseTo(x, 1);
@@ -17,8 +22,10 @@ describe('the generated map', () => {
 		}
 	});
 
+	// Built from the locations it holds: where they come from is infra's nodes.toml, which only
+	// `pnpm map` reads, never a test. See RFC 17b3o.
 	it('is what scripts/land.ts would write now: run `pnpm map` when this fails', () => {
-		const built = build();
+		const built = build(generated.LOCATIONS);
 		expect(generated.WIDTH).toBe(built.width);
 		expect(generated.HEIGHT).toBe(built.height);
 		expect(generated.PROJECTION).toEqual(built.projection);
@@ -27,10 +34,6 @@ describe('the generated map', () => {
 		expect(generated.DOTS).toBe(built.dots);
 		expect(generated.LOCATIONS).toEqual(built.locations);
 		expect(generated.POINTS).toEqual(built.points);
-	});
-
-	it('gives the globe each node where nodes.ts has it', () => {
-		expect(generated.LOCATIONS).toEqual(NODES);
 	});
 
 	it('draws land as runs of whole dots on the grid, inside the plot', () => {

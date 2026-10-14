@@ -25,88 +25,31 @@ export const viewOf = (param: string | undefined): View =>
 
 export const labelOf = (view: View): string => VIEWS.find(({ key }) => key === view)?.label ?? view;
 
-/** infra's apps, mirroring infra's apps/<group>/<app>/ by hand: CI holds this repository alone. */
-const INFRA = new Set(['caddy', 'host', 'keeper', 'meter', 'panel', 'resolver', 'tunnel']);
-
-/** The platform's, as its apps/<group>/<app>/service.toml name them, mirrored by hand the same. */
-const PLATFORM = new Set([
-	'aka',
-	'apk',
-	'apt',
-	'cdn',
-	'cron',
-	'database',
-	'deployer',
-	'executor',
-	'gateway',
-	'gemini',
-	'geo',
-	'grok',
-	'hook',
-	'ledger',
-	'objects',
-	'postgres',
-	'primary',
-	'probe',
-	'quorum',
-	'quota',
-	'registry',
-	'relay',
-	'router',
-	'secrets',
-	'shot',
-	'store',
-	'telemetry',
-]);
-
-/** Exported for ./scope.test.ts to hold against the platform's manifests. */
-export const PLATFORM_APPS: readonly string[] = [...PLATFORM];
+/** What the registry says of an app that the console reads: its display name and its repository. */
+export interface AppFact {
+	readonly display?: string;
+	readonly repository?: string;
+}
 
 /**
- * Each app's `display_name`, as its service.toml declares it, mirrored by hand the same. See
- * spec/architecture/console.md, "A node is shown by its city, and its code is the key".
+ * Every app the registry holds, as it last said, each from its own `service.toml`; empty until it
+ * has said anything, when every app is its code name and in Services. See RFC 17b3o.
  */
-export const DISPLAY_NAMES: Readonly<Record<string, string>> = {
-	aka: 'Short Links',
-	apk: 'Package Updates',
-	apt: 'Package Updates',
-	caddy: 'Reverse Proxy',
-	cdn: 'CDN',
-	console: 'Console',
-	cron: 'Scheduler',
-	database: 'Database',
-	deployer: 'Worker Deployer',
-	executor: 'Workflow Executor',
-	gateway: 'API Gateway',
-	gemini: 'Gemini',
-	geo: 'Geolocation',
-	grok: 'Grok',
-	hook: 'Webhooks',
-	host: 'Host',
-	keeper: 'Keeper',
-	ledger: 'Task Ledger',
-	meter: 'Metrics',
-	objects: 'Object Storage',
-	postgres: 'PostgreSQL',
-	primary: 'Database Primary',
-	probe: 'Uptime Probe',
-	quorum: 'Quorum',
-	quota: 'Rate Limits',
-	registry: 'Node Registry',
-	relay: 'Relay',
-	resolver: 'DNS Resolver',
-	router: 'App Router',
-	secrets: 'Secrets',
-	shot: 'Screenshots',
-	site: 'Website',
-	space: 'Space',
-	store: 'Node Store',
-	telemetry: 'Telemetry',
-	tunnel: 'Tunnel',
+let apps: Readonly<Record<string, AppFact>> = {};
+
+/** What the registry said of the apps, taken in, on the server and in the browser alike. */
+export function learnApps(facts: Readonly<Record<string, AppFact>>): void {
+	apps = facts;
+}
+
+/** The scope a repository's apps are in: infra's and the platform's by name, any other Services. */
+const REPOSITORIES: Readonly<Record<string, Scope>> = {
+	'monoflake/infra': 'infra',
+	'monoflake/platform': 'platform',
 };
 
-/** An app's display name; one the copy lacks is written as its code name. */
-export const displayOf = (app: string): string => DISPLAY_NAMES[app] ?? app;
+/** An app's display name; one the registry has not named is written as its code name. */
+export const displayOf = (app: string): string => apps[app]?.display ?? app;
 
 /**
  * The display name and the code name in one string, where only text can be written -- an option,
@@ -119,11 +62,11 @@ export function appLabel(app: string): string {
 }
 
 /**
- * The layer whose repository built `app`. host records no repository on an app or an event, so
- * the name tells it, and a name neither list holds is a service.
+ * The layer whose repository declares `app`, as the registry says; an app it does not hold, or
+ * holds with no repository, is a service.
  */
 export function scopeOf(app: string): Scope {
-	return INFRA.has(app) ? 'infra' : PLATFORM.has(app) ? 'platform' : 'services';
+	return REPOSITORIES[apps[app]?.repository ?? ''] ?? 'services';
 }
 
 /** Whether `view` shows `app`: All shows every one. */

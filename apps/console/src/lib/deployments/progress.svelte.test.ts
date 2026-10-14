@@ -4,6 +4,11 @@ import { viewedAs } from '../scope/context.ts';
 import Matrix from './matrix.svelte';
 import Progress from './progress.svelte';
 import type { Cell, NodeMark } from './state.ts';
+import { PLACED } from '../server/nodes.fixture.ts';
+import { learnPlaces } from '../map/places.ts';
+
+// Where the registry places each node; see RFC 17b3o.
+learnPlaces(PLACED);
 
 describe('the progress strip', () => {
 	it('fills a running cell as far as its stage, and says every node in words', () => {

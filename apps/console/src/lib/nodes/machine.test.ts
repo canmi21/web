@@ -2,6 +2,11 @@ import { describe, expect, it } from 'vitest';
 import type { Now } from '../host.ts';
 import type { Held } from '../wire.ts';
 import { architecture, machineFor, machineOf, nodeRow, share, uptime } from './machine.ts';
+import { PLACED } from '../server/nodes.fixture.ts';
+import { learnPlaces } from '../map/places.ts';
+
+// Where the registry places each node; see RFC 17b3o.
+learnPlaces(PLACED);
 
 const HEARD = '2026-10-06T12:00:00Z';
 const NOW = Date.parse(HEARD) + 2000;
