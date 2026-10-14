@@ -42,7 +42,7 @@ run = "pnpm --filter @canmi/messages exec paraglide-js compile --project .inlang
 [tasks.test]
 description = "Run every test in the workspace"
 depends = ["messages"]
-run = "pnpm exec vitest run"
+run = "node {{config_root}}/../../.mise/tasks/gates/test.ts"
 
 [tasks.check]
 description = "Type check every workspace package, in each runtime context"
@@ -103,19 +103,15 @@ run = "node apps/site/scripts/css-ramp.ts"
 
 [tasks.lint]
 description = "Lint the workspace"
-# The expansion is strict mode, set by `mise run audit` and nothing else. See spec/lint-format.md.
-run = 'oxlint . ${AUDIT:+--deny-warnings}'
+run = "node {{config_root}}/../../.mise/tasks/gates/lint.ts ."
 
 [tasks.test-rust]
 description = "Run the Rust test suites"
-run = 'cargo test ${RUST_PACKAGES:---workspace}'
+run = "node {{config_root}}/../../.mise/tasks/gates/test-rust.ts"
 
 [tasks.lint-rust]
 description = "Lint the Rust crates"
-# `-D warnings` on the command line outranks the lint table in Cargo.toml, which is how strict
-# mode reaches `complexity = "warn"` without that table being edited. See spec/lint-format.md.
-# RUST_PACKAGES is `verify` naming the crates a change reached; run alone, it is every crate.
-run = 'cargo clippy ${RUST_PACKAGES:---workspace} --all-targets ${AUDIT:+-- -D warnings}'
+run = "node {{config_root}}/../../.mise/tasks/gates/lint-rust.ts"
 
 # wrangler is a devDependency of each worker rather than a mise tool, because it participates
 # in the npm resolution model -- so it is never on $PATH and always needs `pnpm exec`. These
@@ -327,20 +323,11 @@ run = "node apps/site/scripts/search.ts"
 rclone = "1"
 
 # The workspace's verbs reach these three; what each owes is in the workspace's repos spec, "What a
-# repository's task owes the verb". `clean` is a file task, .mise/tasks/clean.
+# repository's task owes the verb". `clean` is below, with the other gates the workspace runs.
 [tasks.fmt]
 description = "Format the Rust and the TypeScript, Svelte, JSON and prose, with jj.toml's formatters: `fmt [--dry-run]`"
 usage = 'flag "-n --dry-run" help="List the files that would change and write nothing"'
-run = '''
-files='**/*.{ts,tsx,mts,cts,js,mjs,cjs,jsx,css,json,jsonc,md,svelte}'
-if [ -n "${usage_dry_run:-}" ]; then
-	cargo fmt --all --check --message-format short || true
-	oxfmt --list-different --no-error-on-unmatched-pattern "$files" || true
-else
-	cargo fmt --all
-	oxfmt --no-error-on-unmatched-pattern "$files"
-fi
-'''
+run = "node {{config_root}}/../../.mise/tasks/gates/fmt.ts"
 
 # Its own [tools] -- rclone -- moves within their pins here, read from this file so the list is
 # not written twice; what it inherits is the workspace's to move.
@@ -350,38 +337,7 @@ usage = '''
 flag "-n --dry-run" help="Say what would move and write nothing"
 flag "--major" help="Cross the ranges Cargo.toml and package.json declare"
 '''
-run = '''
-n=${usage_dry_run:+--dry-run}
-major=${usage_major:-}
-own=$(sed -n '/^\[tools\]/,/^\[/{/^[a-z0-9-]* *=/s/ *=.*//p;}' mise.toml)
-echo "\$ mise upgrade $own${n:+ --dry-run}"
-mise upgrade $own $n
-echo
-if [ -n "$major" ]; then
-	if command -v cargo-upgrade >/dev/null; then cargo upgrade --incompatible $n
-	else echo "cargo-edit is not installed: the crates' majors were not checked"; fi
-fi
-cargo update $n
-echo
-if [ -n "$n" ]; then
-	.mise/tasks/outdated
-	exit 0
-fi
-# Across the ranges, only what the report calls behind: a package versions.toml allows at two
-# majors is left on both. See the workspace's spec/toolchain.md, "A package at two majors is a
-# warning unless it is
-# allowed".
-names=$([ -z "$major" ] || .mise/tasks/outdated --names | tr '\n' ' ')
-echo "\$ pnpm update -r${major:+ --latest $names}"
-if [ -n "$major" ] && [ -z "$names" ]; then echo "nothing waits beyond its range"; exit 0; fi
-if ! out=$(pnpm update -r ${major:+--latest $names} 2>&1); then
-	echo "$out"
-	echo "$out" | grep -q ERR_PNPM_NO_MATURE_MATCHING_VERSION || exit 1
-	echo "held by the supply-chain delay, nothing moved in the pnpm half; run again once it has aged"
-else
-	echo "$out"
-fi
-'''
+run = "node {{config_root}}/../../.mise/tasks/gates/update.ts"
 
 [tasks.gc]
 description = "Compact the object stores and list published assets no article references"
@@ -396,3 +352,27 @@ description = "Delete the published assets that `gc` listed"
 # holds the originals and `local image` rebuilds from a content id -- but only while that is
 # true, which is a fact about this repository rather than a guarantee of the command.
 run = "cargo run -q -p local -- gc --live"
+
+# Gates every repository runs the same, from the workspace's .mise/tasks/gates; what is
+# this repository's own is the arguments each is given. RFC 17b3o.
+[tasks.secrets]
+description = "Refuse to let a plaintext secrets file exist"
+run = "node {{config_root}}/../../.mise/tasks/gates/secrets.ts"
+
+[tasks.comments]
+description = "Hold every comment block to the length and width the house rules give it"
+run = "node {{config_root}}/../../.mise/tasks/gates/comments.ts"
+
+[tasks.clean]
+description = "Remove what cargo and the JavaScript tools built, never an installed dependency or local state: `clean [--dry-run]`"
+usage = '''
+flag "-n --dry-run" help="List what would go and remove nothing"
+'''
+run = "node {{config_root}}/../../.mise/tasks/gates/clean.ts apps/site/.inlang/cache"
+
+[tasks.outdated]
+description = "What waits beyond the packages' ranges, judged by the newest version the workspace holds: `outdated [--names]`"
+usage = '''
+flag "--names" help="Print only the names `update --major` should move, one a line"
+'''
+run = "node {{config_root}}/../../.mise/tasks/gates/outdated.ts"
