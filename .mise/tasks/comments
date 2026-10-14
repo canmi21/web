@@ -38,7 +38,7 @@ CLOSERS = ("*/", "-->", '"""', "'''")
 # Read by a tool rather than by a person. A shell script cannot put its introduction first --
 # the shebang, mise's task header and `set -euo pipefail` have to lead -- and none of them is
 # prose, so the block after them is still the one that opens the file.
-DIRECTIVES = ("#!", "#MISE", "#USAGE")
+DIRECTIVES = ("#!", "#MISE", "#USAGE", "//MISE")
 PREAMBLE = ("set -",)
 # A link, as spec/code.md's "A link is not length" means it: anchored on the two schemes that
 # name something a reader opens, because `cid://` and the rest are tokens this tree discusses

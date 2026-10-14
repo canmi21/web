@@ -28,10 +28,24 @@ jobs:
     outputs:
       workers: ${{ steps.plan.outputs.workers }}
     steps:
+      # The workspace above the project, as it is checked out at home: its .mise/tasks hold the
+      # engine `deployable` runs, its mise.toml the Node it runs on.
       - uses: actions/checkout@v7
         with:
+          repository: canmi21/canmi
+      - uses: actions/checkout@v7
+        with:
+          path: repos/web
           fetch-depth: 0
+      # Node, and the workspace's own dependencies without its tools: the TOML reader the engine
+      # parses declarations with.
+      - uses: jdx/mise-action@v5
+        with:
+          install_args: node pnpm
+          cache: false
+      - run: pnpm install --frozen-lockfile --prod
       - id: plan
+        working-directory: repos/web
         env:
           EVENT: ${{ github.event_name }}
           BEFORE: ${{ github.event.before }}
@@ -39,11 +53,11 @@ jobs:
         run: |
           if [ "$EVENT" = workflow_dispatch ] && [ -n "$ASKED" ]; then
             # The asked apps that are moved Workers; any other name asks for nothing.
-            workers="$(.mise/tasks/deployable --all | python3 -c 'import json,os,sys; asked=os.environ["ASKED"].split(); print(json.dumps([w for w in json.load(sys.stdin) if w in asked]))')"
+            workers="$(.mise/tasks/deployable.ts --all | python3 -c 'import json,os,sys; asked=os.environ["ASKED"].split(); print(json.dumps([w for w in json.load(sys.stdin) if w in asked]))')"
           elif [ "$EVENT" = workflow_dispatch ] || [ -z "${BEFORE//0/}" ]; then
-            workers="$(.mise/tasks/deployable --all)"
+            workers="$(.mise/tasks/deployable.ts --all)"
           else
-            workers="$(.mise/tasks/deployable --git "$BEFORE")"
+            workers="$(.mise/tasks/deployable.ts --git "$BEFORE")"
           fi
           echo "workers=$workers" >> "$GITHUB_OUTPUT"
           echo "packaging: $workers"

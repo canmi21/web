@@ -170,7 +170,7 @@ allows the pair, so the report says so rather than warning.
 ## verify runs what a change reaches
 
 The rule is the workspace's `spec/architecture/repos.md`, "verify runs what a change reaches";
-[the script](../.mise/tasks/verify) is this repository's mapping. Two things are its own: articles
+[its configuration](../.mise/tasks/verify.ts) is this repository's mapping. Two things are its own: articles
 and tracked records are read rather than imported, so they reach the site; and the editor's checks
 run when the editor moved.
 
