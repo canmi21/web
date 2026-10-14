@@ -84,6 +84,26 @@ describe('merge', () => {
 		);
 	});
 
+	it("moves every node a round's beats heard, each only forward, and nothing for one unknown", () => {
+		let view = merge(EMPTY, { type: 'node', node: 'tyo', state: held(200) });
+		view = merge(view, { type: 'node', node: 'rdu', state: held(100) });
+		const before = view.nodes.rdu?.heard_at;
+		const round = merge(view, {
+			type: 'beats',
+			beats: {
+				tyo: '2026-10-06T12:00:09Z',
+				rdu: '2000-01-01T00:00:00Z',
+				sin: '2026-10-06T12:00:09Z',
+			},
+		});
+		expect(round.nodes.tyo?.heard_at).toBe('2026-10-06T12:00:09Z');
+		expect(round.nodes.rdu?.heard_at).toBe(before);
+		expect(round.nodes.sin).toBeUndefined();
+		// A round that moves nothing is the same view.
+		expect(merge(round, { type: 'beats', beats: { tyo: '2026-10-06T12:00:03Z' } })).toBe(round);
+		expect(merge(round, { type: 'beats', beats: {} })).toBe(round);
+	});
+
 	it('takes the same version again where its newest minute moved', () => {
 		const minute = (at: string) => ({ at, values: { 'cpu.usage': { mean: 4, max: 9 } } });
 		const view = merge(EMPTY, {

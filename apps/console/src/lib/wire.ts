@@ -1,5 +1,5 @@
 /**
- * What a relay sends a browser, as apps/system/relay writes it: `live.rs` for the socket's two
+ * What a relay sends a browser, as platform's relay writes it: `live.rs` for the socket's two
  * messages, `own.rs` for a snapshot, `host.rs` for its events and apps. A word host owns -- an
  * action, an outcome, a stage -- stays a string, since host may add to it. A snapshot carries no
  * events; they are read from the runs, `/runs`, whenever a node's `runs` moves -- platform's RFC
@@ -163,14 +163,15 @@ export interface EntryDelta {
 
 /**
  * A relay's message: the whole cluster, a node's entry, what changed of one, that a node was heard,
- * or a watched node's second. A type this console does not know is passed over, so a relay ahead
- * of it never breaks it.
+ * every node heard in a round at once, or a watched node's second. A type this console does not
+ * know is passed over, so a relay ahead of it never breaks it.
  */
 export type Live =
 	| ({ type: 'cluster' } & Cluster)
 	| { type: 'node'; node: string; state: Entry }
 	| EntryDelta
 	| { type: 'beat'; node: string; heard_at: string }
+	| { type: 'beats'; beats: Record<string, string> }
 	| { type: 'readings'; node: string; sample: Second };
 
 /**
