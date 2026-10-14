@@ -1,19 +1,19 @@
 import { existsSync, readFileSync, readdirSync } from 'node:fs';
-import { fileURLToPath } from 'node:url';
 import * as v from 'valibot';
 import { describe, expect, it } from 'vitest';
+import { beside } from '../../../scripts/beside.ts';
 import { controlMock } from '../server/mock-control.ts';
 import { Catalog, type Field } from './catalog.gen.ts';
 import { describe as kindOf, holdsObjects, identifying, withoutSecrets } from './catalog.ts';
 
 /**
- * The examples the registry's own tests run, beside its schema in the platform's checkout: every
- * reader accepts each valid one and refuses each invalid one, as the producer does. RFC bq3vn.
+ * The examples the registry's own tests run, beside its schema in the platform's checkout, in
+ * whichever group holds it: every reader accepts each valid one and refuses each invalid one, as
+ * the producer does. RFC bq3vn.
  */
-const EXAMPLES = fileURLToPath(
-	new URL('../../../../../../platform/apps/data/registry/examples/catalog/', import.meta.url),
-);
-const cloned = existsSync(EXAMPLES);
+const FOUND = beside('../platform/apps/*/registry/examples/catalog');
+const EXAMPLES = `${FOUND}/`;
+const cloned = FOUND !== undefined && existsSync(FOUND);
 
 const examples = (which: 'valid' | 'invalid') =>
 	cloned

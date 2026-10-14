@@ -13,12 +13,16 @@ import { existsSync, readFileSync, writeFileSync } from 'node:fs';
 import { join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { parseArgs } from 'node:util';
+import { beside } from './beside.ts';
 
 /** The web repository, which every path below is relative to. */
 const ROOT = fileURLToPath(new URL('../../../', import.meta.url));
 
 export interface Contract {
-	/** The producer's committed schema, in its own checkout beside this one. */
+	/**
+	 * The producer's committed schema, in its own checkout beside this one, the directory it may
+	 * move its app between written `*`; see beside.ts.
+	 */
 	schema: string;
 	/** The reader made of it, committed here. */
 	reader: string;
@@ -26,7 +30,7 @@ export interface Contract {
 
 export const CONTRACTS: readonly Contract[] = [
 	{
-		schema: '../platform/apps/data/registry/catalog.schema.json',
+		schema: '../platform/apps/*/registry/catalog.schema.json',
 		reader: 'apps/console/src/lib/control/catalog.gen.ts',
 	},
 ];
@@ -350,8 +354,8 @@ export function formatted(text: string, path: string): string {
 
 /** What `contract`'s reader is now, or undefined where its producer is not cloned beside this. */
 export function readerOf(contract: Contract): string | undefined {
-	const schema = join(ROOT, contract.schema);
-	if (!existsSync(schema)) return undefined;
+	const schema = beside(contract.schema, ROOT);
+	if (schema === undefined || !existsSync(schema)) return undefined;
 	const made = generate(JSON.parse(readFileSync(schema, 'utf8')) as Schema, contract.schema);
 	return formatted(made, contract.reader);
 }
