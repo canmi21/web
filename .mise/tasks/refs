@@ -125,13 +125,19 @@ def files() -> list[pathlib.Path]:
 
 
 def code_files() -> list[pathlib.Path]:
-	"""Files whose URLs something other than a reader would resolve.
-
-	Narrower than the files that may cite, and deliberately: an address written in a shell task
-	is a judgment about single-sourcing that this repository has already argued out in prose,
-	and widening a URL gate is not the same decision as widening a citation gate.
+	"""Files whose URLs something other than a reader would resolve: code by its extension, and an
+	extensionless task by its shebang. Narrower than the files that may cite, which take any
+	extensionless text. See the workspace's spec/addresses.md, "Every URL is declared once".
 	"""
-	return [path for path in files() if path.suffix in CODE_SUFFIXES]
+	return [path for path in files() if path.suffix in CODE_SUFFIXES or shebang(path)]
+
+
+def shebang(path: pathlib.Path) -> bool:
+	"""Whether `path` is an extensionless program: its first line names its interpreter."""
+	if path.suffix or not path.is_file():
+		return False
+	with path.open("rb") as file:
+		return file.read(2) == b"#!"
 
 
 def locate(cited: str) -> pathlib.Path | None:
