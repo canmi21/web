@@ -26,7 +26,11 @@ const cluster = {
 	version: 1,
 	node: 'tyo',
 	nodes: {
-		tyo: held([app('web', 'r/web@sha256:aaa'), app('geo', 'r/geo@sha256:ccc')]),
+		tyo: held([
+			app('web', 'r/web@sha256:aaa'),
+			app('geo', 'r/geo@sha256:ccc'),
+			app('objects', 'r/objects@sha256:ddd', { running: false, driver: true }),
+		]),
 		gvx: held([
 			app('web', 'r/web@sha256:bbb', { deployed_at: '2026-10-06T09:00:00Z', held: true }),
 			app('geo', 'r/geo@sha256:ccc', { running: false }),
@@ -44,8 +48,9 @@ describe('apps', () => {
 	it('flags an app whose nodes run different images', () => {
 		expect(drifts(['a', 'a'])).toBe(false);
 		expect(drifts(['a', 'b'])).toBe(true);
-		const [geo, web] = rowsOf(ORDER, cluster);
-		expect([geo?.name, geo?.drift, geo?.running]).toEqual(['geo', false, 1]);
+		const [geo, objects, web] = rowsOf(ORDER, cluster);
+		expect([geo?.name, geo?.drift, geo?.running, geo?.instances]).toEqual(['geo', false, 1, 2]);
+		expect([objects?.running, objects?.instances]).toEqual([0, 0]);
 		expect([web?.name, web?.drift, web?.running, web?.deployed]).toEqual([
 			'web',
 			true,
@@ -60,6 +65,7 @@ describe('apps', () => {
 			['gvx', 'held'],
 		]);
 		expect(placements(ORDER, cluster, 'geo')[1]?.state).toBe('stopped');
+		expect(placements(ORDER, cluster, 'objects')[0]?.state).toBe('driver');
 		expect(placements(ORDER, cluster, 'none')).toEqual([]);
 	});
 });

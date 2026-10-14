@@ -53,7 +53,7 @@
 			label: 'Running',
 			kind: 'number',
 			value: (row) => row.running,
-			text: (row) => `${row.running}/${row.placements.length}`,
+			text: (row) => `${row.running}/${row.instances}`,
 		},
 		{
 			key: 'image',
@@ -128,7 +128,7 @@
 					<StatTile label="Running instances" value={count(rows, (row) => row.running)} />
 					<StatTile
 						label="Held or stopped"
-						value={count(rows, (row) => row.placements.length - row.running)}
+						value={count(rows, (row) => row.instances - row.running)}
 					/>
 					<StatTile label="Drifting" value={rows.filter((row) => row.drift).length} />
 				</div>

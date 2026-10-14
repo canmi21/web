@@ -5,7 +5,7 @@
  * spec/console/overview.md, "A flag's dot is how its node is", and platform's `alarm.rs`.
  */
 import { partOf } from '../map/places.ts';
-import { stateOf } from '../node.ts';
+import { serving, stateOf } from '../node.ts';
 import { displayOf } from '../scope/scope.ts';
 import type { Entry } from '../wire.ts';
 
@@ -39,7 +39,7 @@ export function healthOf(entry: Entry | undefined, now: number): Told {
 	if (state === 'upgrading') return { health: 'leaving', said: 'Upgrading' };
 	if (state === 'restarting') return { health: 'leaving', said: 'Restarting' };
 	if (state === 'waiting') return { health: 'waiting', said: 'Not heard yet' };
-	const stopped = (entry?.snapshot?.apps ?? []).filter((app) => !app.running);
+	const stopped = serving(entry?.snapshot?.apps ?? []).filter((app) => !app.running);
 	const down = stopped.filter((app) => !app.held).map((app) => displayOf(app.name));
 	const held = stopped.filter((app) => app.held).map((app) => displayOf(app.name));
 	const aside = held.length ? `; ${plural(held.length, 'app')} held: ${held.join(', ')}` : '';

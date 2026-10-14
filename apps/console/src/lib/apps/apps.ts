@@ -12,7 +12,7 @@ import type { Read } from '../server/read.ts';
 import type { App, Cluster, Event } from '../wire.ts';
 import { rolloutOf } from './rollout.ts';
 
-export type State = 'running' | 'held' | 'stopped';
+export type State = 'running' | 'held' | 'stopped' | 'driver';
 
 /** A node running an app, and what it runs there. */
 export interface Placement {
@@ -31,6 +31,8 @@ export interface AppRow {
 	/** The newest deploy time among its nodes. */
 	deployed: string;
 	running: number;
+	/** Its placements that can run at all: a driver has no container, so it is neither. */
+	instances: number;
 	/** Each distinct rollout its nodes show, in node order: one unless a deploy is half done. */
 	rollouts: string[];
 }
@@ -38,8 +40,8 @@ export interface AppRow {
 /** Every node, in the order a chart's colors follow. */
 export type Order = readonly Node[];
 
-export const stateOf = (app: Pick<App, 'held' | 'running'>): State =>
-	app.held ? 'held' : app.running ? 'running' : 'stopped';
+export const stateOf = (app: Pick<App, 'held' | 'running' | 'driver'>): State =>
+	app.driver ? 'driver' : app.held ? 'held' : app.running ? 'running' : 'stopped';
 
 /** Whether `images` holds more than one distinct image. */
 export const drifts = (images: string[]): boolean => new Set(images).size > 1;
@@ -72,6 +74,7 @@ function rowOf(order: Order, cluster: Cluster, name: string): AppRow {
 		drift: drifts(images),
 		deployed: times.reduce((a, b) => (Date.parse(b) > Date.parse(a) ? b : a), times[0] ?? ''),
 		running: held.filter(({ state }) => state === 'running').length,
+		instances: held.filter(({ state }) => state !== 'driver').length,
 		rollouts: [...new Set(held.map(({ app }) => rolloutOf(app)))],
 	};
 }

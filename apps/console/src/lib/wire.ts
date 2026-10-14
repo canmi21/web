@@ -40,6 +40,12 @@ export interface App {
 	held: boolean;
 	/** Absent until the relay passes host's on; see ./apps/rollout.ts. */
 	rollout?: string;
+	/**
+	 * A driver, an image other apps' sidecars run and never a container of its own, so neither
+	 * running nor down; absent until the relay passes host's on. See infra's
+	 * spec/architecture/host.md.
+	 */
+	driver?: boolean;
 }
 
 export interface Snapshot {

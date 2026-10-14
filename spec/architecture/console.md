@@ -123,6 +123,12 @@ infra's `nodes/nodes.toml` in the checkout beside this one; no test reads anothe
 is a small ring or bar filled to the share, the figure beside it short, and the full sentence
 (`975.5 MiB of 23.4 GiB`) on hover; a table cell never carries a sentence a glance cannot read.
 
+**A driver is neither running nor down.** An app whose `[driver]` the node grants is an image other
+apps' sidecars run, never a container of its own -- infra's `spec/architecture/host.md`. host's
+`/api/apps` says so as `driver`, and the relay passes it on in the snapshot. Every count of apps
+running leaves a driver out of both numbers, no health or timeline judgment counts it down, and a
+list that shows it says Driver.
+
 **The server computes in UTC and every time is written in the reader's zone**, by its IANA name.
 The name comes from the `timezone` cookie the browser keeps ([../console/state.md](../console/state.md),
 "Kept, and where"), else from the zone Cloudflare names on the request, else UTC; a name Intl does

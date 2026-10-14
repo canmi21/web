@@ -7,7 +7,7 @@
 	import * as stylex from '@stylexjs/stylex';
 	import { duration, radius, text, weight } from '@canmi/kit/tokens/vocabulary.stylex';
 	import type { Live } from '../live.svelte.ts';
-	import { stateOf } from '../node.ts';
+	import { serving, stateOf } from '../node.ts';
 	import { CODES } from '../nodes/facts.ts';
 	import { scoped } from '../scope/context.ts';
 	import { corners, surfaces, tone } from '../style.ts';
@@ -42,8 +42,9 @@
 	const upgrading = $derived(counted('upgrading'));
 	const restarting = $derived(counted('restarting'));
 	const stopped = $derived(
-		held.flatMap((one) => one.snapshot?.apps ?? []).filter((app) => keep(app.name) && !app.running)
-			.length,
+		serving(held.flatMap((one) => one.snapshot?.apps ?? [])).filter(
+			(app) => keep(app.name) && !app.running,
+		).length,
 	);
 	const failed = $derived(
 		(now?.failed ?? []).filter(

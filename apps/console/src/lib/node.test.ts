@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { machineIn, readings, stateOf } from './node.ts';
+import { machineIn, readings, running, stateOf } from './node.ts';
 import type { Held, State } from './wire.ts';
 
 const HEARD = '2026-10-06T12:00:00Z';
@@ -94,5 +94,22 @@ describe("an entry's machine", () => {
 		expect(machineIn(carried)).toEqual(old);
 		expect(readings(machineIn(carried))?.cpu).toBe(7);
 		expect(machineIn(held('live'))).toBeUndefined();
+	});
+});
+
+const app = (name: string, up: boolean, driver?: boolean) => ({
+	name,
+	image: 'x',
+	deployed_at: '',
+	running: up,
+	held: false,
+	...(driver === undefined ? {} : { driver }),
+});
+
+describe('apps running', () => {
+	it('leaves a driver out of both numbers: it has no container to run or to be down', () => {
+		const apps = [app('relay', true), app('geo', false), app('objects', false, true)];
+		const node: Held = { ...held('live'), snapshot: { taken_at: HEARD, apps } };
+		expect(running(node)).toEqual({ running: 1, total: 2 });
 	});
 });

@@ -16,7 +16,7 @@
 	import type { Live } from '../live.svelte.ts';
 	import { nameOf } from '../map/places.ts';
 	import { shown } from '../map/marks.ts';
-	import { stateOf } from '../node.ts';
+	import { serving, stateOf } from '../node.ts';
 	import { CODES } from '../nodes/facts.ts';
 	import { corners, type } from '../style.ts';
 	import type { State } from '../wire.ts';
@@ -44,7 +44,9 @@
 		}),
 	);
 	const apps = $derived.by(() => {
-		const kept = held.flatMap((one) => one.snapshot?.apps ?? []).filter((app) => keep(app.name));
+		const kept = serving(held.flatMap((one) => one.snapshot?.apps ?? [])).filter((app) =>
+			keep(app.name),
+		);
 		return { running: kept.filter((app) => app.running).length, total: kept.length };
 	});
 	/** A span of milliseconds in its one largest unit: `58s`, `26m`, `1.4h`. */

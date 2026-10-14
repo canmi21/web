@@ -8,12 +8,13 @@ import { learnPlaces } from '../map/places.ts';
 learnPlaces(PLACED);
 
 const NOW = Date.parse('2026-10-09T12:00:00Z');
-const app = (name: string, running: boolean, held = false) => ({
+const app = (name: string, running: boolean, held = false, driver = false) => ({
 	name,
 	image: 'x',
 	deployed_at: '',
 	running,
 	held,
+	driver,
 });
 const node = (apps: ReturnType<typeof app>[], state: Entry['state'] = 'live'): Entry => ({
 	version: 1,
@@ -29,6 +30,13 @@ describe('health', () => {
 			said: 'Every app running',
 		});
 		expect(healthOf(node([app('relay', false, true)]), NOW).health).toBe('well');
+	});
+
+	it('is well where only a driver does not run: it has no container of its own', () => {
+		expect(healthOf(node([app('relay', true), app('objects', false, false, true)]), NOW)).toEqual({
+			health: 'well',
+			said: 'Every app running',
+		});
 	});
 
 	it('is down where an app should run and does not, naming it', () => {

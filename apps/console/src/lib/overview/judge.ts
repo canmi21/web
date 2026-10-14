@@ -6,6 +6,7 @@
  */
 import { nameOf, partOf } from '../map/places.ts';
 import { LOCATIONS } from '../map/land.generated.ts';
+import { serving } from '../node.ts';
 import { CODES } from '../nodes/facts.ts';
 import { type Scope, displayOf, scopeOf } from '../scope/scope.ts';
 import type { App, Entry, History, Slot } from '../wire.ts';
@@ -39,10 +40,10 @@ import {
 
 /** A node as the lines read it: the apps it runs, and whether each is running or held. */
 export interface Hosting {
-	snapshot?: { apps: readonly Pick<App, 'name' | 'running' | 'held'>[] };
+	snapshot?: { apps: readonly Pick<App, 'name' | 'running' | 'held' | 'driver'>[] };
 }
 
-/** Each node's `Hosting`, and nothing else of what the relay sends. */
+/** Each node's `Hosting`, and nothing else of what the relay sends: a driver runs neither way. */
 export function hostingOf(nodes: Readonly<Record<string, Entry>>): Record<string, Hosting> {
 	return Object.fromEntries(
 		Object.entries(nodes).map(([code, entry]) => [
@@ -50,7 +51,11 @@ export function hostingOf(nodes: Readonly<Record<string, Entry>>): Record<string
 			entry.snapshot
 				? {
 						snapshot: {
-							apps: entry.snapshot.apps.map(({ name, running, held }) => ({ name, running, held })),
+							apps: serving(entry.snapshot.apps).map(({ name, running, held }) => ({
+								name,
+								running,
+								held,
+							})),
 						},
 					}
 				: {},
@@ -194,10 +199,15 @@ function lineup(ground: Ground, drawn: Mark[]): Line[] {
 		}));
 }
 
-/** Each place `apps` run now, one entry a node and app, those held on purpose aside. */
+/**
+ * Each place `apps` run now, one entry a node and app, those held on purpose and drivers aside: the
+ * timeline hands it the relay's entries whole, not `hostingOf`'s.
+ */
 export const runsOf = (nodes: Ground['nodes'], apps: string[]) =>
 	CODES.flatMap((code) =>
-		(nodes[code]?.snapshot?.apps ?? []).filter((one) => apps.includes(one.name) && !one.held),
+		serving(nodes[code]?.snapshot?.apps ?? []).filter(
+			(one) => apps.includes(one.name) && !one.held,
+		),
 	);
 
 /** How many apps a node runs as it is read now, those held on purpose aside. */

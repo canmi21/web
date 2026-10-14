@@ -9,7 +9,7 @@
 
 	let { node, state }: { node: string; state: State } = $props();
 
-	const TONES = { running: 'good', held: 'warn', stopped: 'bad' } as const;
+	const TONES = { running: 'good', held: 'warn', stopped: 'bad', driver: 'quiet' } as const;
 	const styles = stylex.create({ chip: { fontSize: text.px12 } });
 </script>
 

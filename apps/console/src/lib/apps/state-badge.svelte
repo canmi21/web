@@ -5,8 +5,8 @@
 
 	let { state }: { state: State } = $props();
 
-	const TONES = { running: 'good', held: 'warn', stopped: 'bad' } as const;
-	const WORDS = { running: 'Running', held: 'Held', stopped: 'Stopped' } as const;
+	const TONES = { running: 'good', held: 'warn', stopped: 'bad', driver: 'quiet' } as const;
+	const WORDS = { running: 'Running', held: 'Held', stopped: 'Stopped', driver: 'Driver' } as const;
 </script>
 
 <Badge tone={TONES[state]}>{WORDS[state]}</Badge>

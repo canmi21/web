@@ -134,14 +134,19 @@ function events(node: string, before = Infinity, limit = 30): Event[] {
 }
 
 function apps(node: string): App[] {
-	return APPS.map((name) => ({
-		name,
-		image: `ghcr.io/canmi/${name}:mock`,
-		deployed_at: iso(now() - Math.floor(noise(node, name) * 20 * 86400)),
-		running: noise(node, name, 'running') > 0.03,
-		held: false,
-		rollout: 'replace',
-	}));
+	return APPS.map((name) => {
+		const driver = name === 'objects';
+		return {
+			name,
+			image: `ghcr.io/canmi/${name}:mock`,
+			deployed_at: iso(now() - Math.floor(noise(node, name) * 20 * 86400)),
+			// A driver has no container, so host never reads it running.
+			running: !driver && noise(node, name, 'running') > 0.03,
+			held: false,
+			rollout: 'replace',
+			...(driver ? { driver } : {}),
+		};
+	});
 }
 
 function detail(app: App): AppDetail {
@@ -154,7 +159,7 @@ function detail(app: App): AppDetail {
 		running: app.running,
 		restorable: true,
 		platform: ['caddy', 'host', 'keeper', 'tunnel'].includes(app.name),
-		driver: app.name === 'objects',
+		driver: app.driver === true,
 		rollout: 'replace',
 	};
 }

@@ -2,7 +2,7 @@
  * One node as its card reads it: its state as the relay says it, and the few machine readings
  * worth a glance. The readings are the meter's, as infra's apps/deploy/panel reads them.
  */
-import type { Entry, Held, Second, State } from './wire.ts';
+import type { App, Entry, Held, Second, State } from './wire.ts';
 
 const STATES: ReadonlySet<string> = new Set<State>([
 	'live',
@@ -98,9 +98,13 @@ export function readings(machine: unknown): Readings | undefined {
 	};
 }
 
-/** Running and total, of the apps a node lists. */
+/** The apps that run as containers of their own, a driver aside: it runs neither way. */
+export const serving = <T extends Pick<App, 'driver'>>(apps: readonly T[]): T[] =>
+	apps.filter((app) => !app.driver);
+
+/** Running and total, of the apps a node lists, drivers aside. */
 export function running(held: Held): { running: number; total: number } {
-	const apps = held.snapshot.apps;
+	const apps = serving(held.snapshot.apps);
 	return { running: apps.filter((app) => app.running).length, total: apps.length };
 }
 
