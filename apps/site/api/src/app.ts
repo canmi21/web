@@ -1,6 +1,7 @@
 import { PUBLISHED } from '@monoflake/sdk/cache';
 import { counted, limited } from '@monoflake/sdk/limits';
 import { URLS } from '@monoflake/sdk';
+import { envelopeErrors } from '@canmi/response/hono';
 import { poweredBy } from '@canmi/web/disclose/hono';
 import { Hono } from 'hono';
 import type { Bindings } from './bindings';
@@ -68,9 +69,6 @@ app.notFound((c) => failure(c, 404, 'no_such_route', { 'Cache-Control': PUBLISHE
  * spec/architecture/artifacts.md. Logged rather than reported: the site's error reporter wraps the
  * Worker around this app and cannot see what is handled here.
  */
-app.onError((error, c) => {
-	console.error(error);
-	return failure(c, 500, 'service_unavailable', { 'Cache-Control': 'no-store' });
-});
+envelopeErrors(app, { notFound: false });
 
 export default app;

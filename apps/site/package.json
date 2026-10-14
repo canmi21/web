@@ -25,7 +25,7 @@
 		"@canmi/messages": "workspace:*",
 		"@canmi/prose": "workspace:*",
 		"@canmi/records": "workspace:*",
-		"@canmi/response": "^2.0.0",
+		"@canmi/response": "^2.2.0",
 		"@canmi/robots": "workspace:*",
 		"@canmi/site-api": "workspace:*",
 		"@canmi/social": "workspace:*",

@@ -215,7 +215,8 @@ handler wrote was wrapped from the first day, so the rule looked kept -- and `GE
 that exists only for `POST`, answered `404 Not Found` as plain text. The failure mode of a
 half-applied rule is that the applied half makes it look finished.
 
-So both workers carry a `notFound` and an `onError`, and the lifetimes stay what they already
+So both workers carry a `notFound` of their own and `@canmi/response/hono`'s `envelopeErrors` for
+the rest, and the lifetimes stay what they already
 were: a miss is held for five minutes, because which routes exist changes when a worker is
 deployed and not before, while a `500` is `no-store` -- a 404 is a fact about the service and a
 500 is a fact about this moment.

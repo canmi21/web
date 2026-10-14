@@ -249,7 +249,7 @@ importers:
         version: 1.51.0(svelte@5.57.1)
       '@monoflake/sdk':
         specifier: ^2026.1004.6
-        version: 2026.1007.1(@cloudflare/workers-types@5.20261004.1)(typescript@6.0.3)
+        version: 2026.1007.1(@cloudflare/workers-types@5.20261004.1)(hono@4.13.12)(typescript@6.0.3)
     devDependencies:
       '@stylexjs/stylex':
         specifier: ^0.19.1
@@ -319,8 +319,8 @@ importers:
         specifier: ^2026.1008.0
         version: 2026.1008.0
       '@canmi/response':
-        specifier: ^2.0.0
-        version: 2.0.0
+        specifier: ^2.2.0
+        version: 2.2.0(hono@4.13.12)
       '@canmi/space-ui':
         specifier: workspace:*
         version: link:../../libs/space-ui
@@ -332,7 +332,7 @@ importers:
         version: 5.20261004.1
       '@monoflake/sdk':
         specifier: ^2026.1007.1
-        version: 2026.1007.1(@cloudflare/workers-types@5.20261004.1)(typescript@6.0.3)
+        version: 2026.1007.1(@cloudflare/workers-types@5.20261004.1)(hono@4.13.12)(typescript@6.0.3)
       '@sentry/sveltekit':
         specifier: ^11.4.0
         version: 11.4.0(@babel/core@7.29.7(supports-color@10.2.2))(@cloudflare/workers-types@5.20261004.1)(@sveltejs/kit@3.0.0(@opentelemetry/api@1.9.1)(@sveltejs/vite-plugin-svelte@7.3.1(svelte@5.57.1)(vite@8.3.2(@types/node@26.6.4)(esbuild@0.28.2)(jiti@2.7.0)(tsx@4.23.15)(yaml@2.9.1)))(svelte@5.57.1)(typescript@6.0.3)(vite@8.3.2(@types/node@26.6.4)(esbuild@0.28.2)(jiti@2.7.0)(tsx@4.23.15)(yaml@2.9.1)))(svelte@5.57.1)(vite@8.3.2(@types/node@26.6.4)(esbuild@0.28.2)(jiti@2.7.0)(tsx@4.23.15)(yaml@2.9.1))(wrangler@4.147.0(@cloudflare/workers-types@5.20261004.1)(@types/node@26.6.4))
@@ -449,7 +449,7 @@ importers:
         version: 1.51.0(svelte@5.57.1)
       '@monoflake/sdk':
         specifier: ^2026.1004.6
-        version: 2026.1007.1(@cloudflare/workers-types@5.20261004.1)(typescript@6.0.3)
+        version: 2026.1007.1(@cloudflare/workers-types@5.20261004.1)(hono@4.13.12)(typescript@6.0.3)
       '@stylexjs/stylex':
         specifier: ^0.19.1
         version: 0.19.1
@@ -494,7 +494,7 @@ importers:
         version: link:../../libs/compile
       '@monoflake/sdk':
         specifier: ^2026.1004.6
-        version: 2026.1007.1(@cloudflare/workers-types@5.20261004.1)(typescript@7.0.2)
+        version: 2026.1007.1(@cloudflare/workers-types@5.20261004.1)(hono@4.13.12)(typescript@7.0.2)
       drizzle-orm:
         specifier: ^0.45.3
         version: 0.45.3(@cloudflare/workers-types@5.20261004.1)(@opentelemetry/api@1.9.1)(@types/better-sqlite3@9.6.0)(better-sqlite3@13.0.3)(kysely@0.28.17)
@@ -533,8 +533,8 @@ importers:
         specifier: workspace:*
         version: link:../../libs/records
       '@canmi/response':
-        specifier: ^2.0.0
-        version: 2.0.0
+        specifier: ^2.2.0
+        version: 2.2.0(hono@4.13.12)
       '@canmi/robots':
         specifier: workspace:*
         version: link:../../libs/robots
@@ -561,7 +561,7 @@ importers:
         version: 1.51.0(svelte@5.57.1)
       '@monoflake/sdk':
         specifier: ^2026.1004.6
-        version: 2026.1007.1(@cloudflare/workers-types@5.20261004.1)(typescript@6.0.3)
+        version: 2026.1007.1(@cloudflare/workers-types@5.20261004.1)(hono@4.13.12)(typescript@6.0.3)
       '@openpanel/web':
         specifier: ^1.4.1
         version: 1.4.1
@@ -732,14 +732,14 @@ importers:
         specifier: ^2026.1008.0
         version: 2026.1008.0
       '@canmi/response':
-        specifier: ^2.0.0
-        version: 2.0.0
+        specifier: ^2.2.0
+        version: 2.2.0(hono@4.13.12)
       '@canmi/web':
         specifier: ^2026.1008.0
         version: 2026.1009.0(@sentry/sveltekit@11.4.0(@babel/core@7.29.7(supports-color@10.2.2))(@cloudflare/workers-types@5.20261004.1)(@sveltejs/kit@3.0.0(@opentelemetry/api@1.9.1)(@sveltejs/vite-plugin-svelte@7.3.1(svelte@5.57.1)(vite@8.3.2(@types/node@26.6.4)(esbuild@0.28.2)(jiti@2.7.0)(tsx@4.23.15)(yaml@2.9.1)))(svelte@5.57.1)(typescript@7.0.2)(vite@8.3.2(@types/node@26.6.4)(esbuild@0.28.2)(jiti@2.7.0)(tsx@4.23.15)(yaml@2.9.1)))(svelte@5.57.1)(vite@8.3.2(@types/node@26.6.4)(esbuild@0.28.2)(jiti@2.7.0)(tsx@4.23.15)(yaml@2.9.1)))(@sveltejs/kit@3.0.0(@opentelemetry/api@1.9.1)(@sveltejs/vite-plugin-svelte@7.3.1(svelte@5.57.1)(vite@8.3.2(@types/node@26.6.4)(esbuild@0.28.2)(jiti@2.7.0)(tsx@4.23.15)(yaml@2.9.1)))(svelte@5.57.1)(typescript@7.0.2)(vite@8.3.2(@types/node@26.6.4)(esbuild@0.28.2)(jiti@2.7.0)(tsx@4.23.15)(yaml@2.9.1)))(hono@4.13.12)
       '@monoflake/sdk':
         specifier: ^2026.1004.6
-        version: 2026.1007.1(@cloudflare/workers-types@5.20261004.1)(typescript@7.0.2)
+        version: 2026.1007.1(@cloudflare/workers-types@5.20261004.1)(hono@4.13.12)(typescript@7.0.2)
       drizzle-orm:
         specifier: ^0.45.3
         version: 0.45.3(@cloudflare/workers-types@5.20261004.1)(@opentelemetry/api@1.9.1)(@types/better-sqlite3@9.6.0)(better-sqlite3@13.0.3)(kysely@0.28.17)
@@ -767,7 +767,7 @@ importers:
     dependencies:
       '@monoflake/sdk':
         specifier: ^2026.1007.1
-        version: 2026.1007.1(@cloudflare/workers-types@5.20261004.1)(typescript@6.0.3)
+        version: 2026.1007.1(@cloudflare/workers-types@5.20261004.1)(hono@4.13.12)(typescript@6.0.3)
       hono:
         specifier: ^4.13.12
         version: 4.13.12
@@ -816,7 +816,7 @@ importers:
         version: 5.20261004.1
       '@monoflake/sdk':
         specifier: ^2026.1007.1
-        version: 2026.1007.1(@cloudflare/workers-types@5.20261004.1)(typescript@6.0.3)
+        version: 2026.1007.1(@cloudflare/workers-types@5.20261004.1)(hono@4.13.12)(typescript@6.0.3)
       '@sentry/sveltekit':
         specifier: ^11.4.0
         version: 11.4.0(@babel/core@7.29.7(supports-color@10.2.2))(@cloudflare/workers-types@5.20261004.1)(@sveltejs/kit@3.0.0(@opentelemetry/api@1.9.1)(@sveltejs/vite-plugin-svelte@7.3.1(svelte@5.57.1)(vite@8.3.2(@types/node@26.6.4)(esbuild@0.28.2)(jiti@2.7.0)(tsx@4.23.15)(yaml@2.9.1)))(svelte@5.57.1)(typescript@6.0.3)(vite@8.3.2(@types/node@26.6.4)(esbuild@0.28.2)(jiti@2.7.0)(tsx@4.23.15)(yaml@2.9.1)))(svelte@5.57.1)(vite@8.3.2(@types/node@26.6.4)(esbuild@0.28.2)(jiti@2.7.0)(tsx@4.23.15)(yaml@2.9.1))(wrangler@4.147.0(@cloudflare/workers-types@5.20261004.1)(@types/node@26.6.4))
@@ -891,7 +891,7 @@ importers:
         version: 5.20261004.1
       '@monoflake/sdk':
         specifier: ^2026.1007.1
-        version: 2026.1007.1(@cloudflare/workers-types@5.20261004.1)(typescript@6.0.3)
+        version: 2026.1007.1(@cloudflare/workers-types@5.20261004.1)(hono@4.13.12)(typescript@6.0.3)
       '@sentry/sveltekit':
         specifier: ^11.4.0
         version: 11.4.0(@babel/core@7.29.7(supports-color@10.2.2))(@cloudflare/workers-types@5.20261004.1)(@sveltejs/kit@3.0.0(@opentelemetry/api@1.9.1)(@sveltejs/vite-plugin-svelte@7.3.1(svelte@5.57.1)(vite@8.3.2(@types/node@26.6.4)(esbuild@0.28.2)(jiti@2.7.0)(tsx@4.23.15)(yaml@2.9.1)))(svelte@5.57.1)(typescript@6.0.3)(vite@8.3.2(@types/node@26.6.4)(esbuild@0.28.2)(jiti@2.7.0)(tsx@4.23.15)(yaml@2.9.1)))(svelte@5.57.1)(vite@8.3.2(@types/node@26.6.4)(esbuild@0.28.2)(jiti@2.7.0)(tsx@4.23.15)(yaml@2.9.1))(wrangler@4.147.0(@cloudflare/workers-types@5.20261004.1)(@types/node@26.6.4))
@@ -984,7 +984,7 @@ importers:
         version: 2026.1004.2(@cloudflare/workers-types@5.20261004.1)(@opentelemetry/api@1.9.1)(@types/better-sqlite3@9.6.0)(better-sqlite3@13.0.3)(kysely@0.28.17)
       '@monoflake/sdk':
         specifier: ^2026.1004.6
-        version: 2026.1007.1(@cloudflare/workers-types@5.20261004.1)(typescript@6.0.3)
+        version: 2026.1007.1(@cloudflare/workers-types@5.20261004.1)(hono@4.13.12)(typescript@6.0.3)
       '@sentry/sveltekit':
         specifier: ^11.4.0
         version: 11.4.0(@babel/core@7.29.7(supports-color@10.2.2))(@cloudflare/workers-types@5.20261004.1)(@sveltejs/kit@3.0.0(@opentelemetry/api@1.9.1)(@sveltejs/vite-plugin-svelte@7.3.1(svelte@5.57.1)(vite@8.3.2(@types/node@26.6.4)(esbuild@0.28.2)(jiti@2.7.0)(tsx@4.23.15)(yaml@2.9.1)))(svelte@5.57.1)(typescript@6.0.3)(vite@8.3.2(@types/node@26.6.4)(esbuild@0.28.2)(jiti@2.7.0)(tsx@4.23.15)(yaml@2.9.1)))(svelte@5.57.1)(vite@8.3.2(@types/node@26.6.4)(esbuild@0.28.2)(jiti@2.7.0)(tsx@4.23.15)(yaml@2.9.1))(wrangler@4.147.0(@cloudflare/workers-types@5.20261004.1)(@types/node@26.6.4))
@@ -1072,7 +1072,7 @@ importers:
         version: 2026.1008.0
       '@monoflake/sdk':
         specifier: ^2026.1004.6
-        version: 2026.1007.1(@cloudflare/workers-types@5.20261004.1)(typescript@7.0.2)
+        version: 2026.1007.1(@cloudflare/workers-types@5.20261004.1)(hono@4.13.12)(typescript@7.0.2)
       hast-util-to-html:
         specifier: ^9.0.5
         version: 9.0.5
@@ -1126,7 +1126,7 @@ importers:
     dependencies:
       '@monoflake/sdk':
         specifier: ^2026.1004.6
-        version: 2026.1007.1(@cloudflare/workers-types@5.20261004.1)(typescript@7.0.2)
+        version: 2026.1007.1(@cloudflare/workers-types@5.20261004.1)(hono@4.13.12)(typescript@7.0.2)
 
   libs/messages:
     devDependencies:
@@ -1165,7 +1165,7 @@ importers:
         version: 1.51.0(svelte@5.57.1)
       '@monoflake/sdk':
         specifier: ^2026.1004.6
-        version: 2026.1007.1(@cloudflare/workers-types@5.20261004.1)(typescript@6.0.3)
+        version: 2026.1007.1(@cloudflare/workers-types@5.20261004.1)(hono@4.13.12)(typescript@6.0.3)
       '@stylexjs/stylex':
         specifier: ^0.19.1
         version: 0.19.1
@@ -1229,7 +1229,7 @@ importers:
         version: 2026.1008.0
       '@monoflake/sdk':
         specifier: ^2026.1004.6
-        version: 2026.1007.1(@cloudflare/workers-types@5.20261004.1)(typescript@7.0.2)
+        version: 2026.1007.1(@cloudflare/workers-types@5.20261004.1)(hono@4.13.12)(typescript@7.0.2)
 
   libs/social:
     dependencies:
@@ -1241,7 +1241,7 @@ importers:
         version: link:../prose
       '@monoflake/sdk':
         specifier: ^2026.1004.6
-        version: 2026.1007.1(@cloudflare/workers-types@5.20261004.1)(typescript@6.0.3)
+        version: 2026.1007.1(@cloudflare/workers-types@5.20261004.1)(hono@4.13.12)(typescript@6.0.3)
       svelte:
         specifier: ^5.57.1
         version: 5.57.1
@@ -1266,7 +1266,7 @@ importers:
         version: 2026.1009.0(@sentry/sveltekit@11.4.0(@babel/core@7.29.7(supports-color@10.2.2))(@cloudflare/workers-types@5.20261004.1)(@sveltejs/kit@3.0.0(@opentelemetry/api@1.9.1)(@sveltejs/vite-plugin-svelte@7.3.1(svelte@5.57.1)(vite@8.3.2(@types/node@26.6.4)(esbuild@0.28.2)(jiti@2.7.0)(tsx@4.23.15)(yaml@2.9.1)))(svelte@5.57.1)(typescript@6.0.3)(vite@8.3.2(@types/node@26.6.4)(esbuild@0.28.2)(jiti@2.7.0)(tsx@4.23.15)(yaml@2.9.1)))(svelte@5.57.1)(vite@8.3.2(@types/node@26.6.4)(esbuild@0.28.2)(jiti@2.7.0)(tsx@4.23.15)(yaml@2.9.1)))(@sveltejs/kit@3.0.0(@opentelemetry/api@1.9.1)(@sveltejs/vite-plugin-svelte@7.3.1(svelte@5.57.1)(vite@8.3.2(@types/node@26.6.4)(esbuild@0.28.2)(jiti@2.7.0)(tsx@4.23.15)(yaml@2.9.1)))(svelte@5.57.1)(typescript@6.0.3)(vite@8.3.2(@types/node@26.6.4)(esbuild@0.28.2)(jiti@2.7.0)(tsx@4.23.15)(yaml@2.9.1)))(hono@4.13.12)
       '@monoflake/sdk':
         specifier: ^2026.1007.1
-        version: 2026.1007.1(@cloudflare/workers-types@5.20261004.1)(typescript@6.0.3)
+        version: 2026.1007.1(@cloudflare/workers-types@5.20261004.1)(hono@4.13.12)(typescript@6.0.3)
       '@stylexjs/stylex':
         specifier: ^0.19.1
         version: 0.19.1
@@ -1570,8 +1570,13 @@ packages:
   '@canmi/me@2026.1010.0':
     resolution: {integrity: sha512-vJo6bRFMElnulJLci/wZWi2qVQxGipB7TL3UMs+oGgXwcjbyDKabVYTexswUWCf3OLZYAJ0eRAoHJzsSg0j+/A==}
 
-  '@canmi/response@2.0.0':
-    resolution: {integrity: sha512-fQh5D0dAcdvccqWLcGQKzpGNa1TbyhZ+4B5kq5/LWPOnacdq5OY8uJoCn7zgdM0MNZMsZiDVsOXSu9fIQEdC4w==}
+  '@canmi/response@2.2.0':
+    resolution: {integrity: sha512-qGR0WhAUzimUUpAED/wBPw89ZHHPQZnsknM1F6vNQczFWsi/fiqrQ2ZvzHjidCncIIj73NKU3Vt9x/pHmA9TbQ==}
+    peerDependencies:
+      hono: ^4.13.12
+    peerDependenciesMeta:
+      hono:
+        optional: true
 
   '@canmi/ui@2026.1005.0':
     resolution: {integrity: sha512-uoUOvpgRMdSHYX6t6LzhQldhaTXh3a1VAjSoSzall7QKA2hfv+4rjca3/S28h53jADLfdh7Isj9DQZF5bm1zgA==}
@@ -6147,7 +6152,9 @@ snapshots:
 
   '@canmi/me@2026.1010.0': {}
 
-  '@canmi/response@2.0.0': {}
+  '@canmi/response@2.2.0(hono@4.13.12)':
+    optionalDependencies:
+      hono: 4.13.12
 
   '@canmi/ui@2026.1005.0': {}
 
@@ -6841,26 +6848,28 @@ snapshots:
       - sql.js
       - sqlite3
 
-  '@monoflake/sdk@2026.1007.1(@cloudflare/workers-types@5.20261004.1)(typescript@6.0.3)':
+  '@monoflake/sdk@2026.1007.1(@cloudflare/workers-types@5.20261004.1)(hono@4.13.12)(typescript@6.0.3)':
     dependencies:
       '@canmi/me': 2026.1008.0
-      '@canmi/response': 2.0.0
+      '@canmi/response': 2.2.0(hono@4.13.12)
       '@monoflake/urls': 2026.1004.4
       valibot: 1.5.0(typescript@6.0.3)
     optionalDependencies:
       '@cloudflare/workers-types': 5.20261004.1
     transitivePeerDependencies:
+      - hono
       - typescript
 
-  '@monoflake/sdk@2026.1007.1(@cloudflare/workers-types@5.20261004.1)(typescript@7.0.2)':
+  '@monoflake/sdk@2026.1007.1(@cloudflare/workers-types@5.20261004.1)(hono@4.13.12)(typescript@7.0.2)':
     dependencies:
       '@canmi/me': 2026.1008.0
-      '@canmi/response': 2.0.0
+      '@canmi/response': 2.2.0(hono@4.13.12)
       '@monoflake/urls': 2026.1004.4
       valibot: 1.5.0(typescript@7.0.2)
     optionalDependencies:
       '@cloudflare/workers-types': 5.20261004.1
     transitivePeerDependencies:
+      - hono
       - typescript
 
   '@monoflake/urls@2026.1004.4': {}

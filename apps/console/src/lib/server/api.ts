@@ -5,6 +5,7 @@
  */
 import { routeOf } from '@canmi/addresses';
 import { failure, success } from '@canmi/response';
+import { envelopeErrors } from '@canmi/response/hono';
 import { poweredBy } from '@canmi/web/disclose/hono';
 import { Hono } from 'hono';
 import { getCookie } from 'hono/cookie';
@@ -77,17 +78,12 @@ function edgeOf(request: Request, env: Env): Edge {
 	};
 }
 
-app.all('*', () => failure(404, 'no_such_route'));
-
 /**
- * A failure is the envelope and is never stored, however far up it was thrown: without this, Hono
- * answers `text/plain` and a page reading the facet gets a syntax error instead of a code. Logged
- * rather than reported, since this API answers ahead of Sentry's handles in hooks.server.ts, as the
- * site's API does; see its apps/site/api/src/app.ts.
+ * A path no route takes, and a failure however far up it was thrown, are the envelope and never
+ * stored: without this, Hono answers `text/plain` and a page reading the facet gets a syntax error
+ * instead of a code. Logged rather than reported, since this API answers ahead of Sentry's handles
+ * in hooks.server.ts, as the site's API does; see its apps/site/api/src/app.ts.
  */
-app.onError((error) => {
-	console.error(error);
-	return failure(500, 'service_unavailable');
-});
+envelopeErrors(app);
 
 export default app;
