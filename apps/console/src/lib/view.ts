@@ -2,11 +2,13 @@
  * Every node as this browser last heard it. Per node the highest version it has been sent is kept,
  * whichever relay or path sent it: an older one arriving late is dropped. See platform's
  * spec/architecture/relay.md, "A snapshot's version is its origin's clock". The same version
- * with another `state` is taken too, which time alone changed, or another `runs`, which a deploy
- * moved; and a peer the relay has not heard gives its state alone -- the same file, "A node says it
- * is leaving before it goes".
+ * with anything beside the snapshot moved is taken too -- its `state`, which time alone changes,
+ * its `runs`, its newest minute, a later `heard_at` -- and a peer the relay has not heard gives its
+ * state alone -- the same file, "A node says it is leaving before it goes". A beat moves a node's
+ * `heard_at`, a watched node's second its `sample`, and a message of a type this console does not
+ * know is passed over.
  */
-import { CONTRACT, type Cluster, type Entry, type Live } from './wire.ts';
+import { CONTRACT, type Cluster, type Entry, type Held, type Live, type Second } from './wire.ts';
 
 export interface View {
 	nodes: Readonly<Record<string, Entry>>;
@@ -20,8 +22,33 @@ export const EMPTY: View = { nodes: {} };
 
 /** `view` with `message` taken in; the same object when nothing in it was newer. */
 export function merge(view: View, message: Live): View {
-	if (message.type === 'node') return taken(view, { [message.node]: message.state });
-	return mergeCluster(view, message);
+	switch (message.type) {
+		case 'node':
+			return taken(view, { [message.node]: message.state });
+		case 'cluster':
+			return mergeCluster(view, message);
+		case 'beat':
+			return heard(view, message.node, message.heard_at);
+		case 'readings':
+			return sampled(view, message.node, message.sample);
+		default:
+			// A relay ahead of this console: what it cannot read, it leaves.
+			return view;
+	}
+}
+
+/** `view` with `node` heard at `at`, where that is later than held. */
+function heard(view: View, node: string, at: string): View {
+	const kept = view.nodes[node];
+	if (kept?.heard_at === undefined || !(Date.parse(at) > Date.parse(kept.heard_at))) return view;
+	return { ...view, nodes: { ...view.nodes, [node]: { ...kept, heard_at: at } } };
+}
+
+/** `view` with a watched node's latest second. */
+function sampled(view: View, node: string, sample: Second): View {
+	const kept = view.nodes[node];
+	if (!kept) return view;
+	return { ...view, nodes: { ...view.nodes, [node]: { ...kept, sample } } };
 }
 
 /** `view` with a whole cluster taken in, as `/state` answers it or a socket opens with it. */
@@ -44,17 +71,35 @@ function taken(view: View, offered: Readonly<Record<string, Entry>>): View {
 	return nodes ? { ...view, nodes } : view;
 }
 
+/** Whether `entry`, at `kept`'s version, says anything beside the snapshot that `kept` does not. */
+function moved(kept: Held, entry: Held): boolean {
+	return (
+		entry.state !== kept.state ||
+		entry.runs !== kept.runs ||
+		entry.readings?.at !== kept.readings?.at ||
+		JSON.stringify(entry.round_trip) !== JSON.stringify(kept.round_trip) ||
+		Date.parse(entry.heard_at) > Date.parse(kept.heard_at)
+	);
+}
+
 /** What is held of a node once `entry` is offered: `kept` itself where nothing in it is news. */
 function after(kept: Entry | undefined, entry: Entry): Entry {
 	if (!kept) return entry;
+	// A watched node's second is this console's own, and stays until the next.
+	const sample = kept.sample === undefined ? {} : { sample: kept.sample };
 	if (entry.version === undefined) {
-		// What this browser holds stays, under the state and the runs the relay says now.
-		if (kept.state === entry.state && kept.runs === entry.runs) return kept;
-		return { ...kept, state: entry.state, runs: entry.runs };
+		// What this browser holds stays, under what the relay says beside it now.
+		const { state, runs, readings, round_trip } = entry;
+		if (kept.state === state && kept.runs === runs && kept.readings?.at === readings?.at) {
+			return kept;
+		}
+		return { ...kept, state, runs, readings, round_trip };
 	}
-	if (kept.version === undefined || entry.version > kept.version) return entry;
-	const moved = entry.state !== kept.state || entry.runs !== kept.runs;
-	return entry.version === kept.version && moved ? entry : kept;
+	if (kept.version === undefined || entry.version > kept.version) return { ...entry, ...sample };
+	if (entry.version !== kept.version || !moved(kept, entry)) return kept;
+	const later =
+		Date.parse(kept.heard_at) > Date.parse(entry.heard_at) ? kept.heard_at : entry.heard_at;
+	return { ...entry, ...sample, heard_at: later };
 }
 
 /**

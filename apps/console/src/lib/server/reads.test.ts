@@ -1,15 +1,15 @@
 import { describe, expect, it, vi } from 'vitest';
 import { bound, paths, success } from './bound.ts';
 import { app, appHealth, appSeries, apps, disk, events, history } from './reads.ts';
-import { nodeNow, nodeSeries, range } from './reads.ts';
+import { nodeNow, nodeSeries, pointsOf, range } from './reads.ts';
 
 const NOW = 1_000_000;
 
 describe('range', () => {
-	it('draws one hour from minutes and everything longer from hours', () => {
+	it('draws a day or less from minutes and everything longer from hours', () => {
 		expect(range('1h', NOW)).toEqual({ grain: 'minute', since: NOW - 3600, until: NOW });
-		expect(range('6h', NOW)).toEqual({ grain: 'hour', since: NOW - 6 * 3600, until: NOW });
-		expect(range('24h', NOW).since).toBe(NOW - 86_400);
+		expect(range('6h', NOW)).toEqual({ grain: 'minute', since: NOW - 6 * 3600, until: NOW });
+		expect(range('24h', NOW)).toEqual({ grain: 'minute', since: NOW - 86_400, until: NOW });
 		expect(range('7d', NOW)).toMatchObject({ grain: 'hour', since: NOW - 7 * 86_400 });
 		expect(range('30d', NOW)).toMatchObject({ grain: 'hour', since: NOW - 30 * 86_400 });
 	});
@@ -71,5 +71,34 @@ describe('one node', () => {
 		expect(await pending).toMatchObject({ ok: false, failure: { status: 502 } });
 		vi.useRealTimers();
 		vi.restoreAllMocks();
+	});
+});
+
+describe("a node's series from the relay's minutes", () => {
+	it("is each asked metric's mean, its highest as the upper bound, a slot a point", () => {
+		const history = {
+			version: 1,
+			node: 'rdu',
+			from: '2026-10-14T12:00:00Z',
+			until: '2026-10-14T13:00:00Z',
+			slot: 60,
+			nodes: {
+				tyo: [
+					{
+						at: '2026-10-14T12:00:00Z',
+						readings: { 'cpu.usage': { mean: 12, max: 80 }, 'load.1': { mean: 1, max: 2 } },
+					},
+					{ at: '2026-10-14T12:01:00Z', beats: 20 },
+				],
+			},
+		};
+		const points = pointsOf(history, 'tyo', ['cpu']);
+		expect(points).toEqual([
+			{
+				at: Date.parse('2026-10-14T12:00:00Z') / 1000,
+				values: { 'cpu.usage': { average: 12, minimum: 12, maximum: 80, count: 1 } },
+			},
+		]);
+		expect(pointsOf(history, 'gvx')).toEqual([]);
 	});
 });

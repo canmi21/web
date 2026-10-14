@@ -27,9 +27,10 @@ export const load: PageServerLoad = async (event) => {
 	const asked = event.url.searchParams.get('range');
 	const chosen = (RANGES.find((one) => one.key === asked)?.key ?? '1h') as Range;
 	const span = range(chosen);
-	const day = range('24h', span.until);
+	// By the hour, whatever grain the chosen range is drawn at.
+	const day = { ...range('24h', span.until), grain: 'hour' as const };
 	const series = fleetSeries(edge, { ...span, metrics: METRICS });
-	const hours = chosen === '24h' ? series : fleetSeries(edge, { ...day, metrics: ['cpu.usage'] });
+	const hours = fleetSeries(edge, { ...day, metrics: ['cpu.usage'] });
 	const history = runsIn(edge, viewOf(event.params.scope));
 	const machines = fleetNow(edge).then((fleet) => {
 		const known: Partial<Record<Node, Now>> = {};

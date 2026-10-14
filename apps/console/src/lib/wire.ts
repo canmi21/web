@@ -45,15 +45,21 @@ export interface App {
 export interface Snapshot {
 	taken_at: string;
 	apps: App[];
-	/** The meter's `{ info, sample }`, passed on whole; absent where no meter is deployed. */
+	/**
+	 * The meter's `{ info }`, what does not change while the machine is up; absent where no meter is
+	 * deployed. A relay before platform's RFC grmtb sends `{ info, sample }`, its second beside it.
+	 */
 	machine?: unknown;
 	/** The parts the node's last round failed to read, each held at what was read before. */
 	stale?: string[];
 	/**
-	 * Its relay's round trip to each neighbor's, in seconds, by node; a neighbor not timed lately
-	 * is absent. Platform's spec/architecture/relay.md, "The round trip to each neighbor".
+	 * Its relay's round trip to each neighbor's, in seconds, by node, from a relay before RFC
+	 * grmtb; the entry's `round_trip` since. Platform's spec/architecture/relay.md, "The round trip
+	 * to each neighbor".
 	 */
 	round_trip?: Record<string, number>;
+	/** The thresholds the node judges held, each since when; platform's `alarm.rs`. */
+	alarms?: Record<string, { since: string }>;
 	/**
 	 * Its relay's last word before it stopped on purpose: why, and the seconds it means to be back
 	 * within. Platform's spec/architecture/relay.md, "A node says it is leaving before it goes".
@@ -64,30 +70,56 @@ export interface Snapshot {
 /** A node as the answering relay reads it; see `Snapshot.leaving` for where it is defined. */
 export type State = 'live' | 'late' | 'upgrading' | 'restarting' | 'waiting' | 'gone';
 
-/** What a relay holds of one node. */
-export interface Held {
-	/** The node's own clock in milliseconds; higher is newer. */
-	version: number;
-	/** When the answering relay took this version. */
-	heard_at: string;
-	snapshot: Snapshot;
-	/** Absent from a relay on the build before it; see ./node.ts, `stateOf`. */
-	state?: State;
-	/** The version of the node's runs the answering relay holds; see `Unheard.runs`. */
-	runs?: number;
+/** A metric over a minute or longer: its mean, and the highest it was. */
+export interface Gauge {
+	mean: number;
+	max: number;
 }
 
-/** A peer the answering relay has not heard since it started, `waiting` and then `gone`. */
-export interface Unheard {
-	state: State;
-	version?: undefined;
-	heard_at?: undefined;
-	snapshot?: undefined;
+/** A node's readings over its newest minute held: when it began, and each meter metric. */
+export interface Minutely {
+	at: string;
+	values: Record<string, Gauge>;
+}
+
+/** The meter's second, as a watched node's relay lends it: when, in seconds, and each metric. */
+export interface Second {
+	at?: number;
+	values: Record<string, number>;
+}
+
+/** What either shape of an entry carries beside what is held. */
+interface Beside {
 	/**
 	 * The version of the node's runs the answering relay holds, absent where it holds none or is on
 	 * a build before it: a page reads the runs again when it moves.
 	 */
 	runs?: number;
+	/** Its newest minute's readings, coarse; absent from a relay before RFC grmtb. */
+	readings?: Minutely;
+	/** Its relay's round trip to each neighbor, in seconds, over its newest minute. */
+	round_trip?: Record<string, number>;
+	/** The console's own, never a relay's: a watched node's latest second, from `readings`. */
+	sample?: Second;
+}
+
+/** What a relay holds of one node. */
+export interface Held extends Beside {
+	/** The node's own clock in milliseconds; higher is newer. */
+	version: number;
+	/** When its origin last spoke, its newest beat, as the answering relay holds it. */
+	heard_at: string;
+	snapshot: Snapshot;
+	/** Absent from a relay on the build before it; see ./node.ts, `stateOf`. */
+	state?: State;
+}
+
+/** A peer the answering relay has not heard since it started, `waiting` and then `gone`. */
+export interface Unheard extends Beside {
+	state: State;
+	version?: undefined;
+	heard_at?: undefined;
+	snapshot?: undefined;
 }
 
 /** One node as a relay sends it: what it holds, or its state alone. */
@@ -101,7 +133,15 @@ export interface Cluster {
 	nodes: Record<string, Entry>;
 }
 
-export type Live = ({ type: 'cluster' } & Cluster) | { type: 'node'; node: string; state: Entry };
+/**
+ * A relay's message: the whole cluster, a node's entry, that a node was heard, or a watched node's
+ * second. A type this console does not know is passed over, so a relay ahead of it never breaks it.
+ */
+export type Live =
+	| ({ type: 'cluster' } & Cluster)
+	| { type: 'node'; node: string; state: Entry }
+	| { type: 'beat'; node: string; heard_at: string }
+	| { type: 'readings'; node: string; sample: Second };
 
 /**
  * One slot of one node's history, as `/history` answers it: absent where it holds nothing.
@@ -121,6 +161,8 @@ export interface Slot {
 	down?: Record<string, number>;
 	/** Each neighbor's round trip, in seconds. */
 	round_trip?: Record<string, { mean: number; worst: number }>;
+	/** The machine's readings over it, where asked: the mean of its minutes, and the highest. */
+	readings?: Record<string, Gauge>;
 	runs?: { succeeded?: number; failed?: number; running?: number; partly_failed?: number };
 }
 

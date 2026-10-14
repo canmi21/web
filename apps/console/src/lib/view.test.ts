@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { EMPTY, merge, mergeCluster, runsOf } from './view.ts';
+import type { Live } from './wire.ts';
 import type { Held } from './wire.ts';
 
 function held(version: number, app = 'geo'): Held {
@@ -63,6 +64,45 @@ describe('merge', () => {
 		const view = merge(EMPTY, { type: 'node', node: 'tyo', state: old });
 		expect(view.nodes.tyo?.version).toBe(200);
 		expect(runsOf(view.nodes)).toBe('');
+	});
+
+	it('moves a node heard by its beat, and keeps a watched second across a newer entry', () => {
+		let view = merge(EMPTY, { type: 'node', node: 'tyo', state: held(200) });
+		view = merge(view, { type: 'beat', node: 'tyo', heard_at: '2026-10-06T12:00:09Z' });
+		expect(view.nodes.tyo?.heard_at).toBe('2026-10-06T12:00:09Z');
+		// An older beat, arriving late, moves nothing.
+		const late = merge(view, { type: 'beat', node: 'tyo', heard_at: '2026-10-06T12:00:03Z' });
+		expect(late).toBe(view);
+		const sample = { at: 1, values: { 'cpu.usage': 40 } };
+		view = merge(view, { type: 'readings', node: 'tyo', sample });
+		expect(view.nodes.tyo?.sample).toEqual(sample);
+		// The same version again keeps the later beat; a newer one keeps the second too.
+		const again = merge(view, { type: 'node', node: 'tyo', state: { ...held(200), runs: 3 } });
+		expect([again.nodes.tyo?.heard_at, again.nodes.tyo?.runs]).toEqual(['2026-10-06T12:00:09Z', 3]);
+		expect(merge(again, { type: 'node', node: 'tyo', state: held(300) }).nodes.tyo?.sample).toEqual(
+			sample,
+		);
+	});
+
+	it('takes the same version again where its newest minute moved', () => {
+		const minute = (at: string) => ({ at, values: { 'cpu.usage': { mean: 4, max: 9 } } });
+		const view = merge(EMPTY, {
+			type: 'node',
+			node: 'tyo',
+			state: { ...held(200), readings: minute('2026-10-06T12:00:00Z') },
+		});
+		const next = merge(view, {
+			type: 'node',
+			node: 'tyo',
+			state: { ...held(200), readings: minute('2026-10-06T12:01:00Z') },
+		});
+		expect(next.nodes.tyo?.readings?.at).toBe('2026-10-06T12:01:00Z');
+	});
+
+	it('passes over a message of a type it does not know', () => {
+		const view = merge(EMPTY, { type: 'node', node: 'tyo', state: held(200) });
+		const unknown = { type: 'sync', nodes: {} } as unknown as Live;
+		expect(merge(view, unknown)).toBe(view);
 	});
 
 	it('takes a peer its relay has not heard as its state alone, keeping what was held of it', () => {

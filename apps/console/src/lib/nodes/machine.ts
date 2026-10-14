@@ -1,10 +1,10 @@
 /**
  * One node as a row of the nodes table: what is declared of it, whether it is heard, and the
- * meter's readings, the live snapshot's where it carries them and the server's read otherwise.
+ * meter's readings, the live entry's where it carries them and the server's read otherwise.
  */
 import type { Now } from '../host.ts';
 import { nameOf, type Role, PLACES } from '../map/places.ts';
-import { heldOf, readings, running, stateOf } from '../node.ts';
+import { heldOf, machineIn, readings, running, stateOf } from '../node.ts';
 import type { Node } from '../server/nodes.ts';
 import type { Entry, State } from '../wire.ts';
 import { FACTS, type Facts } from './facts.ts';
@@ -61,9 +61,9 @@ export interface NodeRow {
 	cores?: number;
 }
 
-/** The machine the live snapshot carries, else the one the server read. */
+/** The machine the live entry carries, else the one the server read; ../node.ts, `machineIn`. */
 export function machineFor(held: Entry | undefined, read: Now | undefined): Now | undefined {
-	return machineOf(held?.snapshot?.machine) ?? read;
+	return machineOf(machineIn(held)) ?? read;
 }
 
 export function nodeRow(

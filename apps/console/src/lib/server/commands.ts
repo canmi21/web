@@ -9,6 +9,8 @@ import * as v from 'valibot';
 import { Kind } from '../control/catalog.gen.ts';
 import type { Create, Patch, Spec, Written } from '../control/types.ts';
 import { create, patch } from './control.ts';
+import { type Watched, watch } from './edge.ts';
+import { NODES, type Node } from './nodes.ts';
 import type { Edge } from './read.ts';
 
 export interface Command<B, R> {
@@ -40,6 +42,10 @@ const PATCH: v.GenericSchema<Patch> = v.strictObject({
 	patch: SPEC,
 });
 
+const NODE = v.picklist(Object.keys(NODES) as Node[]);
+
+const WATCH = v.strictObject({ node: NODE, via: v.exactOptional(NODE) });
+
 /** `schema`'s reading of `sent`, or undefined. */
 const read =
 	<T>(schema: v.GenericSchema<T>) =>
@@ -61,6 +67,17 @@ export const COMMANDS = {
 		revision: 1,
 		body: read(PATCH),
 		run: (edge, by, body: Patch): Promise<Written> => patch(edge, by, body),
+	}),
+
+	/**
+	 * A page's lease on a node's fine readings, asked of the relay its live stream is on, `via`; it
+	 * writes nothing anywhere, and is a `POST` because it asks something to start. Platform's RFC
+	 * grmtb.
+	 */
+	watch: command({
+		revision: 1,
+		body: read(WATCH),
+		run: (edge, _by, body: Watched) => watch(edge, body),
 	}),
 };
 

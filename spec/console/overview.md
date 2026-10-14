@@ -58,7 +58,8 @@ arrangement and its switch, not its look.
 
 **The dot on a node's flag says how the node is, the worst of what is wrong with it**: blue where it
 is heard and every app that should run does, amber while it is leaving, quiet while a relay just
-started has not heard it yet, and red where an app that should run does not or the node is gone. Its
+started has not heard it yet, and red where an app that should run does not, a threshold the node judges holds -- `Processor at
+90% or more` -- or the node is gone. Its
 hover says why -- `2 apps down: Object Storage, PostgreSQL`, `Upgrading`, `Not heard` -- and names
 an app held on purpose without counting it. A place takes the worst of its nodes and names each. The
 place list and the timeline draw the same dot from one rule, `health.ts`, so it means one thing

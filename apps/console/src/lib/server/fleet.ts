@@ -6,7 +6,7 @@ import type { Now, Page, Point } from '../host.ts';
 import type { Event } from '../wire.ts';
 import { NODES, type Node } from './nodes.ts';
 import type { Edge, Failure, Read } from './read.ts';
-import { type Series, events, nodeNow, nodeSeries } from './reads.ts';
+import { type Series, events, nodeNow, seriesOr } from './reads.ts';
 
 export type Fleet<T> = Record<Node, Read<T>>;
 
@@ -23,8 +23,9 @@ export async function fan<T>(ask: (name: Node) => Promise<Read<T>>): Promise<Fle
 
 export const fleetNow = (edge: Edge): Promise<Fleet<Now>> => fan((n) => nodeNow(edge, n));
 
+/** Each node's series, from its host, or the relay's minutes where its host does not answer. */
 export const fleetSeries = (edge: Edge, series: Series): Promise<Fleet<Point[]>> =>
-	fan((n) => nodeSeries(edge, n, series));
+	fan((n) => seriesOr(edge, n, series));
 
 /** Where each node's next page starts: the lowest event id of it already shown. */
 export type Cursor = Partial<Record<Node, number>>;

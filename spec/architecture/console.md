@@ -288,6 +288,14 @@ past the edge's cache and at most every four seconds; Deployments its load, ever
 while a version moved in the last ten. No snapshot carries events since platform's RFC grmtb, and
 an entry from a relay before it, still carrying them, is read for nothing else.
 
+**A node's readings reach a page coarse or fine.** Every entry carries its newest minute's
+`readings` and `round_trip`, which the list and the map draw. A node's page holds a lease on that
+node's second, the `watch` command renewing it every thirty seconds while shown, sent to the relay
+its stream is on, `via`. A node's charts read its own host, and where it does not answer, the
+nearest relay's minutes of it, `/history?readings=true&node=` -- platform's RFC grmtb. A message
+of a type the page does not know is passed over, so a relay may add one before the console reads
+it.
+
 ## The pipeline
 
 **What is deploying now is every act in progress, not only CI's**: the Now card groups a run's

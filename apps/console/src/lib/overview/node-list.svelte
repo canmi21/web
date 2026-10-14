@@ -15,7 +15,7 @@
 	import { nameOf } from '../map/places.ts';
 	import HealthFlag from './health-flag.svelte';
 	import { healthOf, worstOf } from './health.ts';
-	import { readings } from '../node.ts';
+	import { machineIn, readings } from '../node.ts';
 	import { CODES } from '../nodes/facts.ts';
 	import { scoped } from '../scope/context.ts';
 	import { corners, type } from '../style.ts';
@@ -47,8 +47,8 @@
 					return {
 						code,
 						told: healthOf(held, live.now),
-						cpu: readings(held?.snapshot?.machine)?.cpu,
-						memory: readings(held?.snapshot?.machine)?.memory?.used,
+						cpu: readings(machineIn(held))?.cpu,
+						memory: readings(machineIn(held))?.memory?.used,
 					};
 				}),
 				(one) => nameOf(one.code).full,

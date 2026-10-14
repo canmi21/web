@@ -12,6 +12,8 @@
 	import NodeHeader from '#lib/nodes/node-header.svelte';
 	import NodeOverview from '#lib/nodes/node-overview.svelte';
 	import { hrefOf } from '#lib/nodes/view.js';
+	import { Watch } from '#lib/nodes/watch.svelte.js';
+	import type { Node } from '#lib/server/nodes.js';
 	import { Landed } from '#lib/ui/landed.svelte.js';
 	import Segmented, { RANGES } from '#lib/ui/segmented.svelte';
 	import Skeleton from '#lib/ui/skeleton.svelte';
@@ -22,6 +24,8 @@
 	let { data }: PageProps = $props();
 
 	const held = live();
+	// Its second as it is read, while this page is shown, from the relay the stream is on.
+	new Watch(() => ({ node: data.name, via: held.view.via as Node | undefined }));
 	// The server's time once, so the first paint agrees; the clock ticks on its own after.
 	const clock = new Clock(untrack(() => data.now));
 

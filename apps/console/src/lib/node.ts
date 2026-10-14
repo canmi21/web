@@ -2,7 +2,7 @@
  * One node as its card reads it: its state as the relay says it, and the few machine readings
  * worth a glance. The readings are the meter's, as infra's apps/deploy/panel reads them.
  */
-import type { Entry, Held, State } from './wire.ts';
+import type { Entry, Held, Second, State } from './wire.ts';
 
 const STATES: ReadonlySet<string> = new Set<State>([
 	'live',
@@ -50,6 +50,29 @@ export interface Readings {
 	disk?: { used: number; total?: number };
 	/** When the machine started, in seconds since the epoch. */
 	booted?: number;
+}
+
+/**
+ * The meter's `{ info, sample }` as an entry carries it: the info its snapshot holds, and the
+ * freshest second there is -- a watched node's, else its newest minute's means, else the one a
+ * relay before platform's RFC grmtb put in the snapshot. Nothing where it carries neither.
+ */
+export function machineIn(
+	entry: Entry | undefined,
+): { info?: unknown; sample?: Second } | undefined {
+	const machine = entry?.snapshot?.machine;
+	const carried = isRecord(machine) ? machine : {};
+	const readings = entry?.readings;
+	const minute = readings && {
+		at: Date.parse(readings.at) / 1000,
+		values: Object.fromEntries(
+			Object.entries(readings.values).map(([name, one]) => [name, one.mean]),
+		),
+	};
+	const old = isRecord(carried.sample) ? (carried.sample as unknown as Second) : undefined;
+	const sample = entry?.sample ?? minute ?? old;
+	if (carried.info === undefined && sample === undefined) return undefined;
+	return { info: carried.info, sample };
 }
 
 /** What the meter's `{ info, sample }` says of the machine, or nothing where it is not that. */

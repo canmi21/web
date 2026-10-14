@@ -159,21 +159,31 @@ function detail(app: App): AppDetail {
 	};
 }
 
+/** A node's readings over the minute starting `at`, as a relay holds every node's. */
+function minuteOf(node: string, at: number): Record<string, { mean: number; max: number }> {
+	const read = values(node, at);
+	const peak = values(node, at + 37);
+	return Object.fromEntries(
+		Object.entries(read).map(([metric, mean]) => [
+			metric,
+			{ mean, max: Math.max(mean, peak[metric] ?? mean) },
+		]),
+	);
+}
+
 function held(node: string): Held {
 	const newest = events(node, Infinity, 1)[0];
+	const minute = now() - (now() % 60) - 60;
 	return {
 		version: Date.now(),
 		heard_at: iso(now()),
 		state: 'live',
 		...(newest ? { runs: Date.parse(newest.started_at) } : {}),
-		snapshot: {
-			taken_at: iso(now()),
-			apps: apps(node),
-			machine: { info: info(node), sample: { at: now(), values: values(node, now()) } },
-			round_trip: Object.fromEntries(
-				ALL.filter((one) => one !== node).map((one) => [one, 0.02 + noise(node, one) * 0.25]),
-			),
-		},
+		readings: { at: iso(minute), values: minuteOf(node, minute) },
+		round_trip: Object.fromEntries(
+			ALL.filter((one) => one !== node).map((one) => [one, 0.02 + noise(node, one) * 0.25]),
+		),
+		snapshot: { taken_at: iso(now()), apps: apps(node), machine: { info: info(node) } },
 	};
 }
 
@@ -188,6 +198,8 @@ function cluster(node: Node): Cluster {
 function history(node: Node, query: URLSearchParams): History {
 	const span = Number(query.get('span') ?? 86400);
 	const slot = Number(query.get('slot') ?? 3600);
+	const readings = query.get('readings') === 'true';
+	const only = query.get('node');
 	const until = now() - (now() % slot);
 	const from = until - span;
 	const slots = (one: string): Slot[] => {
@@ -200,6 +212,7 @@ function history(node: Node, query: URLSearchParams): History {
 				beats: due - missing * 20,
 				due,
 				...(missing ? { missing } : {}),
+				...(readings ? { readings: minuteOf(one, at) } : {}),
 				runs: { succeeded: noise(one, at, 'runs') < 0.06 ? 1 : 0 },
 			});
 		}
@@ -211,7 +224,9 @@ function history(node: Node, query: URLSearchParams): History {
 		from: iso(from),
 		until: iso(until),
 		slot,
-		nodes: Object.fromEntries(ALL.map((one) => [one, slots(one)])),
+		nodes: Object.fromEntries(
+			ALL.filter((one) => !only || one === only).map((one) => [one, slots(one)]),
+		),
 	};
 }
 

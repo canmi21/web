@@ -5,7 +5,7 @@ import { markers, nodeCharts } from '#lib/nodes/charts.js';
 import { PAGE, olderThan, viewOf } from '#lib/nodes/view.js';
 import { edgeOf } from '#lib/server/platform.js';
 import { cluster, isNode, node } from '#lib/server/read.js';
-import { apps, disk, events, nodeNow, nodeSeries, range } from '#lib/server/reads.js';
+import { apps, disk, events, nodeNow, range, seriesOr } from '#lib/server/reads.js';
 import type { PageServerLoad } from './$types';
 
 /** How many of the node's latest events the charts look through for deploys to mark. */
@@ -34,7 +34,7 @@ export const load: PageServerLoad = async (event) => {
 		now: Date.now(),
 		machine: nodeNow(edge, name),
 		overview: on('overview', () =>
-			Promise.all([nodeSeries(edge, name, span), events(edge, name, { limit: MARKED })]).then(
+			Promise.all([seriesOr(edge, name, span), events(edge, name, { limit: MARKED })]).then(
 				([series, recent]) => ({
 					charts: series.ok ? { ...series, data: nodeCharts(series.data) } : series,
 					marks: recent.ok ? markers(recent.data, span.since, span.until) : [],

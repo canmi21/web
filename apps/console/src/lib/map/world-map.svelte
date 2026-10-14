@@ -8,7 +8,7 @@
 	import * as stylex from '@stylexjs/stylex';
 	import { untrack } from 'svelte';
 	import { duration, radius } from '@canmi/kit/tokens/vocabulary.stylex';
-	import { heldOf, readings, running, stateOf } from '../node.ts';
+	import { heldOf, machineIn, readings, running, stateOf } from '../node.ts';
 	import { scoped } from '../scope/context.ts';
 	import GlobeIcon from '@tabler/icons-svelte-runes/icons/world';
 	import MapIcon from '@tabler/icons-svelte-runes/icons/map';
@@ -86,8 +86,8 @@
 		gather(
 			(Object.keys(POINTS) as (keyof typeof POINTS)[]).map((code) => {
 				const held = heldOf(states[code]);
-				const machine = readings(held?.snapshot.machine);
-				const nearest = nearestOf(held?.snapshot.round_trip);
+				const machine = readings(machineIn(held));
+				const nearest = nearestOf(held?.round_trip ?? held?.snapshot.round_trip);
 				return {
 					code,
 					role: PLACES[code].role,

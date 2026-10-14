@@ -133,8 +133,11 @@ export async function history(
 	span: number,
 	slot: number,
 	timeout = TIMEOUT,
+	readingsOf?: Node,
 ): Promise<Read<History>> {
-	const path = `/history?span=${span}&slot=${slot}` as const;
+	// One node's, with the machine's readings, where a chart stands in for its host's own series.
+	const asked = readingsOf === undefined ? '' : `&readings=true&node=${readingsOf}`;
+	const path = `/history?span=${span}&slot=${slot}${asked}` as const;
 	// Until the next whole minute, before which a relay has no new one to add.
 	return kept(edge, path, toMinute(), () => nearest<History>(edge, path, timeout), answered);
 }

@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { readings, stateOf } from './node.ts';
+import { machineIn, readings, stateOf } from './node.ts';
 import type { Held, State } from './wire.ts';
 
 const HEARD = '2026-10-06T12:00:00Z';
@@ -66,5 +66,33 @@ describe('readings', () => {
 	it('reads nothing from a node with no meter, or from a shape it does not know', () => {
 		expect(readings(undefined)).toBeUndefined();
 		expect(readings({ sample: 1 })).toBeUndefined();
+	});
+});
+
+describe("an entry's machine", () => {
+	const info = { memory: 1000, cores: 2 };
+	const entry = (over: Partial<Held>): Held => ({
+		...held('live'),
+		snapshot: { taken_at: HEARD, apps: [], machine: { info } },
+		...over,
+	});
+
+	it('is the newest minute where nothing finer is held, and a watched second over it', () => {
+		const readings = { at: HEARD, values: { 'cpu.usage': { mean: 12, max: 80 } } };
+		const minute = machineIn(entry({ readings }));
+		expect(minute).toEqual({
+			info,
+			sample: { at: Date.parse(HEARD) / 1000, values: { 'cpu.usage': 12 } },
+		});
+		const sample = { at: 9, values: { 'cpu.usage': 55 } };
+		expect(machineIn(entry({ readings, sample }))?.sample).toEqual(sample);
+	});
+
+	it("is a relay's second where one before the change put it in the snapshot, and none where none", () => {
+		const old = { info, sample: { at: 3, values: { 'cpu.usage': 7 } } };
+		const carried = entry({ snapshot: { taken_at: HEARD, apps: [], machine: old } });
+		expect(machineIn(carried)).toEqual(old);
+		expect(readings(machineIn(carried))?.cpu).toBe(7);
+		expect(machineIn(held('live'))).toBeUndefined();
 	});
 });

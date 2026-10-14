@@ -32,6 +32,23 @@ describe('health', () => {
 		expect(told.said).toMatch(/^1 app down: /);
 	});
 
+	it('is down where the node judges a threshold held, naming each', () => {
+		const alarmed: Entry = {
+			version: 1,
+			heard_at: '2026-10-09T12:00:00Z',
+			state: 'live',
+			snapshot: {
+				taken_at: '',
+				apps: [app('relay', true)],
+				alarms: { cpu: { since: '' }, 'temperature.soc': { since: '' } },
+			},
+		};
+		expect(healthOf(alarmed, NOW)).toEqual({
+			health: 'down',
+			said: 'Processor at 90% or more, soc at 85 °C or more',
+		});
+	});
+
 	it('takes the relay word over the apps, and gone over everything', () => {
 		expect(healthOf(node([app('relay', false)], 'upgrading'), NOW)).toEqual({
 			health: 'leaving',
