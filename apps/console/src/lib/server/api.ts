@@ -79,4 +79,15 @@ function edgeOf(request: Request, env: Env): Edge {
 
 app.all('*', () => failure(404, 'no_such_route'));
 
+/**
+ * A failure is the envelope and is never stored, however far up it was thrown: without this, Hono
+ * answers `text/plain` and a page reading the facet gets a syntax error instead of a code. Logged
+ * rather than reported, since this API answers ahead of Sentry's handles in hooks.server.ts, as the
+ * site's API does; see its apps/site/api/src/app.ts.
+ */
+app.onError((error) => {
+	console.error(error);
+	return failure(500, 'service_unavailable');
+});
+
 export default app;
