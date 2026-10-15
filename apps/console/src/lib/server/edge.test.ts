@@ -166,6 +166,18 @@ describe('the live event stream', () => {
 		await reader.cancel();
 	});
 
+	it("answers with the relay's own response, never one made anew that the runtime encodes again", async () => {
+		const upstream = holding('data: {"type":"cluster"}\n\n');
+		upstream.headers.set('content-encoding', 'zstd');
+		const { sent, env } = bound({ [ID.tyo]: () => upstream });
+		const browser = { headers: { ...STREAM.headers, 'accept-encoding': 'zstd, gzip' } };
+		const answer = await streamOf(asked('/live', browser), env, [ID.tyo]);
+		expect(answer).toBe(upstream);
+		// Caddy chooses among the browser's own encodings.
+		expect(sent[0]?.headers.get('accept-encoding')).toBe('zstd, gzip');
+		await answer.body?.cancel();
+	});
+
 	it('passes over a relay that answers no stream, and says so where none does', async () => {
 		vi.spyOn(console, 'error').mockImplementation(() => {});
 		const refused = () => new Response(null, { status: 426 });

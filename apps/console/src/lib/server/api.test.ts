@@ -1,3 +1,4 @@
+import { pathOf } from '@canmi/addresses';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 
 vi.mock('$app/env', () => ({ dev: false }));
@@ -8,7 +9,15 @@ vi.mock('./sources.ts', () => ({
 	}),
 }));
 
+// The relay's stream as the nodes would answer it.
+vi.mock('./edge.ts', async (actual) => ({
+	...(await actual<typeof import('./edge.ts')>()),
+	openLive: vi.fn(),
+}));
+
 const { default: app } = await import('./api.ts');
+const { openLive } = await import('./edge.ts');
+const { ASKED, PREFIX } = await import('../facets.ts');
 
 describe('the API', () => {
 	afterEach(() => vi.restoreAllMocks());
@@ -25,6 +34,22 @@ describe('the API', () => {
 			message: expect.any(String),
 		});
 		expect(logged).toHaveBeenCalledOnce();
+	});
+
+	it("answers the live stream as the relay's own response, never a copy", async () => {
+		const upstream = new Response('data: {"type":"cluster"}\n\n', {
+			headers: { 'content-type': 'text/event-stream', 'content-encoding': 'zstd' },
+		});
+		vi.mocked(openLive).mockResolvedValue(upstream);
+		const path = pathOf(ASKED, PREFIX, 'live');
+		const answer = await app.request(path, { headers: { accept: 'text/event-stream' } }, {});
+		expect(answer).toBe(upstream);
+		expect(answer.headers.has('x-powered-by')).toBe(false);
+	});
+
+	it('names Hono on every other answer', async () => {
+		const answer = await app.request('/elsewhere', {}, {});
+		expect(answer.headers.get('x-powered-by')).toBe('Hono');
 	});
 
 	it('answers an address it has no route for in the envelope', async () => {

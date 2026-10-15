@@ -24,13 +24,23 @@ import { MOCKED, WRITES } from './mode.ts';
 
 const app = new Hono<{ Bindings: Env }>();
 
-// First, so every answer says what made it. See lib's spec/web/disclose.md.
+// A stream first, answered as the relay's own response: `poweredBy` copies an answer passed through
+// from a `fetch` to name it, and the runtime decodes and encodes such a copy again, its compressor
+// holding the small events. See ./edge.ts, `streamOf`.
+app.get(`${PREFIX}*`, async (c, next) => {
+	const asked = routeOf(ASKED, c.req.path.slice(PREFIX.length));
+	if (asked && asked.route in STREAMS) {
+		return STREAMS[asked.route as StreamName].open(c.req.raw, c.env);
+	}
+	await next();
+});
+
+// Then, so every other answer says what made it. See lib's spec/web/disclose.md.
 app.use(poweredBy());
 
 app.get(`${PREFIX}*`, async (c) => {
 	const asked = routeOf(ASKED, c.req.path.slice(PREFIX.length));
 	if (!asked) return failure(404, 'no_such_route');
-	if (asked.route in STREAMS) return STREAMS[asked.route as StreamName].open(c.req.raw, c.env);
 	if (!(asked.route in FACETS)) return failure(404, 'no_such_route');
 	const facet = FACETS[asked.route as FacetName];
 	const params = facet.params({ ...c.req.query(), ...asked.query });

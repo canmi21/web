@@ -45,7 +45,8 @@ until the picture arrives; a placeholder of its own is RFC 7patr.
 
 **Whether the console is live is a dot on the avatar's corner and nothing else**: green while the
 socket is up, red while it is down and the page polls, and quiet for the moment before the socket
-has tried, so no load paints a red it is about to take back. It is ringed in the sidebar's ground,
+has tried, so no load paints a red it is about to take back, and while the page is hidden and its
+stream paused, titled "Paused while hidden". It is ringed in the sidebar's ground,
 as a presence dot is. How many nodes are heard is the pages' to say, not the shell's. Under the
 name is the country of the relay the console is reached through, in full -- `Japan`,
 `United States`. The commit is an icon rather than a line of text: the region holds two lines, and

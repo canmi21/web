@@ -294,7 +294,10 @@ each other**, so whichever node a reader reached has everything as it happens. T
 mesh carrying live state beside its log -- platform's `spec/architecture/relay.md` -- and it needs what the relay's
 first step needs, a port on the tailnet. **Workers VPC carries the WebSocket**: the console's Worker
 hands the upgrade to the nearest node's binding and gets the relay's 101 back, seen from a browser
-on 2026-10-06. While the socket is down the page polls the `cluster` facet.
+on 2026-10-06. While the socket is down the page polls the `cluster` facet. **The page is live only
+while it is looked at**: hidden for ten seconds it closes its stream and polls nothing, and shown
+again it dials at once, the relay's first message bringing it whole -- decided with the author on
+2026-10-15, since only a reader signed in through Access ever opens it.
 
 **What deploys reaches a page through the runs, not the socket.** A node's entry carries `runs`, the
 version of its runs on the answering relay, and the same version is sent again when only that
@@ -314,7 +317,12 @@ it. A round's `beats` moves each node it names to its `heard_at`, only forward, 
 version it was taken from; one that does not fit opens the stream again, whole. The console reads
 `/live` as an event stream, by fetch, and the Worker hands the first relay's stream on untouched,
 body and encoding as Caddy wrote them; where no relay answers with one, the page falls back to the
-WebSocket for the rest of its life.
+WebSocket for the rest of its life. **The stream is compressed once, by Caddy, which flushes each
+event** -- a beat is some hundred bytes in zstd, measured on 2026-10-15 -- **and the Worker returns
+the response it fetched, never a copy**: a copy is decoded and compressed again by the Workers
+runtime, whose compressor holds the small events until it fills, and the page saw a beat only in
+bursts. So the stream is answered ahead of `poweredBy`, whose copy it would be, and carries no
+`X-Powered-By`; lib's `spec/web/disclose.md` names the exception.
 
 ## The pipeline
 

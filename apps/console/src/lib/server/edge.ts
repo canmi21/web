@@ -91,9 +91,11 @@ const streams = (request: Request) =>
 	request.headers.get('accept')?.includes('text/event-stream') ?? false;
 
 /**
- * The first relay's event stream, nearest first, handed on as it arrives: its body passed through
- * untouched, encoded as Caddy encoded it, so nothing here runs per event. A relay before the
- * stream answers 426 and is passed over. Platform's spec/architecture/relay.md, RFC grmtb.
+ * The first relay's event stream, nearest first, handed on as it arrives: the fetched response
+ * itself, its body still encoded as Caddy encoded it for the browser's own `Accept-Encoding` and
+ * flushed per event there. A response made anew would be decoded and encoded again by the runtime,
+ * whose compressor holds the small events. A relay before the stream answers 426 and is passed
+ * over. Platform's spec/architecture/relay.md, RFC grmtb.
  */
 export async function streamOf(request: Request, env: Env, nodes: readonly Node[]) {
 	const headers = new Headers(request.headers);
@@ -105,7 +107,7 @@ export async function streamOf(request: Request, env: Env, nodes: readonly Node[
 			answer.ok && (answer.headers.get('content-type') ?? '').startsWith('text/event-stream'),
 	);
 	if (opened === undefined) return failure(502, 'upstream_unavailable');
-	return new Response(opened.answer.body, opened.answer);
+	return opened.answer;
 }
 
 /**

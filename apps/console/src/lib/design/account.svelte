@@ -27,10 +27,15 @@
 	const COMMIT = import.meta.env.VITE_COMMIT_HASH;
 	// Three times the 2rem it is drawn at, for the densest screen and no more.
 	const avatar = imgsrc(`github:avatar:${author.githubId}@96`, { cdnUrl: pickUrls(dev).cdn });
-	// Up or down, and nothing between but the moment before the socket has tried; see
-	// spec/architecture/console.md.
-	const TONE = { connecting: 'quiet', live: 'good', polling: 'bad' } as const;
-	const WORD = { connecting: 'Connecting', live: 'Live', polling: 'Polling every 5 s' } as const;
+	// Up or down, and nothing between but the moment before the socket has tried and the pause a
+	// hidden page takes; see spec/architecture/console.md and src/lib/feed.ts.
+	const TONE = { connecting: 'quiet', live: 'good', polling: 'bad', paused: 'quiet' } as const;
+	const WORD = {
+		connecting: 'Connecting',
+		live: 'Live',
+		polling: 'Polling every 5 s',
+		paused: 'Paused while hidden',
+	} as const;
 
 	// The relay the socket went through once one has answered; until then the node the server
 	// worked out as nearest, which is where the socket goes first.
