@@ -1,7 +1,7 @@
 # The service domains' pages
 
-The platform's service domains are its hosts -- `ixc.one`, `symlink.si`, `ill.li`, `monoflake.com`
-and `monoflake.net` -- and each apex is to answer a page saying what it is. The pages are this
+The platform's service domains are its hosts -- `ixc.one`, `symlink.si`, `ill.li` and
+`monoflake.com` -- and each apex is to answer a page saying what it is. The pages are this
 layer's; the hosts, their records and their routes are the platform's -- see platform's
 `spec/architecture/gateway.md`. What is still to be built is RFC p2fhz.
 
@@ -29,11 +29,11 @@ names the alias layer answers stay on the same host, as a Worker route laid over
 that is a name reaches the gateway's Worker and everything else reaches the site. One host, one
 overlay -- the site never knows about the names, and the names never wait on the site.
 
-## `monoflake.com` is a site of its own, and `monoflake.net` sends to it
+## `monoflake.com` is a site of its own
 
 **`monoflake.com` is an independent site**, the platform's own page rather than a section of the
-shared app. **`monoflake.net` redirects to `monoflake.com`**, the one address for both, never to the
-site.
+shared app. `monoflake.net` is not a service domain: it is the platform's control, in a Cloudflare
+account of its own, with the console at its apex -- RFC o7eir.
 
 ## Vercel holds the status page and nothing else
 
