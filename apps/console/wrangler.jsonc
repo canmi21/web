@@ -10,36 +10,43 @@
 	"compatibility_flags": ["nodejs_compat"],
 	"assets": { "directory": ".svelte-kit/cloudflare", "binding": "ASSETS" },
 
-	// `URLS.internal.console` in @monoflake/sdk, which src/lib/server/edge.test.ts holds this to. A
-	// custom domain, so every deploy asserts it, as the gateway declares its apexes; see platform's
+	// The apex of `monoflake.net`, control's account's, behind Access: RFC o7eir. A custom domain, so
+	// every deploy asserts it, as the gateway declares its apexes; see platform's
 	// spec/architecture/gateway.md, "The gateway declares its hosts in its `wrangler.jsonc`".
-	"routes": [{ "pattern": "console.canmi.app", "custom_domain": true }],
+	// `URLS.internal.console` in @monoflake/sdk; src/lib/server/edge.test.ts holds it.
+	"routes": [{ "pattern": "monoflake.net", "custom_domain": true }],
 
-	// Each node's Caddy, made by infra's `mise run tunnel`, bound by its hostname in capitals: the
-	// list `hook` binds. src/lib/server/nodes.ts gives each node's id its binding, and
-	// src/lib/server/edge.test.ts holds the two together. `remote` is for `vite dev`, which reaches
-	// the real nodes through these same services. Its read tokens, host's and control's, come from
-	// a gitignored `.dev.vars`, which `pnpm run vars` writes once from infra's secrets.json.
+	// Each node's Caddy, through its one tunnel in `monoflake`, made by infra's `mise run tunnel`,
+	// bound by its hostname in capitals. src/lib/server/nodes.ts gives each node's id its binding,
+	// and src/lib/server/edge.test.ts holds the two together. `remote` is for `vite dev`, which
+	// reaches the real nodes through these same services. host's read token comes from a gitignored
+	// `.dev.vars`, which `pnpm run vars` writes once from infra's secrets.json.
 	// https://developers.cloudflare.com/workers-vpc/configuration/vpc-services/
 	"vpc_services": [
-		{ "binding": "RDU", "service_id": "01a0e5b1-1072-72d3-81cf-5b1c69ad7a6e", "remote": true },
-		{ "binding": "TYO", "service_id": "01a10f21-8a27-7721-8223-54365d93b27b", "remote": true },
-		{ "binding": "NRT", "service_id": "01a10f29-45f6-72f0-a7bd-1c86e3320a26", "remote": true },
-		{ "binding": "HND", "service_id": "01a10f29-627a-7bf1-964b-4b0a660746d3", "remote": true },
-		{ "binding": "GVX", "service_id": "01a10f29-7d17-7b80-90d1-800d9c078a39", "remote": true },
-		{ "binding": "BRU", "service_id": "01a10f29-9169-7210-be9d-ad0a4de36833", "remote": true },
-		{ "binding": "BUF", "service_id": "01a10f29-a4d0-78f2-b6da-cade48268370", "remote": true },
-		{ "binding": "SHA", "service_id": "01a118fb-6f57-7973-a88e-db4ca4191206", "remote": true },
-		{ "binding": "SIN", "service_id": "01a132e1-0685-7c03-9e75-1491cc178d93", "remote": true },
+		{ "binding": "RDU", "service_id": "01a13de1-f32a-7fc1-b612-b3b145b927c6", "remote": true },
+		{ "binding": "TYO", "service_id": "01a13de1-71c2-72a3-8fe8-c4c81352ab78", "remote": true },
+		{ "binding": "NRT", "service_id": "01a13de1-8bb2-7f41-92da-ee247637c780", "remote": true },
+		{ "binding": "HND", "service_id": "01a13de1-a31a-7fe3-8899-3b319021e79b", "remote": true },
+		{ "binding": "GVX", "service_id": "01a13de1-bc33-7721-9811-4d9959f9ac64", "remote": true },
+		{ "binding": "BRU", "service_id": "01a13de1-cec3-74c3-908f-d3645dd9400c", "remote": true },
+		{ "binding": "BUF", "service_id": "01a13de1-e276-75c1-ace6-2f3c8fe03aee", "remote": true },
+		{ "binding": "SHA", "service_id": "01a13de2-1e94-7440-9f03-1c16203e588b", "remote": true },
+		{ "binding": "SIN", "service_id": "01a13de2-033d-7f73-9cb5-c2d6084648c1", "remote": true },
 	],
 
-	// Access's application for console.canmi.app: its team's domain and audience tag, both public,
-	// which a write's identity is verified against. Control's read and write tokens,
-	// `CONTROL_READ_TOKEN` and `CONTROL_WRITE_TOKEN`, are secrets, never here: platform's
-	// spec/architecture/control.md. See src/lib/server/access.ts and src/lib/server/control.ts.
+	// Control, by its `Console` entrypoint: only a Worker in the same account binds it, so the
+	// binding is the proof of the caller and the console holds no token for it. `remote` reaches the
+	// real control under `vite dev`, which writes only with `CONSOLE_WRITES=1`. See platform's
+	// spec/architecture/control.md and src/lib/server/control.ts.
+	"services": [
+		{ "binding": "CONTROL", "service": "control", "entrypoint": "Console", "remote": true },
+	],
+
+	// Access's application for `monoflake.net`: its team's domain and audience tag, both public,
+	// which a write's identity is verified against. See src/lib/server/access.ts.
 	"vars": {
-		"ACCESS_TEAM": "canmi.cloudflareaccess.com",
-		"ACCESS_AUD": "7ebd7ca98d9e53879d7ad2f26ec30c42e7c2967649d1f99613e2ea9fa2de7284",
+		"ACCESS_TEAM": "monoflake.cloudflareaccess.com",
+		"ACCESS_AUD": "ff532cf26457c2a20689a2eefe822ad19ccc51b083b01f3231e392dee19c5994",
 	},
 
 	"observability": { "logs": { "enabled": true } },

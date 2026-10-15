@@ -20,7 +20,7 @@ import type { Whereabouts } from './nodes.ts';
 import { sourcesOf } from './sources.ts';
 import { dev } from '$app/env';
 import { asksFresh, storeOf } from './cache.ts';
-import { MOCKED } from './mode.ts';
+import { MOCKED, WRITES } from './mode.ts';
 
 const app = new Hono<{ Bindings: Env }>();
 
@@ -75,6 +75,7 @@ function edgeOf(request: Request, env: Env): Edge {
 		store: storeOf(dev, new URL(request.url).origin),
 		fresh: asksFresh(request),
 		mock: MOCKED,
+		held: !WRITES,
 	};
 }
 

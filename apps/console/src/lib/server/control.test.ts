@@ -25,9 +25,6 @@ import { NODES, type Node, learnedCores } from './nodes.ts';
 import { ID } from './nodes.fixture.ts';
 import type { Edge } from './read.ts';
 
-const READ = 'control-read-token';
-const WRITE = 'control-write-token';
-
 const envelope = (data: unknown, status = 200) =>
 	Response.json({ status: 'success', data }, { status });
 const refusal = (status: number, code: string) =>
@@ -35,7 +32,7 @@ const refusal = (status: number, code: string) =>
 const KINDS = ((await (await controlMock('/v1/registry/kinds')).json()) as { data: unknown }).data;
 
 interface Sent {
-	/** `control`, reached over HTTPS, or the node whose binding was asked. */
+	/** `control`, reached through its binding, or the node whose binding was asked. */
 	where: string;
 	url: string;
 	method: string;
@@ -44,13 +41,9 @@ interface Sent {
 }
 
 /**
- * Control over HTTPS and the cores' bindings, each recording what it was sent and answering as
- * `answer` says; a token left empty is not set.
+ * Control's binding and the cores', each recording what it was sent and answering as `answer` says.
  */
-function bound(
-	answer: (where: string, url: URL) => Response | Promise<Response>,
-	tokens = { read: READ, write: WRITE },
-) {
+function bound(answer: (where: string, url: URL) => Response | Promise<Response>) {
 	const sent: Sent[] = [];
 	const asked =
 		(where: string) =>
@@ -60,16 +53,12 @@ function bound(
 			sent.push({ where, url: String(url), method, headers, body: init.body as string });
 			return answer(where, new URL(url));
 		};
-	vi.stubGlobal('fetch', asked('control'));
 	const cores: Node[] = [ID.tyo, ID.sin, ID.rdu, ID.gvx];
 	const env = Object.fromEntries(
 		cores.map((node) => [NODES[node], { fetch: asked(node) } as unknown as Fetcher]),
 	);
-	const secrets = {
-		CONTROL_READ_TOKEN: tokens.read || undefined,
-		CONTROL_WRITE_TOKEN: tokens.write || undefined,
-	};
-	const edge: Edge = { env: { ...env, ...secrets } as Env };
+	const CONTROL = { fetch: asked('control') } as unknown as Fetcher;
+	const edge: Edge = { env: { ...env, CONTROL } as Env };
 	return { sent, edge };
 }
 
@@ -79,17 +68,16 @@ const control = (rest: (where: string, url: URL) => Response) => (where: string,
 
 afterEach(() => {
 	vi.restoreAllMocks();
-	vi.unstubAllGlobals();
 });
 
 describe('control, as the console reaches it', () => {
-	it('is asked over HTTPS with its read token, and no node', async () => {
+	it('is asked through its binding with no token, and no node', async () => {
 		const { sent, edge } = bound(control(() => refusal(404, 'no_such_route')));
 		const read = await catalog(edge);
 		expect(read.ok && read.data.items.map((one) => one.plural)).toContain('nodes');
 		expect(sent).toHaveLength(1);
 		expect(sent[0]).toMatchObject({ where: 'control', url: `${URLS.control}/v1/registry/kinds` });
-		expect(sent[0]?.headers.get('authorization')).toBe(`Bearer ${READ}`);
+		expect(sent[0]?.headers.has('authorization')).toBe(false);
 	});
 
 	it('is asked once, its failure the answer, since it is one place', async () => {
@@ -129,22 +117,12 @@ describe('control, as the console reaches it', () => {
 		const none = await resources(edge, 'planet');
 		expect(!none.ok && none.failure.status).toBe(404);
 	});
-
-	it('is not asked at all by a Worker that holds no read token', async () => {
-		const { sent, edge } = bound(
-			control(() => envelope({})),
-			{ read: '', write: WRITE },
-		);
-		const read = await catalog(edge);
-		expect(!read.ok && read.failure.code).toBe('service_unavailable');
-		expect(sent.length).toBe(0);
-	});
 });
 
 describe('a write, as the console sends it', () => {
 	const change = { kind: 'node' as const, ref: ID.tyo, revision: 12, patch: { retired: true } };
 
-	it("carries the Worker's write token and the identity it was given, held to the revision read", async () => {
+	it('carries the identity it was given and no token, held to the revision read', async () => {
 		// Control names the write's task too, which nothing follows: the write is done when answered.
 		const answer = { revision: 13, task: 'abcdef0123456789' };
 		const { sent, edge } = bound(control(() => envelope(answer, 202)));
@@ -154,7 +132,7 @@ describe('a write, as the console sends it', () => {
 			method: 'PATCH',
 			url: `${URLS.control}/v1/registry/nodes/${ID.tyo}`,
 		});
-		expect(write?.headers.get('authorization')).toBe(`Bearer ${WRITE}`);
+		expect(write?.headers.has('authorization')).toBe(false);
 		expect(write?.headers.get('content-type')).toBe('application/json');
 		expect(JSON.parse(write?.body ?? '')).toEqual({
 			by: 'author@example.com',
@@ -208,13 +186,12 @@ describe('a write, as the console sends it', () => {
 		expect(stale.sent.filter((one) => one.method === 'PATCH').length).toBe(1);
 	});
 
-	it('is not sent at all by a Worker that holds no write token', async () => {
-		const { sent, edge } = bound(
-			control(() => envelope({})),
-			{ read: READ, write: '' },
-		);
-		const refused = await patch(edge, 'a', change);
+	it('is not sent at all by development not stated to write, nor is anything read', async () => {
+		const { sent, edge } = bound(control(() => envelope({})));
+		const refused = await patch({ ...edge, held: true }, 'a', change);
 		expect(!refused.ok && refused.failure.code).toBe('service_unavailable');
+		const made = await create({ ...edge, held: true }, 'a', { kind: 'app', name: 'x', spec: {} });
+		expect(!made.ok && made.failure.code).toBe('service_unavailable');
 		expect(sent.length).toBe(0);
 	});
 
@@ -279,7 +256,8 @@ describe('the ledger, as the console reaches it', () => {
 
 describe('mock mode', () => {
 	const untouched = new Proxy({} as Env, { get: () => ({ fetch: () => expect.unreachable() }) });
-	const edge: Edge = { env: untouched, mock: true };
+	// Held, as `vite dev` is without `CONSOLE_WRITES=1`: made-up data is written all the same.
+	const edge: Edge = { env: untouched, mock: true, held: true };
 
 	it('writes to made-up data and reads it back', async () => {
 		const read = await resource(edge, 'node', ID.gvx);

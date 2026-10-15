@@ -30,6 +30,8 @@ export interface Edge {
 	fresh?: boolean;
 	/** Development's mock mode: every read answered with made-up data, no node asked; ./mode.ts. */
 	mock?: boolean;
+	/** Development not stated to write: a write refused before control is asked; ./mode.ts. */
+	held?: boolean;
 }
 
 /** Made-up data as `node` would answer it, or no such route where nothing is made up for it. */

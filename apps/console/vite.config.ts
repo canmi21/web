@@ -24,6 +24,9 @@ const upload = uploadsSourceMaps(process.env);
 // Development's mock mode, made-up data with no node reached and so no remote binding started;
 // see src/lib/server/mode.ts.
 const MOCK = process.env.CONSOLE_DATA === 'mock';
+// Writes to the real control, through `vite dev`'s remote binding, only where stated; see
+// src/lib/server/mode.ts.
+const WRITES = process.env.CONSOLE_WRITES === '1';
 const stylexPlugin = stylex({
 	useCSSLayers: true,
 	unstable_moduleResolution: { type: 'commonJS', rootDir: ROOT },
@@ -37,7 +40,9 @@ export default defineConfig(({ mode }) => ({
 		// The facets' addresses, stated to the pages and the Worker by one build, so the two agree;
 		// see spec/architecture/console.md, "A component asks for its facet".
 		...(mode === 'production' ? { STATED_FACET_ADDRESSES: JSON.stringify(facetAddresses()) } : {}),
-		...(mode === 'production' ? {} : { CONSOLE_MOCK: JSON.stringify(MOCK) }),
+		...(mode === 'production'
+			? {}
+			: { CONSOLE_MOCK: JSON.stringify(MOCK), CONSOLE_WRITES: JSON.stringify(WRITES) }),
 	},
 	// Its own pinned port, refused rather than moved when taken, so one console runs at a time; see
 	// spec/toolchain.md, "Dev ports are pinned".

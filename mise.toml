@@ -159,12 +159,19 @@ description = "Run the service domains' pages: http://ixc.one.localhost:26525/ a
 dir = "apps/landing"
 run = "pnpm run dev"
 
-# The read token goes to a gitignored `.dev.vars` once, from infra's sops file, and is never
-# printed. See spec/architecture/console.md, "Developing it reads the real nodes".
+# The remote bindings are in control's account, `monoflake`, whose id wrangler is given from
+# `CLOUDFLARE_ACCOUNT_ID_MONOFLAKE`. host's read token goes to a gitignored `.dev.vars` once, from
+# infra's sops file, and is never printed. A write reaches the real control, so it is refused unless
+# `CONSOLE_WRITES=1`; see apps/console/src/lib/server/mode.ts. See spec/architecture/console.md,
+# "Developing it reads the real nodes".
 [tasks.dev-console]
 description = "Run the console against the real nodes through their remote bindings, writing its read token first if missing"
 dir = "apps/console"
-run = "(test -f .dev.vars || pnpm run vars) && pnpm run dev"
+run = """
+: "${CLOUDFLARE_ACCOUNT_ID_MONOFLAKE:?is unset: set it to the id of the monoflake account, which holds the bindings}"
+export CLOUDFLARE_ACCOUNT_ID="$CLOUDFLARE_ACCOUNT_ID_MONOFLAKE"
+(test -f .dev.vars || pnpm run vars) && pnpm run dev
+"""
 
 [tasks.dev-console-mock]
 description = "Run the console on made-up data, reaching no node: what tuning its pages runs"

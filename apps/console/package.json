@@ -15,7 +15,7 @@
 	"scripts": {
 		"prepare": "svelte-kit sync",
 		"dev": "vite dev",
-		"vars": "umask 077 && sops -d --output-type dotenv ../../../infra/secrets.json | grep -E '^(HOST|CONTROL)_READ_TOKEN=' > .dev.vars",
+		"vars": "umask 077 && sops -d --output-type dotenv ../../../infra/secrets.json | grep -E '^HOST_READ_TOKEN=' > .dev.vars",
 		"build": "vite build",
 		"check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json",
 		"map": "node scripts/land.ts",

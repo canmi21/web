@@ -63,11 +63,10 @@ afterEach(() => {
 });
 
 describe('wrangler.jsonc', () => {
-	it('answers on the sdk name and binds every node it places, by its id', () => {
+	it("answers on control's apex and binds every node it places, by its id", () => {
 		const config = wrangler();
-		expect(config.routes).toEqual([
-			{ pattern: new URL(URLS.internal.console).hostname, custom_domain: true },
-		]);
+		// TODO: held to `URLS.internal.console` again once the console bumps to the sdk publishing it.
+		expect(config.routes).toEqual([{ pattern: 'monoflake.net', custom_domain: true }]);
 		const bindings = config.vpc_services.map((service) => service.binding).toSorted();
 		expect(bindings).toEqual(Object.values(NODES).toSorted());
 	});

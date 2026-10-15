@@ -1,10 +1,10 @@
 /**
- * The platform's control plane as the console's server reaches it: control over HTTPS at
- * `URLS.control`, a read carrying its read token and a write its write token, which the Worker
- * holds and the browser never sees, with `by` from the request's Access identity, ./access.ts; and
- * the ledger on the nearest core that answers, a private scope of the API host through that node's
- * VPC binding, `api.canmi.app/ledger/...`. A spec is sent and never logged: it may hold a secret's
- * value. See platform's spec/architecture/control.md and ledger.md, and RFC cpc2b.
+ * The platform's control plane as the console's server reaches it: control through the `CONTROL`
+ * service binding, which proves the caller so no token is sent, a write carrying `by` from the
+ * request's Access identity, ./access.ts; and the ledger on the nearest core that answers, a
+ * private scope of the API host through that node's VPC binding, `api.canmi.app/ledger/...`. A
+ * spec is sent and never logged: it may hold a secret's value. See platform's
+ * spec/architecture/control.md and ledger.md, and RFCs cpc2b and o7eir.
  */
 import { URLS } from '@monoflake/sdk';
 import * as v from 'valibot';
@@ -67,7 +67,6 @@ const PAGE = 50;
 interface Asking {
 	method: 'GET' | 'POST' | 'PUT' | 'PATCH';
 	body?: string;
-	token?: string;
 	timeout: number;
 }
 
@@ -78,7 +77,6 @@ const elsewhere = (failure: Failure) => failure.status >= 500 || failure.code ==
 function initOf(asking: Asking): RequestInit {
 	const headers = new Headers({ accept: 'application/json' });
 	if (asking.body !== undefined) headers.set('content-type', 'application/json');
-	if (asking.token) headers.set('authorization', `Bearer ${asking.token}`);
 	return { method: asking.method, headers, body: asking.body };
 }
 
@@ -122,21 +120,24 @@ const cores = (edge: Edge) => {
 	return order(edge.where).filter((node) => named.includes(node));
 };
 
+/** `url` through the `CONTROL` binding, which wrangler.jsonc names. */
+function reached(edge: Edge, url: string, init: RequestInit): Promise<Response> {
+	const binding = edge.env.CONTROL;
+	if (binding === undefined) return Promise.reject(new Error('control is not bound'));
+	return binding.fetch(url, init);
+}
+
 /**
- * `path` under control's `SCOPE`, over HTTPS, with the read token where `asking` carries no other;
- * made up in mock mode. One place answers it, so nothing is asked again elsewhere.
+ * `path` under control's `SCOPE`, through the `CONTROL` binding; made up in mock mode. One place
+ * answers it, so nothing is asked again elsewhere.
  */
 async function control<T>(edge: Edge, path: string, more: Partial<Asking> = {}): Promise<Read<T>> {
 	const asking: Asking = { method: 'GET', timeout: TIMEOUT, ...more };
-	const token = asking.token ?? edge.env.CONTROL_READ_TOKEN;
-	if (!edge.mock && !token) {
-		return failed(503, 'service_unavailable', 'This console holds no token for control.');
-	}
-	const init = { ...initOf({ ...asking, token }), signal: AbortSignal.timeout(asking.timeout) };
+	const init = { ...initOf(asking), signal: AbortSignal.timeout(asking.timeout) };
 	try {
 		const answer = edge.mock
 			? await controlMock(`${SCOPE}${path}`, init)
-			: await fetch(`${URLS.control}${SCOPE}${path}`, init);
+			: await reached(edge, `${URLS.control}${SCOPE}${path}`, init);
 		const read = await enveloped<T>('control', answer);
 		if (!read.ok) {
 			console.error(`control: answered ${asking.method} ${path} ${read.failure.status}`);
@@ -220,21 +221,20 @@ const refused = (status: number, code: string, message: string): Written => ({
 	failure: { status, code, message },
 });
 
-/** A refusal where this console holds no token to write with, so nothing is asked first. */
+/** A refusal where development was not stated to write, so nothing is asked first; ./mode.ts. */
 const unwritable = (edge: Edge): Written | undefined =>
-	edge.mock || edge.env.CONTROL_WRITE_TOKEN
-		? undefined
-		: refused(503, 'service_unavailable', 'This console does not write.');
+	edge.held && !edge.mock
+		? refused(503, 'service_unavailable', 'Development writes to control with CONSOLE_WRITES=1.')
+		: undefined;
 
-/** `body` sent by `method` to `path` under control's `SCOPE`, with the Worker's write token. */
+/** `body` sent by `method` to `path` under control's `SCOPE`. */
 async function write(
 	edge: Edge,
 	method: 'POST' | 'PUT' | 'PATCH',
 	path: string,
 	body: { by: string; revision: number; spec: Spec },
 ): Promise<Written> {
-	const token = edge.env.CONTROL_WRITE_TOKEN;
-	const asking = { method, body: JSON.stringify(body), token, timeout: WRITE_TIMEOUT };
+	const asking = { method, body: JSON.stringify(body), timeout: WRITE_TIMEOUT };
 	return writtenOf(await control(edge, path, asking));
 }
 

@@ -2,7 +2,7 @@
  * The relays reached through each node's binding, and the console's live socket handed to the
  * nearest one that opens. Once the socket is passed on nothing here runs per message. See
  * spec/architecture/console.md, "Live, through the nearest node". No authentication of its own:
- * Access stands in front of every `.app` name, see the same file. Answered through ./api.ts.
+ * Access stands in front of the console, see the same file. Answered through ./api.ts.
  */
 import { failure } from '@canmi/response';
 import { URLS } from '@monoflake/sdk';
@@ -10,15 +10,14 @@ import { type Binding, NODES, type Node, type Whereabouts, order } from './nodes
 
 /**
  * Each node's Caddy, through that node's tunnel, bound by its hostname in capitals, and the
- * read-only token every node's host takes for its `GET` routes; see wrangler.jsonc. Control's read
- * and write tokens are the Worker's secrets alone, and the Access team and audience its writes are
- * signed for; see ./control.ts and ./access.ts.
+ * read-only token every node's host takes for its `GET` routes; see wrangler.jsonc. Control by its
+ * service binding, which needs no token, and the Access team and audience its writes are signed
+ * for; see ./control.ts and ./access.ts.
  */
 export type Env = Readonly<
 	Partial<Record<Binding, Fetcher>> & {
+		CONTROL?: Fetcher;
 		HOST_READ_TOKEN?: string;
-		CONTROL_READ_TOKEN?: string;
-		CONTROL_WRITE_TOKEN?: string;
 		ACCESS_TEAM?: string;
 		ACCESS_AUD?: string;
 	}

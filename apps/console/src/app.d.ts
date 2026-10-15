@@ -23,8 +23,9 @@ declare global {
 	namespace Cloudflare {
 		/**
 		 * The Worker's bindings as `cloudflare:workers` hands them over: each node's Caddy, by its name
-		 * in capitals, and the read token every node's host takes for its `GET` routes. See
-		 * wrangler.jsonc, and src/lib/server/edge.ts for the type the readers take.
+		 * in capitals, control by its `Console` entrypoint, and the read token every node's host takes
+		 * for its `GET` routes. See wrangler.jsonc, and src/lib/server/edge.ts for the type the
+		 * readers take.
 		 */
 		interface Env {
 			RDU: Fetcher;
@@ -36,6 +37,7 @@ declare global {
 			BUF: Fetcher;
 			SHA: Fetcher;
 			SIN: Fetcher;
+			CONTROL: Fetcher;
 			/** A Worker secret. */
 			HOST_READ_TOKEN: string;
 			/** The adapter's own: the client files and the prerendered pages. */

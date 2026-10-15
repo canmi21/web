@@ -18,3 +18,18 @@ export const MOCKED = mockedIn(
 	import.meta.env.DEV,
 	typeof CONSOLE_MOCK === 'boolean' ? CONSOLE_MOCK : undefined,
 );
+
+/** Whether `CONSOLE_WRITES=1` was stated to `vite dev`; see vite.config.ts. */
+declare const CONSOLE_WRITES: boolean | undefined;
+
+/**
+ * Whether a write reaches control: always from a build, and in development only where it was
+ * stated, since `vite dev`'s remote `CONTROL` binding is the real control. See wrangler.jsonc.
+ */
+export const writesIn = (development: boolean, stated: unknown): boolean =>
+	!development || stated === true;
+
+export const WRITES = writesIn(
+	import.meta.env.DEV,
+	typeof CONSOLE_WRITES === 'boolean' ? CONSOLE_WRITES : undefined,
+);
