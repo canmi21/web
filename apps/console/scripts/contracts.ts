@@ -30,7 +30,7 @@ export interface Contract {
 
 export const CONTRACTS: readonly Contract[] = [
 	{
-		schema: '../platform/apps/*/registry/catalog.schema.json',
+		schema: '../platform/apps/*/control/catalog.schema.json',
 		reader: 'apps/console/src/lib/control/catalog.gen.ts',
 	},
 ];

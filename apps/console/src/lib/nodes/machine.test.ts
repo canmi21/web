@@ -2,11 +2,11 @@ import { describe, expect, it } from 'vitest';
 import type { Now } from '../host.ts';
 import type { Held } from '../wire.ts';
 import { architecture, machineFor, machineOf, nodeRow, share, uptime } from './machine.ts';
-import { PLACED } from '../server/nodes.fixture.ts';
+import { ID, PLACED } from '../server/nodes.fixture.ts';
 import { learnPlaces } from '../map/places.ts';
 import { learnFacts } from './facts.ts';
 
-// Where the registry places each node, and what it declares of it; see RFC 17b3o.
+// Where control places each node, and what it declares of it; see RFC 17b3o.
 learnPlaces(PLACED);
 learnFacts(PLACED);
 
@@ -71,9 +71,9 @@ describe('uptime', () => {
 
 describe('nodeRow', () => {
 	it('puts the declared, the heard and the measured together', () => {
-		const row = nodeRow('tyo', held({ apps: [] }), machine(25), NOW);
+		const row = nodeRow(ID.tyo, held({ apps: [] }), machine(25), NOW);
 		expect(row).toMatchObject({
-			code: 'tyo',
+			code: ID.tyo,
 			name: 'Tokyo, Japan',
 			place: 'Tokyo',
 			role: 'core',
@@ -95,7 +95,7 @@ describe('nodeRow', () => {
 	});
 
 	it('counts a node the relay holds nothing of as gone, never heard', () => {
-		const row = nodeRow('rdu', undefined, undefined, NOW);
+		const row = nodeRow(ID.rdu, undefined, undefined, NOW);
 		expect(row.state).toBe('gone');
 		expect(row.heardAt).toBeUndefined();
 		expect(row.cpu).toBeUndefined();

@@ -1,5 +1,6 @@
 /** VPC bindings for the tests of what reads through them: they record what they were sent. */
 import type { Env } from './edge.ts';
+import { NODES, type Node } from './nodes.ts';
 
 export const TOKEN = 'read-token';
 
@@ -8,12 +9,12 @@ export interface Sent {
 	url: string;
 }
 
-/** Each binding answers as `answers` says for the path it was asked, or throws. */
+/** Each node's binding, by its id, answers as `answers` says for the path asked, or throws. */
 export function bound(answers: Record<string, (path: string) => Response>) {
 	const sent: Sent[] = [];
 	const env = Object.fromEntries(
 		Object.entries(answers).map(([name, answer]) => [
-			name.toUpperCase(),
+			NODES[name as Node],
 			{
 				fetch: async (url: string) => {
 					sent.push({ node: name, url });

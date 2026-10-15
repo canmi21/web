@@ -4,7 +4,7 @@ import { edgeOf } from '#lib/server/platform.js';
 import type { PageServerLoad } from './$types';
 
 /**
- * The account's open page, addressed by its id since it has no name: what the registry holds of it
+ * The account's open page, addressed by its id since it has no name: what control holds of it
  * with its form, or the nodes naming it. Held for the document's own response and streamed on a
  * move, as every page's reads are. Platform's RFC 32hd9.
  */

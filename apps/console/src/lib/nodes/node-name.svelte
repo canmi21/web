@@ -1,18 +1,19 @@
 <script lang="ts">
 	/**
-	 * A node as the console names it: its display name, in the type around it, and the code that
-	 * tells it from the other nodes sharing that name small and muted beside it. `short` writes the
-	 * name's first part alone, for a table cell or a chip, the whole of it on hover. See
-	 * spec/architecture/console.md, "A node is shown by its city, and its code is the key".
+	 * A node as the console names it: its display name, in the type around it, and its short id,
+	 * which tells it from the other nodes sharing that name, small and muted beside it. `short`
+	 * writes the name's first part alone, for a table cell or a chip, the whole of it on hover. See
+	 * spec/architecture/console.md, "A node is shown by its city, and its id is the key".
 	 */
 	import * as stylex from '@stylexjs/stylex';
 	import { text } from '@canmi/kit/tokens/vocabulary.stylex';
-	import { nameOf } from '../map/places.ts';
+	import { apartOf, nameOf } from '../map/places.ts';
 	import { type } from '../style.ts';
 
 	let { code, short = false }: { code: string; short?: boolean } = $props();
 
 	const name = $derived(nameOf(code));
+	const apart = $derived(apartOf(code, short ? 'lead' : 'full'));
 	const styles = stylex.create({
 		code: { color: 'var(--foreground-muted)', fontSize: text.px11 },
 	});
@@ -22,7 +23,7 @@
 <span
 	class="relative inline-flex items-baseline gap-1.5 whitespace-nowrap"
 	title={short && name.lead !== name.full ? name.full : undefined}
-	>{short ? name.lead : name.full}{#if name.full !== code}<span
-			class={stylex.attrs(type.mono, styles.code).class}>{code}</span
+	>{short ? name.lead : name.full}{#if apart !== undefined}<span
+			class={stylex.attrs(type.mono, styles.code).class}>{apart}</span
 		>{/if}</span
 >

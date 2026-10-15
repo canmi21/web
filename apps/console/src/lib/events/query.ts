@@ -26,7 +26,10 @@ export interface Query extends Filters {
 
 const FILTERS = ['node', 'app', 'action', 'outcome', 'stage', 'q'] as const;
 
-/** `tyo:120,gvx:98` as a cursor over `nodes`; a node it does not know or a bad id is dropped. */
+/**
+ * `<node id>:120,<node id>:98` as a cursor over `nodes`; a node it does not know or a bad id is
+ * dropped.
+ */
 export function parseCursor(text: string | null, nodes: readonly string[]): Cursor {
 	const cursor: Record<string, number> = {};
 	for (const part of (text ?? '').split(',')) {

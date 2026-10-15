@@ -1,6 +1,6 @@
 /**
  * A path in another repository's checkout beside this one, written with one `*` segment for the
- * directory that repository may move it between, so the platform's registry is found whichever of
+ * directory that repository may move it between, so the platform's control is found whichever of
  * its `apps` groups holds it -- platform's RFC l6r4u.
  */
 import { existsSync, readdirSync } from 'node:fs';

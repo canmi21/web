@@ -1,10 +1,10 @@
 /**
- * The platform's control plane as the console's server reaches it: the registry on the nearest core
- * that answers and the ledger on its node, each a private scope of the API host through that node's
- * VPC binding -- `api.canmi.app/registry/...`, `api.canmi.app/ledger/...` -- and a write carrying
- * the registry's token, which the Worker holds and the browser never sees, with `by` from the
- * request's Access identity, ./access.ts. A spec is sent and never logged: it may hold a secret's
- * value. See platform's spec/architecture/registry.md and ledger.md, and RFC cpc2b.
+ * The platform's control plane as the console's server reaches it: control over HTTPS at
+ * `URLS.control`, a read carrying its read token and a write its write token, which the Worker
+ * holds and the browser never sees, with `by` from the request's Access identity, ./access.ts; and
+ * the ledger on the nearest core that answers, a private scope of the API host through that node's
+ * VPC binding, `api.canmi.app/ledger/...`. A spec is sent and never logged: it may hold a secret's
+ * value. See platform's spec/architecture/control.md and ledger.md, and RFC cpc2b.
  */
 import { URLS } from '@monoflake/sdk';
 import * as v from 'valibot';
@@ -27,7 +27,7 @@ import { learnPlaces } from '../map/places.ts';
 import { learnFacts } from '../nodes/facts.ts';
 import { kept } from './cache.ts';
 import { TIMEOUT, bindingOf } from './edge.ts';
-import { controlMock } from './mock-control.ts';
+import { controlMock, ledgerMock } from './mock-control.ts';
 import {
 	type Coordinates,
 	type Node,
@@ -38,13 +38,17 @@ import {
 	learnedCores,
 	order,
 } from './nodes.ts';
-import { type Edge, type Failure, type Read, failed, opened } from './read.ts';
+import { type Edge, type Failure, type Read, enveloped, failed, opened } from './read.ts';
 
 /**
- * Where the console first looks for the registry and the ledger, before the registry has named its
- * cores: the bootstrap, as host's `REGISTRY` is, and never read again once it has. See RFC 17b3o.
+ * Where the console first looks for the ledger, before control has named the cores: the bootstrap,
+ * never read again once it has. See RFC 17b3o.
  */
-export const CORES = ['tyo', 'sin', 'rdu'] as const satisfies readonly Node[];
+export const CORES = [
+	'd132b0f553e3dcc3',
+	'9d399312d1c3ddc4',
+	'd62c82b23a858876',
+] as const satisfies readonly Node[];
 
 /** The API host on the tunnel's side of Caddy, which VPC sends as the `Host`. */
 export const API = `http://${new URL(URLS.internal.api.private).hostname.split('.')[0]}.${
@@ -53,6 +57,9 @@ export const API = `http://${new URL(URLS.internal.api.private).hostname.split('
 
 /** How long a write may take before it is reported as perhaps written, in milliseconds. */
 const WRITE_TIMEOUT = 10_000;
+
+/** Where control answers what the registry held, its kinds among them: its `registry` scope. */
+export const SCOPE = '/v1/registry';
 
 /** The ledger's own page size when none is asked; see its spec, "Read by the console". */
 const PAGE = 50;
@@ -67,11 +74,21 @@ interface Asking {
 /** Whether a failure is the node's rather than the service's answer, so the next may be asked. */
 const elsewhere = (failure: Failure) => failure.status >= 500 || failure.code === 'no_such_route';
 
-/** `path` under the API host on `node`, made up in mock mode; undefined where it is not bound. */
-function reached(edge: Edge, node: Node, path: string, init: RequestInit) {
-	if (edge.mock) return controlMock(path, init);
-	return bindingOf(edge.env, node)?.fetch(`${API}${path}`, init);
+/** The request `asking` makes. */
+function initOf(asking: Asking): RequestInit {
+	const headers = new Headers({ accept: 'application/json' });
+	if (asking.body !== undefined) headers.set('content-type', 'application/json');
+	if (asking.token) headers.set('authorization', `Bearer ${asking.token}`);
+	return { method: asking.method, headers, body: asking.body };
 }
+
+/** Whether `error` is a timeout of a write, which may have been taken and is never sent again. */
+const writeTimedOut = (error: unknown, asking: Asking) =>
+	error instanceof DOMException && error.name === 'TimeoutError' && asking.method !== 'GET';
+
+/** What a write that timed out is answered: the reader reads before writing again. */
+const unsure = () =>
+	failed(504, 'upstream_unavailable', 'No answer in time; read it again to see.');
 
 /**
  * `path` under the API host, of the first of `nodes` whose service answers in the envelope. A write
@@ -79,56 +96,71 @@ function reached(edge: Edge, node: Node, path: string, init: RequestInit) {
  * again, as a revision refused would make them do anyway.
  */
 async function asked<T>(edge: Edge, nodes: readonly Node[], path: string, asking: Asking) {
-	const headers = new Headers({ accept: 'application/json' });
-	if (asking.body !== undefined) headers.set('content-type', 'application/json');
-	if (asking.token) headers.set('authorization', `Bearer ${asking.token}`);
-	const init = { method: asking.method, headers, body: asking.body };
+	const init = initOf(asking);
 	let last: Read<T> = failed(502, 'upstream_unavailable', 'No node holding it answered.');
 	for (const node of nodes) {
 		try {
 			const signal = AbortSignal.timeout(asking.timeout);
-			const answer = reached(edge, node, path, { ...init, signal });
+			const answer = edge.mock
+				? ledgerMock(path)
+				: bindingOf(edge.env, node)?.fetch(`${API}${path}`, { ...init, signal });
 			if (answer === undefined) continue;
 			last = await opened<T>(node, await answer);
 			if (last.ok || !elsewhere(last.failure)) return last;
 			console.error(`control: ${node} answered ${asking.method} ${path} ${last.failure.status}`);
 		} catch (error) {
-			const timedOut = error instanceof DOMException && error.name === 'TimeoutError';
 			console.error(`control: ${node} did not answer ${asking.method} ${path}: ${String(error)}`);
-			if (timedOut && asking.method !== 'GET') {
-				return failed(504, 'upstream_unavailable', 'No answer in time; read it again to see.');
-			}
+			if (writeTimedOut(error, asking)) return unsure();
 		}
 	}
 	return last;
 }
 
-/** The cores the registry last named, else the bootstrap's, nearest the reader first. */
+/** The cores control last named, else the bootstrap's, nearest the reader first. */
 const cores = (edge: Edge) => {
 	const named: readonly Node[] = learnedCores() ?? CORES;
 	return order(edge.where).filter((node) => named.includes(node));
 };
 
-function registry<T>(edge: Edge, path: string, asking: Partial<Asking> = {}) {
-	return asked<T>(edge, cores(edge), `/registry/v1${path}`, {
-		method: 'GET',
-		timeout: TIMEOUT,
-		...asking,
-	});
+/**
+ * `path` under control's `SCOPE`, over HTTPS, with the read token where `asking` carries no other;
+ * made up in mock mode. One place answers it, so nothing is asked again elsewhere.
+ */
+async function control<T>(edge: Edge, path: string, more: Partial<Asking> = {}): Promise<Read<T>> {
+	const asking: Asking = { method: 'GET', timeout: TIMEOUT, ...more };
+	const token = asking.token ?? edge.env.CONTROL_READ_TOKEN;
+	if (!edge.mock && !token) {
+		return failed(503, 'service_unavailable', 'This console holds no token for control.');
+	}
+	const init = { ...initOf({ ...asking, token }), signal: AbortSignal.timeout(asking.timeout) };
+	try {
+		const answer = edge.mock
+			? await controlMock(`${SCOPE}${path}`, init)
+			: await fetch(`${URLS.control}${SCOPE}${path}`, init);
+		const read = await enveloped<T>('control', answer);
+		if (!read.ok) {
+			console.error(`control: answered ${asking.method} ${path} ${read.failure.status}`);
+		}
+		return read;
+	} catch (error) {
+		console.error(`control: did not answer ${asking.method} ${path}: ${String(error)}`);
+		if (writeTimedOut(error, asking)) return unsure();
+		return failed(502, 'upstream_unavailable', 'Control did not answer.');
+	}
 }
 
 const answered = (read: Read<unknown>) => read.ok;
 
 /**
- * Every kind the registry holds, read through its generated schema; kept a minute, since a kind or
- * a field changes only with a deploy of the registry.
+ * Every kind control holds, read through its generated schema; kept a minute, since a kind or a
+ * field changes only with a deploy of control.
  */
 export function catalog(edge: Edge): Promise<Read<Catalog>> {
 	return kept(edge, 'control catalog', 60, () => catalogNow(edge), answered);
 }
 
 async function catalogNow(edge: Edge): Promise<Read<Catalog>> {
-	const read = await registry<unknown>(edge, '/kinds');
+	const read = await control<unknown>(edge, '/kinds');
 	if (!read.ok) return read;
 	const parsed = v.safeParse(Catalog, read.data);
 	if (parsed.success) return { ...read, data: parsed.output };
@@ -161,7 +193,7 @@ export async function resources(
 	catalogRead = catalog(edge),
 ): Promise<Read<List>> {
 	const plural = await pluralOf(catalogRead, kind);
-	return plural.ok ? registry<List>(edge, `/${plural.data}`) : plural;
+	return plural.ok ? control<List>(edge, `/${plural.data}`) : plural;
 }
 
 /** One resource of `kind`, by its id or its name. */
@@ -172,15 +204,15 @@ export async function resource(
 	catalogRead = catalog(edge),
 ): Promise<Read<Resource>> {
 	const plural = await pluralOf(catalogRead, kind);
-	return plural.ok ? registry<Resource>(edge, `/${plural.data}/${segment(ref)}`) : plural;
+	return plural.ok ? control<Resource>(edge, `/${plural.data}/${segment(ref)}`) : plural;
 }
 
-/** The registry's answer to a write as the console reports it. */
-function writtenOf(read: Read<{ revision?: number; task?: string; id?: string }>): Written {
+/** Control's answer to a write as the console reports it: no revision where nothing changed. */
+function writtenOf(read: Read<{ revision?: number; id?: string }>): Written {
 	if (!read.ok) return read;
-	const { revision, task, id } = read.data;
-	if (task === undefined) return { ok: true, unchanged: true };
-	return { ok: true, task, revision: revision ?? 0, ...(id === undefined ? {} : { id }) };
+	const { revision, id } = read.data;
+	if (revision === undefined) return { ok: true, unchanged: true };
+	return { ok: true, revision, ...(id === undefined ? {} : { id }) };
 }
 
 const refused = (status: number, code: string, message: string): Written => ({
@@ -190,25 +222,25 @@ const refused = (status: number, code: string, message: string): Written => ({
 
 /** A refusal where this console holds no token to write with, so nothing is asked first. */
 const unwritable = (edge: Edge): Written | undefined =>
-	edge.mock || edge.env.REGISTRY_TOKEN
+	edge.mock || edge.env.CONTROL_WRITE_TOKEN
 		? undefined
 		: refused(503, 'service_unavailable', 'This console does not write.');
 
-/** `body` sent by `method` to `path` under the registry's `/v1`, with the Worker's token. */
+/** `body` sent by `method` to `path` under control's `SCOPE`, with the Worker's write token. */
 async function write(
 	edge: Edge,
 	method: 'POST' | 'PUT' | 'PATCH',
 	path: string,
 	body: { by: string; revision: number; spec: Spec },
 ): Promise<Written> {
-	const token = edge.env.REGISTRY_TOKEN;
+	const token = edge.env.CONTROL_WRITE_TOKEN;
 	const asking = { method, body: JSON.stringify(body), token, timeout: WRITE_TIMEOUT };
-	return writtenOf(await registry(edge, path, asking));
+	return writtenOf(await control(edge, path, asking));
 }
 
 /**
  * A resource made at revision 0, as `by`: a named kind's by `PUT` at its name, a kind with no name
- * by `POST` to its collection, answered with the id the registry drew -- platform's RFC 32hd9.
+ * by `POST` to its collection, answered with the id control drew -- platform's RFC 32hd9.
  */
 export async function create(edge: Edge, by: string, made: Create): Promise<Written> {
 	const { kind, name, spec } = made;
@@ -261,8 +293,9 @@ export function task(edge: Edge, service: string, id: string): Promise<Read<Task
 
 /**
  * The facts the console shows of other repositories, from where they are kept: each app's display
- * name and repository, and each node's place, role, tier, system and expiry, all as the registry
- * holds them -- RFC 17b3o. `read` is false where it has never answered and nothing is kept.
+ * name and repository, and each node's city, country, role, tier, system and expiry, all as control
+ * holds them, a node by its id -- RFC 17b3o. `read` is false where it has never answered and
+ * nothing is kept.
  */
 export interface Facts {
 	readonly apps: Readonly<Record<string, AppFact>>;
@@ -270,10 +303,10 @@ export interface Facts {
 	readonly read: boolean;
 }
 
-/** What the console shows before the registry has ever answered. */
+/** What the console shows before control has ever answered. */
 export const UNREAD: Facts = { apps: {}, nodes: {}, read: false };
 
-/** The registry's last answer, and when it was read, in milliseconds. */
+/** Control's last answer, and when it was read, in milliseconds. */
 interface Held {
 	readonly facts: Facts;
 	readonly at: number;
@@ -282,7 +315,7 @@ interface Held {
 const FACTS = 'control facts';
 /** How old a kept answer may be before it is read again behind the page that uses it. */
 export const FACTS_FRESH_MS = 60_000;
-/** How long the last answer is kept: the console draws from it while the registry is down. */
+/** How long the last answer is kept: the console draws from it while control is down. */
 const FACTS_KEPT_SECONDS = 30 * 86_400;
 
 const text = (value: unknown) => (typeof value === 'string' && value ? value : undefined);
@@ -299,7 +332,7 @@ function coordinatesOf(value: unknown): Coordinates | undefined {
 		: undefined;
 }
 
-/** The facts in two lists the registry answered. */
+/** The facts in two lists control answered: an app by its name, a node by its id. */
 function factsOf(apps: List, nodes: List): Facts {
 	const named = (list: List) => list.items.filter((item) => item.name !== null);
 	return {
@@ -310,17 +343,21 @@ function factsOf(apps: List, nodes: List): Facts {
 			}),
 		),
 		nodes: Object.fromEntries(
-			named(nodes).map(({ name, spec }) => {
+			nodes.items.map(({ id, spec }) => {
 				const roles = Array.isArray(spec.roles) ? spec.roles : [];
 				const core = roles.includes('core') || spec.core === true;
 				const home = spec.hosting === 'selfhost' || spec.tier === 'home';
-				const at = { coordinates: coordinatesOf(spec.coordinates), place: text(spec.place) };
+				const at = {
+					coordinates: coordinatesOf(spec.coordinates),
+					city: text(spec.city),
+					country: text(spec.country),
+				};
 				const declared = {
 					tier: oneOf(spec.tier, TIERS),
 					system: oneOf(spec.system, SYSTEMS),
 					expiry: Number.isInteger(spec.expiry) ? (spec.expiry as number) : undefined,
 				};
-				return [name, { ...at, core, home, ...declared }];
+				return [id, { ...at, core, home, ...declared }];
 			}),
 		),
 		read: true,
@@ -351,13 +388,13 @@ export async function keptFacts(
 }
 
 /**
- * The facts read from the registry now, kept as the last answer and their nodes taken in; where it
- * does not answer, the last answer kept, else `UNREAD`.
+ * The facts read from control now, kept as the last answer and their nodes taken in; where it does
+ * not answer, the last answer kept, else `UNREAD`.
  */
 export async function readFacts(edge: Edge, now = Date.now()): Promise<Facts> {
 	const [apps, nodes] = await Promise.all([
-		registry<List>(edge, '/apps'),
-		registry<List>(edge, '/nodes'),
+		control<List>(edge, '/apps'),
+		control<List>(edge, '/nodes'),
 	]);
 	if (!apps.ok || !nodes.ok) return (await keptFacts(edge, now)).facts;
 	const facts = learn(factsOf(apps.data, nodes.data), now);
@@ -370,7 +407,7 @@ export async function readFacts(edge: Edge, now = Date.now()): Promise<Facts> {
 /**
  * The facts, taken in before anything on the server reads them: this isolate's for a minute, else
  * the kept answer, read again behind the request by `defer` once a minute old; only where nothing
- * is kept is the registry asked first.
+ * is kept is control asked first.
  */
 export async function learned(
 	edge: Edge,

@@ -47,8 +47,11 @@ export interface Failure {
 	message: string;
 }
 
-/** What a read came back with, and the node that answered it. */
-export type Read<T> = { ok: true; node: Node; data: T } | { ok: false; failure: Failure };
+/**
+ * What a read came back with, and the node that answered it; none for control, which is reached
+ * over HTTPS and no node holds.
+ */
+export type Read<T> = { ok: true; node?: Node; data: T } | { ok: false; failure: Failure };
 
 /**
  * `path` of the nearest relay that answers it whole: a relay counts once its body is read and
@@ -153,7 +156,7 @@ export async function node<T>(
 	path: `/${string}`,
 	timeout?: number,
 ): Promise<Read<T>> {
-	if (!isNode(name)) return failed(404, 'no_such_host', `No node is named ${name}.`);
+	if (!isNode(name)) return failed(404, 'no_such_host', `No node has the id ${name}.`);
 	if (edge.mock) return made(name, hostMock(name, path));
 	const binding = bindingOf(edge.env, name);
 	const token = edge.env.HOST_READ_TOKEN;
@@ -176,23 +179,30 @@ export function isNode(name: string): name is Node {
 	return Object.hasOwn(NODES, name);
 }
 
-/**
- * The envelope's data, or its failure; anything else that is not an envelope is the node's fault,
- * but a 404 is a path nothing on the node answers yet, as a route host has not deployed.
- */
+/** `node`'s envelope opened, as `enveloped` opens it, with the node that answered. */
 export async function opened<T>(node: Node, answer: Response): Promise<Read<T>> {
+	const read = await enveloped<T>(node, answer);
+	return read.ok ? { ...read, node } : read;
+}
+
+/**
+ * The envelope's data, or its failure; anything else that is not an envelope is the fault of
+ * `from`, who answered, but a 404 is a path nothing there answers yet, as a route host has not
+ * deployed.
+ */
+export async function enveloped<T>(from: string, answer: Response): Promise<Read<T>> {
 	const body = (await answer.json().catch(() => undefined)) as
 		| { status: 'success'; data: T }
 		| { status: 'error'; code: Code; message: string }
 		| undefined;
-	if (body?.status === 'success') return { ok: true, node, data: body.data };
+	if (body?.status === 'success') return { ok: true, data: body.data };
 	if (body?.status === 'error') {
 		const { code, message } = body;
 		return { ok: false, failure: { status: answer.status, code, message } };
 	}
-	if (answer.status === 404) return failed(404, 'no_such_route', `${node} has no such route.`);
-	console.error(`read: ${node} answered ${answer.status} outside the envelope`);
-	return failed(502, 'upstream_unavailable', `${node} answered outside the envelope.`);
+	if (answer.status === 404) return failed(404, 'no_such_route', `${from} has no such route.`);
+	console.error(`read: ${from} answered ${answer.status} outside the envelope`);
+	return failed(502, 'upstream_unavailable', `${from} answered outside the envelope.`);
 }
 
 export function failed(status: number, code: Code, message: string): Read<never> {

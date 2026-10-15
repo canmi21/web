@@ -4,8 +4,9 @@ import type { Point } from '../host.ts';
 import type { Read } from '../server/read.ts';
 import type { App, Cluster, Event } from '../wire.ts';
 import { drifts, latest, lines, merge, placements, rowsOf, total } from './apps.ts';
+import { ID } from '../server/nodes.fixture.ts';
 
-const ORDER: Node[] = ['tyo', 'gvx', 'buf', 'nrt', 'hnd', 'bru', 'rdu'];
+const ORDER: Node[] = [ID.tyo, ID.gvx, ID.buf, ID.nrt, ID.hnd, ID.bru, ID.rdu];
 
 const app = (name: string, image: string, over: Partial<App> = {}): App => ({
 	name,
@@ -24,21 +25,21 @@ const held = (apps: App[]) => ({
 
 const cluster = {
 	version: 1,
-	node: 'tyo',
+	node: ID.tyo,
 	nodes: {
-		tyo: held([
+		[ID.tyo]: held([
 			app('web', 'r/web@sha256:aaa'),
 			app('geo', 'r/geo@sha256:ccc'),
 			app('objects', 'r/objects@sha256:ddd', { running: false, driver: true }),
 		]),
-		gvx: held([
+		[ID.gvx]: held([
 			app('web', 'r/web@sha256:bbb', { deployed_at: '2026-10-06T09:00:00Z', held: true }),
 			app('geo', 'r/geo@sha256:ccc', { running: false }),
 		]),
 	},
 } as unknown as Cluster;
 
-const ok = <T>(data: T): Read<T> => ({ ok: true, node: 'tyo', data });
+const ok = <T>(data: T): Read<T> => ({ ok: true, node: ID.tyo, data });
 const failed: Read<never> = {
 	ok: false,
 	failure: { status: 502, code: 'upstream_unavailable', message: '' },
@@ -61,8 +62,8 @@ describe('apps', () => {
 
 	it('states each placement in node order', () => {
 		expect(placements(ORDER, cluster, 'web').map((one) => [one.node, one.state])).toEqual([
-			['tyo', 'running'],
-			['gvx', 'held'],
+			[ID.tyo, 'running'],
+			[ID.gvx, 'held'],
 		]);
 		expect(placements(ORDER, cluster, 'geo')[1]?.state).toBe('stopped');
 		expect(placements(ORDER, cluster, 'objects')[0]?.state).toBe('driver');
@@ -82,16 +83,16 @@ describe('merge', () => {
 
 	it('puts every node newest first and names the node that did not answer', () => {
 		const merged = merge(ORDER, {
-			tyo: ok([event(2, '2026-10-06T10:00:00Z'), event(1, '2026-10-06T06:00:00Z')]),
-			gvx: ok([event(7, '2026-10-06T08:00:00Z')]),
-			buf: failed,
+			[ID.tyo]: ok([event(2, '2026-10-06T10:00:00Z'), event(1, '2026-10-06T06:00:00Z')]),
+			[ID.gvx]: ok([event(7, '2026-10-06T08:00:00Z')]),
+			[ID.buf]: failed,
 		});
 		expect(merged.events.map((one) => [one.node, one.id])).toEqual([
-			['tyo', 2],
-			['gvx', 7],
-			['tyo', 1],
+			[ID.tyo, 2],
+			[ID.gvx, 7],
+			[ID.tyo, 1],
 		]);
-		expect(merged.unknown).toEqual(['buf']);
+		expect(merged.unknown).toEqual([ID.buf]);
 	});
 });
 
@@ -105,21 +106,21 @@ describe('series', () => {
 	it('colors a line by its node, not its rank, and leaves out an unknown node', () => {
 		const made = lines(
 			ORDER,
-			{ gvx: ok(points([1, 2])), tyo: failed, buf: ok(points([3])) },
+			{ [ID.gvx]: ok(points([1, 2])), [ID.tyo]: failed, [ID.buf]: ok(points([3])) },
 			'web.cpu',
 		);
 		expect(made.lines.map((line) => [line.key, line.color])).toEqual([
-			['gvx', 'var(--series-2)'],
-			['buf', 'var(--series-3)'],
+			[ID.gvx, 'var(--series-2)'],
+			[ID.buf, 'var(--series-3)'],
 		]);
-		expect(made.unknown).toEqual(['tyo']);
-		expect(latest(made.lines)).toEqual({ gvx: 2, buf: 3 });
+		expect(made.unknown).toEqual([ID.tyo]);
+		expect(latest(made.lines)).toEqual({ [ID.gvx]: 2, [ID.buf]: 3 });
 	});
 
 	it('adds the nodes moment by moment', () => {
 		const made = lines(
 			ORDER,
-			{ tyo: ok(points([1, 2])), gvx: ok(points([10, 20, 30])) },
+			{ [ID.tyo]: ok(points([1, 2])), [ID.gvx]: ok(points([10, 20, 30])) },
 			'web.cpu',
 		);
 		expect(total(made.lines).map((one) => one.value)).toEqual([11, 22, 30]);

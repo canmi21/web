@@ -17,7 +17,7 @@ export function currentView(): () => View {
 	return getContext<(() => View) | undefined>(KEY) ?? (() => 'all');
 }
 
-/** Link makers for the view being read: `to('/deployments/7')`, `node('tyo')`, `app('web')`. */
+/** Link makers for the view being read: `to('/deployments/7')`, `node(id)`, `app('web')`. */
 export function scoped() {
 	const read = currentView();
 	return {

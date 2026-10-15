@@ -12,6 +12,7 @@ import {
 	worse,
 } from './history.ts';
 import { DAY, HOUR } from './timeline.ts';
+import { ID } from '../server/nodes.fixture.ts';
 
 const MINUTE = 60_000;
 const at = (ms: number) => new Date(ms).toISOString();
@@ -64,7 +65,7 @@ describe('history gathered to a row', () => {
 				beats: 20,
 				due: 20,
 				down: { geo: 3 },
-				round_trip: { rdu: { mean: 0.1, worst: 0.2 } },
+				round_trip: { [ID.rdu]: { mean: 0.1, worst: 0.2 } },
 			},
 			{
 				at: at(MINUTE),
@@ -72,30 +73,30 @@ describe('history gathered to a row', () => {
 				due: 20,
 				missing: 1,
 				down: { geo: 2 },
-				round_trip: { rdu: { mean: 0.3, worst: 0.5 } },
+				round_trip: { [ID.rdu]: { mean: 0.3, worst: 0.5 } },
 			},
 		]);
 		expect(one).toMatchObject({ beats: 30, due: 40, missing: 1, down: { geo: 5 } });
-		expect(one?.round_trip?.rdu?.worst).toBe(0.5);
-		expect(one?.round_trip?.rdu?.mean).toBeCloseTo(0.2);
+		expect(one?.round_trip?.[ID.rdu]?.worst).toBe(0.5);
+		expect(one?.round_trip?.[ID.rdu]?.mean).toBeCloseTo(0.2);
 	});
 
 	it('puts each slot where the part of it inside the span falls, the last running past now', () => {
 		const now = 10 * HOUR + 30 * MINUTE;
 		const history: History = {
 			version: 1,
-			node: 'rdu',
+			node: ID.rdu,
 			from: at(0),
 			until: at(now),
 			slot: 3600,
 			nodes: {
-				rdu: [
+				[ID.rdu]: [
 					{ at: at(8 * HOUR), beats: 1 },
 					{ at: at(10 * HOUR), beats: 2 },
 				],
 			},
 		};
-		const row = gathered(history, 'rdu', now, 3 * HOUR, 3);
+		const row = gathered(history, ID.rdu, now, 3 * HOUR, 3);
 		expect(row.map((one) => one?.beats)).toEqual([undefined, 1, 2]);
 	});
 

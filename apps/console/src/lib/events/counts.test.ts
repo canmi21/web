@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import type { FleetEvent } from '#lib/server/fleet.ts';
 import { days, hours } from './counts.ts';
+import { ID } from '../server/nodes.fixture.ts';
 
 const NOW = Date.parse('2026-10-06T12:30:00Z');
 const event = (node: string, at: string, outcome = 'succeeded'): FleetEvent => ({
@@ -17,12 +18,12 @@ describe('counts', () => {
 	it('counts events per hour per node over the last 24 hours', () => {
 		const { times, values } = hours(
 			[
-				event('tyo', '2026-10-06T12:05:00Z'),
-				event('tyo', '2026-10-06T12:59:00Z'),
-				event('gvx', '2026-10-05T13:10:00Z'),
-				event('gvx', '2026-10-05T12:10:00Z'),
+				event(ID.tyo, '2026-10-06T12:05:00Z'),
+				event(ID.tyo, '2026-10-06T12:59:00Z'),
+				event(ID.gvx, '2026-10-05T13:10:00Z'),
+				event(ID.gvx, '2026-10-05T12:10:00Z'),
 			],
-			['tyo', 'gvx'],
+			[ID.tyo, ID.gvx],
 			NOW,
 		);
 		expect(times).toHaveLength(24);
@@ -34,10 +35,10 @@ describe('counts', () => {
 
 	it('counts outcomes per day in the reader zone', () => {
 		const at = [
-			event('tyo', '2026-10-06T01:00:00Z', 'failed'),
-			event('tyo', '2026-10-05T23:00:00Z'),
-			event('tyo', '2026-09-20T00:00:00Z'),
-			event('tyo', '2026-10-06T02:00:00Z', 'odd'),
+			event(ID.tyo, '2026-10-06T01:00:00Z', 'failed'),
+			event(ID.tyo, '2026-10-05T23:00:00Z'),
+			event(ID.tyo, '2026-09-20T00:00:00Z'),
+			event(ID.tyo, '2026-10-06T02:00:00Z', 'odd'),
 		];
 		const utc = days(at, NOW, { name: 'UTC' });
 		expect(utc.times).toHaveLength(7);

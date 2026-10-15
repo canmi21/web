@@ -9,7 +9,7 @@
 	import DataTable from '../table/data-table.svelte';
 	import type { Column } from '../table/table.ts';
 	import { DOTS } from '../ui/masked.svelte';
-	import { type Options, shown } from './form.ts';
+	import { type Options, said } from './form.ts';
 	import { labelOf, refOf } from './view.ts';
 
 	let {
@@ -26,12 +26,12 @@
 		href: (ref: string) => string;
 	} = $props();
 
-	const cell = (resource: Resource, key: string): string => {
-		const field = description.fields.find((one) => one.name === key);
-		const value = resource.spec[key];
-		const named = field?.kind && options[field.kind]?.find((one) => one.value === value)?.label;
-		return named ?? shown(value);
-	};
+	const cell = (resource: Resource, key: string): string =>
+		said(
+			description.fields.find((one) => one.name === key),
+			resource.spec[key],
+			options,
+		);
 
 	const masked = (key: string) => description.fields.some((one) => one.name === key && one.masked);
 

@@ -1,6 +1,6 @@
 /**
  * A resource's form, worked out from its kind in the catalog alone: how each field is drawn, what
- * its input is named, and how what was sent is read back into a `spec`. A field the registry alone
+ * its input is named, and how what was sent is read back into a `spec`. A field control alone
  * writes is shown and never sent; a `secret` one is a password field, never filled from what was
  * read, and left blank it keeps what is held; a `masked` one is a text field filled and sent like
  * any other, its content hidden until shown. Platform's RFC cpc2b and spec/console/navigation.md.
@@ -18,6 +18,7 @@ export type Input =
 	| 'checkbox'
 	| 'select'
 	| 'reference'
+	| 'references'
 	| 'checkboxes'
 	| 'items'
 	| 'json';
@@ -39,6 +40,7 @@ export function inputOf(field: Field): Input {
 			return 'reference';
 		case 'list':
 			if (field.fields?.length) return 'items';
+			if (field.kind) return 'references';
 			return field.choices?.length ? 'checkboxes' : 'json';
 		case 'object':
 			return 'json';
@@ -54,11 +56,11 @@ export interface Choice {
 /** The resources each kind a form refers to holds, which its pickers offer. */
 export type Options = Partial<Record<Kind, Choice[]>>;
 
-/** Every kind `fields` refers to, items' fields included. */
+/** Every kind `fields` refers to, a list of references and items' fields included. */
 export function referred(fields: readonly Field[]): Kind[] {
 	const kinds = new Set<Kind>();
 	for (const field of fields) {
-		if (field.type === 'reference' && field.kind) kinds.add(field.kind);
+		if (field.kind) kinds.add(field.kind);
 		for (const kind of referred(field.fields ?? [])) kinds.add(kind);
 	}
 	return [...kinds];
@@ -123,6 +125,10 @@ export function read(fields: readonly Field[], sent: Sent, prefix: string, creat
 		else if (input === 'checkboxes') {
 			const chosen = sent.getAll(name).filter((one) => field.choices?.includes(String(one)));
 			value = chosen.length ? chosen.map(String) : undefined;
+		} else if (input === 'references') {
+			// In the order the form lists them, which keeps the order they were held in.
+			const chosen = sent.getAll(name).map(String).filter(Boolean);
+			value = chosen.length ? chosen : undefined;
 		} else if (input === 'items') {
 			const items = indexes(sent, name).map((index) =>
 				read(field.fields ?? [], sent, `${name}.${index}`, creating),
@@ -155,7 +161,7 @@ const identityOf = (fields: readonly Field[], item: unknown) => {
 
 /**
  * An item as sent, completed from the one it was read as: where no secret of it was typed, what
- * the form does not send -- the registry's own fields, a blank secret -- is kept as held, since a
+ * the form does not send -- control's own fields, a blank secret -- is kept as held, since a
  * list is written whole; where one was, it goes with what was typed alone.
  */
 function kept(fields: readonly Field[], item: Spec, before: unknown): Spec {
@@ -200,6 +206,20 @@ export function shown(value: unknown): string {
 		return value.join(', ');
 	if (typeof value === 'object') return JSON.stringify(value);
 	return String(value);
+}
+
+/**
+ * A value as one line of text, as `shown` writes it, a reference or each of a list of them written
+ * as what it names is called where `options` know it, the list's apart by semicolons, since a name
+ * may hold a comma: an app's placements by their nodes' cities.
+ */
+export function said(field: Field | undefined, value: unknown, options: Options): string {
+	const choices = field?.kind ? options[field.kind] : undefined;
+	if (choices === undefined) return shown(value);
+	const named = (one: unknown) => choices.find((choice) => choice.value === one)?.label ?? one;
+	if (Array.isArray(value) && value.length > 0)
+		return value.map((one) => shown(named(one))).join('; ');
+	return shown(named(value));
 }
 
 /** A form's field as its input is filled: never a secret, a list or an object as its JSON. */

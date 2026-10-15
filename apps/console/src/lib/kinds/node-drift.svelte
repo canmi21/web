@@ -1,6 +1,6 @@
 <script lang="ts">
 	/**
-	 * A node's drift as its host reports it: what the registry wants there and does not run, what
+	 * A node's drift as its host reports it: what control wants there and does not run, what
 	 * runs and is not wanted, and what runs another release than the one wanted. Drawn, never worked
 	 * out here -- infra's spec/architecture/host.md.
 	 */
@@ -29,11 +29,9 @@
 		{@const drift = answer.data}
 		<Card title="Drift">
 			<p>
-				Against the registry's revision {drift.registry_revision}, read
+				Against control's revision {drift.registry_revision}, read
 				<time datetime={drift.read_at}>{localTime(drift.read_at, zone)}</time>
-				{drift.source === 'cache'
-					? 'from what host kept, no registry answering'
-					: 'from the registry'}.
+				{drift.source === 'cache' ? 'from what host kept, control not answering' : 'from control'}.
 			</p>
 			<section aria-labelledby="drift-wanted">
 				<h3 id="drift-wanted">Wanted, not running</h3>

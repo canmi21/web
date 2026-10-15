@@ -4,7 +4,15 @@
  * asks for it; see ./mode.ts.
  */
 import type { AppDetail, Checked, Disk, MachineInfo, Now, Point, Summary } from '../host.ts';
-import type { App, Cluster, Event, Held, History, Slot } from '../wire.ts';
+import {
+	type App,
+	type Cluster,
+	CONTRACT,
+	type Event,
+	type Held,
+	type History,
+	type Slot,
+} from '../wire.ts';
 import type { FleetEvent } from './fleet.ts';
 import { driftMock } from './mock-control.ts';
 import { NODES, type Node } from './nodes.ts';
@@ -194,7 +202,7 @@ function held(node: string): Held {
 
 function cluster(node: Node): Cluster {
 	return {
-		version: 1,
+		version: CONTRACT,
 		node,
 		nodes: Object.fromEntries(ALL.map((one) => [one, held(one)])),
 	};

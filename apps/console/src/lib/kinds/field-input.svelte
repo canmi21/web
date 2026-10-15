@@ -1,9 +1,10 @@
 <script lang="ts">
 	/**
 	 * One field of a resource's form, drawn from the catalog: a choice as a select, a reference as a
-	 * picker of that kind's resources, a list of objects an item at a time, a secret as a password
+	 * picker of that kind's resources, a list of references as that kind's resources to tick, those
+	 * held first in their order, a list of objects an item at a time, a secret as a password
 	 * field never filled from what was read, a masked value filled and hidden until shown, and the
-	 * registry's own fields shown and never sent.
+	 * control's own fields shown and never sent.
 	 */
 	import { untrack } from 'svelte';
 	import type { Field } from '../control/catalog.gen.ts';
@@ -38,6 +39,14 @@
 		typeof value === 'string' && value !== '' && !choices.some((one) => one.value === value),
 	);
 	const chosen = (choice: string) => Array.isArray(value) && value.includes(choice);
+	/** A list of references' resources, those held first in the order held, then the rest. */
+	const listed = $derived.by(() => {
+		const held = (Array.isArray(value) ? value : []).map(String);
+		const labeled = held.map(
+			(one) => choices.find((choice) => choice.value === one) ?? { value: one, label: one },
+		);
+		return [...labeled, ...choices.filter((choice) => !held.includes(choice.value))];
+	});
 
 	type Item = { key: number; value: Record<string, unknown> };
 	const start = untrack(() => (Array.isArray(value) ? value : [])) as Record<string, unknown>[];
@@ -60,6 +69,16 @@
 		{#each field.choices ?? [] as choice (choice)}
 			<label
 				><input {name} type="checkbox" value={choice} checked={chosen(choice)} /> {choice}</label
+			>
+		{/each}
+	</fieldset>
+{:else if input === 'references'}
+	<fieldset>
+		<legend>{field.name}</legend>
+		{#each listed as choice (choice.value)}
+			<label
+				><input {name} type="checkbox" value={choice.value} checked={chosen(choice.value)} />
+				{choice.label}</label
 			>
 		{/each}
 	</fieldset>

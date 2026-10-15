@@ -1,12 +1,12 @@
 /**
  * What a person declares of each node rather than what it measures, the axes infra's
- * spec/architecture/nodes.md names: its tier, system and expiry as the registry says them -- RFC
- * 17b3o -- and its failure domain, still a copy of infra's nodes/nodes.toml.
+ * spec/architecture/nodes.md names: its tier, system and expiry as control says them -- RFC 17b3o
+ * -- and its failure domain, still a copy of infra's nodes/nodes.toml.
  */
 import type { Node, NodeFact } from '../server/nodes.ts';
 
 export interface Facts {
-	/** None until the registry has said. */
+	/** None until control has said. */
 	tier?: NodeFact['tier'];
 	/**
 	 * The account it is held under, as its provider's code -- `oci`, or `oci-2` for a second account
@@ -16,35 +16,38 @@ export interface Facts {
 	domain: string;
 	/** Until when it is expected to be held, a year; none for a node at home. */
 	expiry?: number;
-	/** None until the registry has said. */
+	/** None until control has said. */
 	system?: NodeFact['system'];
 }
 
-/** Each node's failure domain, a copy of infra's nodes/nodes.toml until RFC 32hd9 settles it. */
+/**
+ * Each node's failure domain by its id, a copy of infra's nodes/nodes.toml until RFC 32hd9 settles
+ * it; the hostname beside each is the operator's, never a key.
+ */
 const DOMAINS: Record<Node, string> = {
-	tyo: 'oci',
-	nrt: 'oci',
-	hnd: 'oci',
-	sin: 'oci-2',
-	gvx: 'az',
-	bru: 'az',
-	buf: 'rkn',
-	rdu: 'int',
-	sha: 'int',
+	d132b0f553e3dcc3: 'oci', // tyo
+	'055d9b63bb419ba4': 'oci', // nrt
+	'26bf596280326e7a': 'oci', // hnd
+	'9d399312d1c3ddc4': 'oci-2', // sin
+	a0a24bbaa0c0beba: 'az', // gvx
+	abd3922110a78032: 'az', // bru
+	e38f403f033d87f7: 'rkn', // buf
+	d62c82b23a858876: 'int', // rdu
+	'0196b5a8439abb66': 'int', // sha
 };
 
 /** Every node, in the order the domains are declared: by failure domain, home last. */
 export const CODES = Object.keys(DOMAINS) as Node[];
 
 /**
- * Each node's facts as the registry last said them, kept in the one object every reader holds;
- * its domain alone until it has said anything.
+ * Each node's facts as control last said them, kept in the one object every reader holds; its
+ * domain alone until it has said anything.
  */
 export const FACTS = Object.fromEntries(
 	CODES.map((code) => [code, { domain: DOMAINS[code] }]),
 ) as Record<Node, Facts>;
 
-/** What the registry said of the nodes, taken in, on the server and in the browser alike. */
+/** What control said of the nodes, taken in, on the server and in the browser alike. */
 export function learnFacts(facts: Readonly<Record<string, NodeFact>>): void {
 	for (const code of CODES) {
 		const { tier, system, expiry } = facts[code] ?? {};

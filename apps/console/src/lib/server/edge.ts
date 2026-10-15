@@ -6,18 +6,19 @@
  */
 import { failure } from '@canmi/response';
 import { URLS } from '@monoflake/sdk';
-import { type Node, type Whereabouts, order } from './nodes.ts';
+import { type Binding, NODES, type Node, type Whereabouts, order } from './nodes.ts';
 
 /**
- * Each node's Caddy, through that node's tunnel, bound by its name in capitals, and the read-only
- * token every node's host takes for its `GET` routes; see wrangler.jsonc. The registry's write
- * token is the Worker's secret alone, and the Access team and audience its writes are signed for;
- * see ./control.ts and ./access.ts.
+ * Each node's Caddy, through that node's tunnel, bound by its hostname in capitals, and the
+ * read-only token every node's host takes for its `GET` routes; see wrangler.jsonc. Control's read
+ * and write tokens are the Worker's secrets alone, and the Access team and audience its writes are
+ * signed for; see ./control.ts and ./access.ts.
  */
 export type Env = Readonly<
-	Partial<Record<Uppercase<Node>, Fetcher>> & {
+	Partial<Record<Binding, Fetcher>> & {
 		HOST_READ_TOKEN?: string;
-		REGISTRY_TOKEN?: string;
+		CONTROL_READ_TOKEN?: string;
+		CONTROL_WRITE_TOKEN?: string;
 		ACCESS_TEAM?: string;
 		ACCESS_AUD?: string;
 	}
@@ -46,7 +47,7 @@ export function reach(env: Env, node: Node, path: string, init: RequestInit): Pr
 
 /** A node's binding, absent where wrangler.jsonc binds none. */
 export function bindingOf(env: Env, node: Node): Fetcher | undefined {
-	return env[node.toUpperCase() as Uppercase<Node>];
+	return env[NODES[node]];
 }
 
 /** The first answer among `nodes` that `taken` accepts, trying `TRIES` of them at most. */

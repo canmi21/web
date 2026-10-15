@@ -1,8 +1,9 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import type { Env } from './edge.ts';
 import { RELAY } from './edge.ts';
-import { order } from './nodes.ts';
+import { NODES, type Node, order } from './nodes.ts';
 import { PANEL, cluster, node } from './read.ts';
+import { ID } from './nodes.fixture.ts';
 
 const TOKEN = 'read-token';
 
@@ -11,7 +12,7 @@ function bound(answers: Record<string, () => Response>, token: string | null = T
 	const sent: { node: string; url: string; headers: Headers }[] = [];
 	const env = Object.fromEntries(
 		Object.entries(answers).map(([name, answer]) => [
-			name.toUpperCase(),
+			NODES[name as Node],
 			{
 				fetch: async (url: string, init: RequestInit = {}) => {
 					sent.push({ node: name, url, headers: new Headers(init.headers) });
@@ -63,20 +64,17 @@ describe('cluster', () => {
 
 	it('gives up on a relay that hangs, for the next', async () => {
 		vi.spyOn(console, 'error').mockImplementation(() => {});
-		const [hung, answering] = NEAREST as [string, string];
+		const [hung, answering] = NEAREST as [Node, Node];
 		const data = { version: 1, node: answering, nodes: {} };
 		const { sent, env } = bound({ [answering]: envelope({ status: 'success', data }) });
-		const read = await cluster(
-			{ env: { ...env, [hung.toUpperCase()]: hanging }, where: OSAKA },
-			20,
-		);
+		const read = await cluster({ env: { ...env, [NODES[hung]]: hanging }, where: OSAKA }, 20);
 		expect(read).toEqual({ ok: true, node: answering, data });
 		expect(sent.map(({ node }) => node)).toEqual([answering]);
 	});
 
 	it('fails as a 502 when every relay it tries hangs', async () => {
 		vi.spyOn(console, 'error').mockImplementation(() => {});
-		const env = Object.fromEntries(NEAREST.map((name) => [name.toUpperCase(), hanging])) as Env;
+		const env = Object.fromEntries(NEAREST.map((name) => [NODES[name], hanging])) as Env;
 		const read = await cluster({ env, where: OSAKA }, 20);
 		expect(read).toMatchObject({
 			ok: false,
@@ -98,8 +96,8 @@ describe('cluster', () => {
 describe('node', () => {
 	it("asks the panel's interface under /api with the read token, and hands back data", async () => {
 		const data = { info: { cores: 4 }, sample: { at: 1, values: {} } };
-		const { sent, env } = bound({ tyo: envelope({ status: 'success', data }) });
-		expect(await node({ env }, 'tyo', '/node/now')).toEqual({ ok: true, node: 'tyo', data });
+		const { sent, env } = bound({ [ID.tyo]: envelope({ status: 'success', data }) });
+		expect(await node({ env }, ID.tyo, '/node/now')).toEqual({ ok: true, node: ID.tyo, data });
 		expect(sent).toHaveLength(1);
 		expect(sent[0]?.url).toBe(`${PANEL}/api/node/now`);
 		expect(sent[0]?.headers.get('authorization')).toBe(`Bearer ${TOKEN}`);
@@ -107,29 +105,29 @@ describe('node', () => {
 
 	it("passes host's own failure on with its status", async () => {
 		const refused = { status: 'error', code: 'invalid_token', message: 'Not this token.' };
-		const { env } = bound({ hnd: envelope(refused, 401) });
-		expect(await node({ env }, 'hnd', '/node/now')).toEqual({
+		const { env } = bound({ [ID.hnd]: envelope(refused, 401) });
+		expect(await node({ env }, ID.hnd, '/node/now')).toEqual({
 			ok: false,
 			failure: { status: 401, code: 'invalid_token', message: 'Not this token.' },
 		});
 	});
 
 	it('asks nothing of a name that is not a node, or of a node with no token to give', async () => {
-		const { sent, env } = bound({ tyo: envelope({ status: 'success', data: 1 }) });
+		const { sent, env } = bound({ [ID.tyo]: envelope({ status: 'success', data: 1 }) });
 		expect(await node({ env }, 'nowhere', '/node/now')).toMatchObject({
 			ok: false,
 			failure: { status: 404, code: 'no_such_host' },
 		});
 		// `toString` is on every object; a node is an own key of NODES or nothing.
 		expect(await node({ env }, 'toString', '/node/now')).toMatchObject({ ok: false });
-		const untokened = bound({ tyo: envelope({ status: 'success', data: 1 }) }, null);
-		expect(await node({ env: untokened.env }, 'tyo', '/node/now')).toMatchObject({ ok: false });
+		const untokened = bound({ [ID.tyo]: envelope({ status: 'success', data: 1 }) }, null);
+		expect(await node({ env: untokened.env }, ID.tyo, '/node/now')).toMatchObject({ ok: false });
 		expect([...sent, ...untokened.sent]).toHaveLength(0);
 	});
 
 	it('counts a 404 outside the envelope as a route the node does not have', async () => {
-		const { env } = bound({ tyo: () => new Response('not found', { status: 404 }) });
-		expect(await node({ env }, 'tyo', '/apps/database/health')).toMatchObject({
+		const { env } = bound({ [ID.tyo]: () => new Response('not found', { status: 404 }) });
+		expect(await node({ env }, ID.tyo, '/apps/database/health')).toMatchObject({
 			ok: false,
 			failure: { status: 404, code: 'no_such_route' },
 		});
@@ -137,8 +135,11 @@ describe('node', () => {
 
 	it('counts an answer outside the envelope, or none, as the node unavailable', async () => {
 		const errors = vi.spyOn(console, 'error').mockImplementation(() => {});
-		const { env } = bound({ tyo: () => new Response('bad gateway', { status: 502 }), nrt: down });
-		for (const name of ['tyo', 'nrt']) {
+		const { env } = bound({
+			[ID.tyo]: () => new Response('bad gateway', { status: 502 }),
+			[ID.nrt]: down,
+		});
+		for (const name of [ID.tyo, ID.nrt]) {
 			expect(await node({ env }, name, '/node/now')).toMatchObject({
 				ok: false,
 				failure: { status: 502, code: 'upstream_unavailable' },

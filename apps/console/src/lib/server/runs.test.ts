@@ -3,6 +3,7 @@ import type { Event } from '../wire.ts';
 import { bound, down, success } from './bound.ts';
 import type { FleetEvent } from './fleet.ts';
 import { aggregates, group, percentile, runs } from './runs.ts';
+import { ID } from './nodes.fixture.ts';
 
 afterEach(() => {
 	vi.restoreAllMocks();
@@ -24,25 +25,25 @@ function at(node: FleetEvent['node'], over: Over): FleetEvent {
 
 /** Run 41 reaches two nodes and one skips; run 42 fails on one; 43 is still going. */
 const FIXTURE: FleetEvent[] = [
-	// Run 41: web on tyo goes through two events, the second of which is its latest.
-	at('tyo', {
+	// Run 41: web on Tokyo goes through two events, the second of which is its latest.
+	at(ID.tyo, {
 		source: { kind: 'run', run: 41, commit: 'c41' },
 		outcome: 'running',
 		stage: 'loading',
 		started_at: '2026-10-04T10:00:00Z',
 	}),
-	at('tyo', {
+	at(ID.tyo, {
 		source: { kind: 'run', run: 41, commit: 'c41' },
 		stage: 'starting',
 		started_at: '2026-10-04T10:00:00Z',
 		finished_at: '2026-10-04T10:01:00Z',
 	}),
-	at('gvx', {
+	at(ID.gvx, {
 		source: { kind: 'run', run: 41, commit: 'c41' },
 		started_at: '2026-10-04T10:00:05Z',
 		finished_at: '2026-10-04T10:02:00Z',
 	}),
-	at('buf', {
+	at(ID.buf, {
 		source: { kind: 'run', run: 41, commit: 'c41' },
 		outcome: 'skipped',
 		stage: 'admitting',
@@ -51,13 +52,13 @@ const FIXTURE: FleetEvent[] = [
 		finished_at: '2026-10-04T10:00:03Z',
 	}),
 	// Run 42: hub fails on one node while succeeding on another.
-	at('tyo', {
+	at(ID.tyo, {
 		app: 'hub',
 		source: { kind: 'run', run: 42, commit: 'c42' },
 		started_at: '2026-10-05T09:00:00Z',
 		finished_at: '2026-10-05T09:00:30Z',
 	}),
-	at('nrt', {
+	at(ID.nrt, {
 		app: 'hub',
 		source: { kind: 'run', run: 42, commit: 'c42' },
 		outcome: 'failed',
@@ -67,19 +68,19 @@ const FIXTURE: FleetEvent[] = [
 		finished_at: '2026-10-05T09:00:10Z',
 	}),
 	// An upload and a panel action belong to no run.
-	at('tyo', {
+	at(ID.tyo, {
 		source: { kind: 'upload' },
 		started_at: '2026-10-05T12:00:00Z',
 		finished_at: '2026-10-05T12:00:20Z',
 	}),
-	at('tyo', {
+	at(ID.tyo, {
 		action: 'restart',
 		source: { kind: 'panel' },
 		started_at: '2026-10-05T13:00:00Z',
 		finished_at: '2026-10-05T13:00:02Z',
 	}),
 	// Run 43 is running.
-	at('hnd', {
+	at(ID.hnd, {
 		source: { kind: 'run', run: 43, commit: 'c43' },
 		outcome: 'running',
 		stage: 'downloading',
@@ -94,18 +95,18 @@ describe('group', () => {
 	it('times a run by the placements that did work, not a skip written a day late', () => {
 		const run = (n: number) => ({ kind: 'run', run: n, commit: 'aaa' });
 		const [late] = group([
-			at('tyo', {
+			at(ID.tyo, {
 				source: run(9),
 				started_at: '2026-10-08T07:25:00Z',
 				finished_at: '2026-10-08T07:25:17Z',
 			}),
-			at('rdu', {
+			at(ID.rdu, {
 				source: run(9),
 				outcome: 'skipped',
 				started_at: '2026-10-08T07:24:59Z',
 				finished_at: '2026-10-08T07:24:59Z',
 			}),
-			at('buf', {
+			at(ID.buf, {
 				source: run(9),
 				outcome: 'skipped',
 				started_at: '2026-10-09T08:01:00Z',
@@ -134,12 +135,12 @@ describe('group', () => {
 			last_finish: '2026-10-04T10:02:00.000Z',
 			duration: 120_000,
 		});
-		expect(run?.nodes.sort()).toEqual(['buf', 'gvx', 'tyo']);
-		expect(run?.placements.find((p) => p.node === 'tyo')).toMatchObject({
+		expect(run?.nodes.sort()).toEqual([ID.buf, ID.gvx, ID.tyo].sort());
+		expect(run?.placements.find((p) => p.node === ID.tyo)).toMatchObject({
 			stage: 'starting',
 			duration: 60_000,
 		});
-		expect(run?.placements.find((p) => p.node === 'buf')).toMatchObject({
+		expect(run?.placements.find((p) => p.node === ID.buf)).toMatchObject({
 			outcome: 'skipped',
 			stage: 'admitting',
 		});
@@ -148,7 +149,7 @@ describe('group', () => {
 	it('names the stage a failure stopped at, and leaves a running run without a duration', () => {
 		expect(by(42)).toMatchObject({ succeeded: 1, failed: 1, apps: ['hub'], duration: 30_000 });
 		expect(by(42)?.placements.find((p) => p.outcome === 'failed')).toMatchObject({
-			node: 'nrt',
+			node: ID.nrt,
 			stage: 'downloading',
 			detail: 'digest mismatch',
 		});
@@ -184,16 +185,16 @@ describe('aggregates', () => {
 });
 
 describe('runs', () => {
-	const mirror = { version: 1, node: 'tyo', runs: [FIXTURE[4], FIXTURE[5], FIXTURE[6]] };
+	const mirror = { version: 1, node: ID.tyo, runs: [FIXTURE[4], FIXTURE[5], FIXTURE[6]] };
 	const relays = (answer: (path: string) => Response) => ({
-		tyo: answer,
-		rdu: answer,
-		nrt: answer,
-		hnd: answer,
-		buf: answer,
-		gvx: answer,
-		bru: answer,
-		sha: answer,
+		[ID.tyo]: answer,
+		[ID.rdu]: answer,
+		[ID.nrt]: answer,
+		[ID.hnd]: answer,
+		[ID.buf]: answer,
+		[ID.gvx]: answer,
+		[ID.bru]: answer,
+		[ID.sha]: answer,
 	});
 
 	it('groups what the nearest relay mirrors, with no node unread', async () => {

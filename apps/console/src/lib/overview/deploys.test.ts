@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 import type { Node } from '../server/nodes.ts';
 import type { Placement, Run } from '../server/runs.ts';
 import { byNode, figures, marks } from './deploys.ts';
+import { ID } from '../server/nodes.fixture.ts';
 
 const NOW = Date.parse('2026-10-06T12:00:00Z');
 const HOUR = 3_600_000;
@@ -13,7 +14,7 @@ function run(
 	placed: Partial<Placement>[] = [],
 ): Run {
 	const placements = placed.map((one) => ({
-		node: 'tyo' as Node,
+		node: ID.tyo as Node,
 		app: 'web',
 		action: 'deploy',
 		outcome: 'succeeded',
@@ -24,7 +25,7 @@ function run(
 		run: id,
 		placements,
 		apps: ['web'],
-		nodes: ['tyo'],
+		nodes: [ID.tyo],
 		succeeded: 1,
 		failed: 0,
 		skipped: 0,
@@ -39,15 +40,15 @@ describe('runs counted for the Overview', () => {
 	it('tallies each node by outcome, leaving out what is still running or too old', () => {
 		const runs = [
 			run(1, '2026-10-06T10:00:00Z', {}, [
-				{ node: 'tyo' },
-				{ node: 'gvx', outcome: 'failed' },
-				{ node: 'gvx', outcome: 'running' },
+				{ node: ID.tyo },
+				{ node: ID.gvx, outcome: 'failed' },
+				{ node: ID.gvx, outcome: 'running' },
 			]),
-			run(2, '2026-09-01T10:00:00Z', {}, [{ node: 'tyo' }]),
+			run(2, '2026-09-01T10:00:00Z', {}, [{ node: ID.tyo }]),
 		];
 		const since = Date.parse('2026-09-06T00:00:00Z');
-		expect(byNode(runs, ['tyo', 'gvx'], since)).toEqual({
-			nodes: ['tyo', 'gvx'],
+		expect(byNode(runs, [ID.tyo, ID.gvx], since)).toEqual({
+			nodes: [ID.tyo, ID.gvx],
 			succeeded: [1, 0],
 			failed: [0, 1],
 			skipped: [0, 0],

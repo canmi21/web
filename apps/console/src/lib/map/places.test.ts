@@ -6,13 +6,14 @@ import {
 	nameOf,
 	nearestOf,
 	nodeLabel,
+	partOf,
 	PLACES,
 	rank,
 	learnPlaces,
 } from './places.ts';
-import { PLACED } from '../server/nodes.fixture.ts';
+import { ID, PLACED } from '../server/nodes.fixture.ts';
 
-// Where the registry places each node; see RFC 17b3o.
+// Where control places each node; see RFC 17b3o.
 learnPlaces(PLACED);
 
 const GIB = 2 ** 30;
@@ -34,28 +35,28 @@ const tokyo = (overrides: Partial<Member> = {}) => ({ cluster: 'tokyo', ...overr
 /** Tokyo's state with its nodes in each of `states`, in node order. */
 const place = (...states: Member['state'][]) =>
 	gather(
-		states.map((state, index) => member(['tyo', 'nrt', 'hnd'][index] ?? '', tokyo({ state }))),
+		states.map((state, index) => member([ID.tyo, ID.nrt, ID.hnd][index] ?? '', tokyo({ state }))),
 	)[0]?.state;
 
 describe('the marks the nodes gather into', () => {
 	it('draws the nodes of one place as one mark, and a node alone as its own', () => {
 		const sites = gather([
-			member('tyo', tokyo({ role: 'core', point: [100, 100] })),
-			member('gvx', { role: 'core' }),
-			member('nrt', tokyo({ point: [102, 100] })),
-			member('hnd', tokyo({ point: [101, 103] })),
+			member(ID.tyo, tokyo({ role: 'core', point: [100, 100] })),
+			member(ID.gvx, { role: 'core' }),
+			member(ID.nrt, tokyo({ point: [102, 100] })),
+			member(ID.hnd, tokyo({ point: [101, 103] })),
 		]);
-		expect(sites.map((site) => site.key)).toEqual(['tokyo', 'gvx']);
-		expect(sites[0]?.members.map((one) => one.code)).toEqual(['tyo', 'nrt', 'hnd']);
+		expect(sites.map((site) => site.key)).toEqual(['tokyo', ID.gvx]);
+		expect(sites[0]?.members.map((one) => one.code)).toEqual([ID.tyo, ID.nrt, ID.hnd]);
 		expect(sites[0]?.point).toEqual([101, 101]);
-		expect(sites[1]?.members.map((one) => one.code)).toEqual(['gvx']);
+		expect(sites[1]?.members.map((one) => one.code)).toEqual([ID.gvx]);
 	});
 
 	it('sums memory and apps running over what it knows, and takes the busiest CPU', () => {
 		const [site] = gather([
-			member('tyo', tokyo({ memory: 23 * GIB, apps: { running: 9, total: 9 }, cpu: 1.8 })),
-			member('nrt', tokyo({ memory: GIB, apps: { running: 6, total: 7 }, cpu: 3.9 })),
-			member('hnd', tokyo({ memory: undefined, apps: undefined, cpu: undefined })),
+			member(ID.tyo, tokyo({ memory: 23 * GIB, apps: { running: 9, total: 9 }, cpu: 1.8 })),
+			member(ID.nrt, tokyo({ memory: GIB, apps: { running: 6, total: 7 }, cpu: 3.9 })),
+			member(ID.hnd, tokyo({ memory: undefined, apps: undefined, cpu: undefined })),
 		]);
 		expect(site?.memory).toBe(24 * GIB);
 		expect(site?.apps).toBe(15);
@@ -64,7 +65,7 @@ describe('the marks the nodes gather into', () => {
 
 	it('knows nothing of a place none of whose nodes says', () => {
 		const [site] = gather([
-			member('tyo', tokyo({ memory: undefined, apps: undefined, cpu: undefined })),
+			member(ID.tyo, tokyo({ memory: undefined, apps: undefined, cpu: undefined })),
 		]);
 		expect([site?.memory, site?.apps, site?.cpu]).toEqual([undefined, undefined, undefined]);
 	});
@@ -81,10 +82,10 @@ describe('the marks the nodes gather into', () => {
 describe('who leads a place', () => {
 	it('is a core node before a relay running more', () => {
 		const ranked = rank([
-			member('nrt', { apps: { running: 30, total: 30 } }),
-			member('tyo', { role: 'core', apps: { running: 2, total: 2 } }),
+			member(ID.nrt, { apps: { running: 30, total: 30 } }),
+			member(ID.tyo, { role: 'core', apps: { running: 2, total: 2 } }),
 		]);
-		expect(ranked.map((one) => one.code)).toEqual(['tyo', 'nrt']);
+		expect(ranked.map((one) => one.code)).toEqual([ID.tyo, ID.nrt]);
 	});
 
 	it('is the one running more within a role, then the first in node order', () => {
@@ -135,30 +136,45 @@ describe('what a node is called', () => {
 		expect(displayName('Singapore', 'Singapore')).toMatchObject({ full: 'Singapore' });
 	});
 
-	it('names every node, shared names and all, and a code it does not place by itself', () => {
-		expect(['tyo', 'nrt', 'hnd'].map((code) => nameOf(code).full)).toEqual([
+	it('names every node, shared names and all, and an id it does not place by its first digits', () => {
+		expect([ID.tyo, ID.nrt, ID.hnd].map((code) => nameOf(code).full)).toEqual([
 			'Tokyo, Japan',
 			'Tokyo, Japan',
 			'Tokyo, Japan',
 		]);
-		expect(['gvx', 'bru', 'buf', 'rdu', 'sha'].map((code) => nameOf(code).full)).toEqual([
+		expect([ID.gvx, ID.bru, ID.buf, ID.rdu, ID.sha].map((code) => nameOf(code).full)).toEqual([
 			'Sweden, European Union',
 			'Belgium, European Union',
 			'Buffalo, United States',
 			'Raleigh, United States',
 			'Shanghai, China',
 		]);
-		expect(nodeLabel('hnd')).toBe('Tokyo, Japan (hnd)');
-		expect(nodeLabel('gvx', 'lead')).toBe('Sweden (gvx)');
-		expect(nodeLabel('xyz')).toBe('xyz');
+		expect(nameOf('ffffffffffffffff').full).toBe('ffff');
 		expect(Object.keys(PLACES).length).toBe(9);
+	});
+
+	it('writes a short id beside a name only where another node shares it', () => {
+		expect(nodeLabel(ID.hnd)).toBe('Tokyo, Japan (26bf)');
+		expect(nodeLabel(ID.tyo, 'lead')).toBe('Tokyo (d132)');
+		expect(nodeLabel(ID.gvx, 'lead')).toBe('Sweden');
+		expect(nodeLabel(ID.sin)).toBe('Singapore');
+		expect(nodeLabel('ffffffffffffffff')).toBe('ffff');
+	});
+
+	it('tells a node from the others in its city by its short id', () => {
+		expect([ID.tyo, ID.nrt, ID.hnd].map(partOf)).toEqual([
+			'Tokyo (d132)',
+			'Tokyo (055d)',
+			'Tokyo (26bf)',
+		]);
+		expect(partOf(ID.gvx)).toBe('Gävle');
 	});
 });
 
 describe('the node a relay is nearest', () => {
 	it('is the one it timed the least round trip to', () => {
-		expect(nearestOf({ nrt: 0.0021, sin: 0.068, hnd: 0.0004 })).toEqual({
-			code: 'hnd',
+		expect(nearestOf({ [ID.nrt]: 0.0021, [ID.sin]: 0.068, [ID.hnd]: 0.0004 })).toEqual({
+			code: ID.hnd,
 			seconds: 0.0004,
 		});
 	});
@@ -169,37 +185,39 @@ describe('the node a relay is nearest', () => {
 	});
 });
 
-describe('the places the registry gives the nodes', () => {
+describe('the places control gives the nodes', () => {
 	afterEach(() => learnPlaces(PLACED));
 
-	it('reads the city first, the country last, and the part between them', () => {
-		expect(PLACES.hnd).toEqual({
-			place: 'Tokyo, Haneda',
+	it('reads the city, and the country in full from its two letters', () => {
+		expect(PLACES[ID.hnd]).toEqual({
+			place: 'Tokyo',
 			city: 'Tokyo',
 			country: 'Japan',
+			iso: 'JP',
 			role: 'relay',
 			cluster: 'tokyo',
 		});
-		expect(PLACES.tyo).toMatchObject({ place: 'Tokyo', role: 'core', cluster: 'tokyo' });
-		expect(PLACES.rdu).toEqual({
+		expect(PLACES[ID.tyo]).toMatchObject({ place: 'Tokyo', role: 'core', cluster: 'tokyo' });
+		expect(PLACES[ID.rdu]).toEqual({
 			place: 'Raleigh',
 			city: 'Raleigh',
 			country: 'United States',
+			iso: 'US',
 			role: 'home',
 		});
 	});
 
-	it('names a node by its code, a relay, until the registry has placed it', () => {
+	it('names a node by its short id, a relay, until control has placed it', () => {
 		learnPlaces({});
-		expect(PLACES.tyo).toEqual({ place: 'tyo', city: 'tyo', country: 'tyo', role: 'relay' });
-		expect([nameOf('tyo').full, nodeLabel('tyo')]).toEqual(['tyo', 'tyo']);
-		learnPlaces({ ...PLACED, sin: { core: true, place: 'Singapore' } });
-		expect(PLACES.sin.city).toBe('sin');
+		expect(PLACES[ID.tyo]).toEqual({ place: 'd132', city: 'd132', country: 'd132', role: 'relay' });
+		expect([nameOf(ID.tyo).full, nodeLabel(ID.tyo)]).toEqual(['d132', 'd132']);
+		learnPlaces({ ...PLACED, [ID.sin]: { core: true, city: 'Singapore' } });
+		expect(PLACES[ID.sin].city).toBe('9d39');
 	});
 
 	it('gathers nodes into one mark only where they share a city', () => {
-		learnPlaces({ ...PLACED, hnd: { ...PLACED.hnd, place: 'Osaka, Japan', core: false } });
-		expect(PLACES.hnd.cluster).toBeUndefined();
-		expect([PLACES.tyo.cluster, PLACES.nrt.cluster]).toEqual(['tokyo', 'tokyo']);
+		learnPlaces({ ...PLACED, [ID.hnd]: { ...PLACED[ID.hnd], city: 'Osaka', core: false } });
+		expect(PLACES[ID.hnd].cluster).toBeUndefined();
+		expect([PLACES[ID.tyo].cluster, PLACES[ID.nrt].cluster]).toEqual(['tokyo', 'tokyo']);
 	});
 });

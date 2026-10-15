@@ -5,6 +5,7 @@
  */
 import type { Description } from '../control/catalog.gen.ts';
 import type { Resource } from '../control/types.ts';
+import { nodeLabel } from '../map/places.ts';
 import { type View, within } from '../scope/scope.ts';
 import { shown } from './form.ts';
 
@@ -60,14 +61,16 @@ const SHORT = 8;
 export const shortId = (id: string): string => id.slice(0, SHORT);
 
 /**
- * What a resource is called: its name, or for a kind with no name its first column -- an account's
- * provider -- and its id's first eight digits. Platform's RFC 32hd9.
+ * What a resource is called: its name; a node by its city, as the console writes one everywhere;
+ * or for any other kind with no name its first column -- an account's provider -- and its id's
+ * first eight digits. Platform's RFC 32hd9.
  */
 export function labelOf(
 	description: Pick<Description, 'named' | 'columns'>,
 	one: Resource,
 ): string {
 	if (description.named && one.name) return one.name;
+	if (one.kind === 'node') return nodeLabel(one.id);
 	const first = description.columns[0];
 	const said = first === undefined ? undefined : one.spec[first];
 	const lead = said === undefined ? '' : `${shown(said)} `;

@@ -331,8 +331,8 @@ importers:
         specifier: ^5.20261004.1
         version: 5.20261004.1
       '@monoflake/sdk':
-        specifier: ^2026.1007.1
-        version: 2026.1007.1(@cloudflare/workers-types@5.20261004.1)(hono@4.13.12)(typescript@6.0.3)
+        specifier: ^2026.1015.1
+        version: 2026.1015.1(@cloudflare/workers-types@5.20261004.1)(hono@4.13.12)(typescript@6.0.3)
       '@sentry/sveltekit':
         specifier: ^11.4.0
         version: 11.4.0(@babel/core@7.29.7(supports-color@10.2.2))(@cloudflare/workers-types@5.20261004.1)(@sveltejs/kit@3.0.0(@opentelemetry/api@1.9.1)(@sveltejs/vite-plugin-svelte@7.3.1(svelte@5.57.1)(vite@8.3.2(@types/node@26.6.4)(esbuild@0.28.2)(jiti@2.7.0)(tsx@4.23.15)(yaml@2.9.1)))(svelte@5.57.1)(typescript@6.0.3)(vite@8.3.2(@types/node@26.6.4)(esbuild@0.28.2)(jiti@2.7.0)(tsx@4.23.15)(yaml@2.9.1)))(svelte@5.57.1)(vite@8.3.2(@types/node@26.6.4)(esbuild@0.28.2)(jiti@2.7.0)(tsx@4.23.15)(yaml@2.9.1))(wrangler@4.147.0(@cloudflare/workers-types@5.20261004.1)(@types/node@26.6.4))
@@ -2505,6 +2505,14 @@ packages:
 
   '@monoflake/sdk@2026.1007.1':
     resolution: {integrity: sha512-GiI9Qf7EgX/UMpQxMoXy5QlxJwNs5pSHh9zcMNqvGuNLJFRQAYTw8nfojcO5k/zRQUtOxd/m1NFjoaw3jqOWIg==}
+    peerDependencies:
+      '@cloudflare/workers-types': ^5.20261004.1
+    peerDependenciesMeta:
+      '@cloudflare/workers-types':
+        optional: true
+
+  '@monoflake/sdk@2026.1015.1':
+    resolution: {integrity: sha512-XkAlkh0KzZXoewDhWD4pqwN+6KdKhIBjuzNTcU5DSMTrDPOseqPVe6G4nOXPyq1tHjo0/S5THMrRys9as8QM+g==}
     peerDependencies:
       '@cloudflare/workers-types': ^5.20261004.1
     peerDependenciesMeta:
@@ -6866,6 +6874,18 @@ snapshots:
       '@canmi/response': 2.2.0(hono@4.13.12)
       '@monoflake/urls': 2026.1004.4
       valibot: 1.5.0(typescript@7.0.2)
+    optionalDependencies:
+      '@cloudflare/workers-types': 5.20261004.1
+    transitivePeerDependencies:
+      - hono
+      - typescript
+
+  '@monoflake/sdk@2026.1015.1(@cloudflare/workers-types@5.20261004.1)(hono@4.13.12)(typescript@6.0.3)':
+    dependencies:
+      '@canmi/me': 2026.1010.0
+      '@canmi/response': 2.2.0(hono@4.13.12)
+      '@monoflake/urls': 2026.1004.4
+      valibot: 1.5.0(typescript@6.0.3)
     optionalDependencies:
       '@cloudflare/workers-types': 5.20261004.1
     transitivePeerDependencies:

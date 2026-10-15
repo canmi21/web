@@ -19,7 +19,7 @@ const MARKED = 200;
  */
 export const load: PageServerLoad = async (event) => {
 	const name = event.params.node;
-	if (!isNode(name)) error(404, `No node is named ${name}.`);
+	if (!isNode(name)) error(404, `No node has the id ${name}.`);
 	const edge = edgeOf(event);
 	const view = viewOf(event.url.searchParams);
 	const span = range(view.range);

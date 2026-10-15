@@ -15,10 +15,10 @@ import {
 	share,
 } from './state.ts';
 import { FEW, STAGE_KEYS, segment, tracks } from './tracks.ts';
-import { PLACED } from '../server/nodes.fixture.ts';
+import { ID, PLACED } from '../server/nodes.fixture.ts';
 import { learnPlaces } from '../map/places.ts';
 
-// Where the registry places each node; see RFC 17b3o.
+// Where control places each node; see RFC 17b3o.
 learnPlaces(PLACED);
 
 let ids = 0;
@@ -40,10 +40,10 @@ function at(node: Node, app: string, over: Partial<FleetEvent> = {}): FleetEvent
 /** Run 7: web everywhere it is placed, api on tyo only; nrt still loading web, buf skips. */
 function run(): Run {
 	const events = [
-		at('tyo', 'web'),
-		at('tyo', 'api', { outcome: 'failed', stage: 'admitting', detail: 'held' }),
-		at('nrt', 'web', { outcome: 'running', stage: 'loading', finished_at: undefined }),
-		at('buf', 'web', { outcome: 'skipped', stage: undefined, finished_at: undefined }),
+		at(ID.tyo, 'web'),
+		at(ID.tyo, 'api', { outcome: 'failed', stage: 'admitting', detail: 'held' }),
+		at(ID.nrt, 'web', { outcome: 'running', stage: 'loading', finished_at: undefined }),
+		at(ID.buf, 'web', { outcome: 'skipped', stage: undefined, finished_at: undefined }),
 	];
 	const found = group(events).runs[0];
 	if (!found) throw new Error('no run');
@@ -55,12 +55,12 @@ const NONE = new Set<Node>();
 describe('a node with a run', () => {
 	it('is running before failed, at the least advanced stage still going', () => {
 		const grouped = group([
-			at('nrt', 'web', { outcome: 'running', stage: 'starting', finished_at: undefined }),
-			at('nrt', 'api', { outcome: 'running', stage: 'downloading', finished_at: undefined }),
-			at('nrt', 'db', { outcome: 'failed', stage: 'loading' }),
+			at(ID.nrt, 'web', { outcome: 'running', stage: 'starting', finished_at: undefined }),
+			at(ID.nrt, 'api', { outcome: 'running', stage: 'downloading', finished_at: undefined }),
+			at(ID.nrt, 'db', { outcome: 'failed', stage: 'loading' }),
 		]).runs[0] as Run;
-		expect(nodeMark(grouped, 'nrt', NONE)).toEqual({
-			node: 'nrt',
+		expect(nodeMark(grouped, ID.nrt, NONE)).toEqual({
+			node: ID.nrt,
 			mark: 'running',
 			stage: 'downloading',
 			placements: 3,
@@ -68,30 +68,30 @@ describe('a node with a run', () => {
 	});
 
 	it('is failed over succeeded, saying where it failed', () => {
-		expect(nodeMark(run(), 'tyo', NONE)).toMatchObject({ mark: 'failed', stage: 'admitting' });
+		expect(nodeMark(run(), ID.tyo, NONE)).toMatchObject({ mark: 'failed', stage: 'admitting' });
 	});
 
 	it('is absent where nothing was placed, unknown where the node did not answer', () => {
-		expect(nodeMark(run(), 'bru', NONE).mark).toBe('absent');
-		expect(nodeMark(run(), 'bru', new Set<Node>(['bru'])).mark).toBe('unknown');
-		expect(nodeMark(run(), 'buf', NONE).mark).toBe('skipped');
+		expect(nodeMark(run(), ID.bru, NONE).mark).toBe('absent');
+		expect(nodeMark(run(), ID.bru, new Set<Node>([ID.bru])).mark).toBe('unknown');
+		expect(nodeMark(run(), ID.buf, NONE).mark).toBe('skipped');
 	});
 });
 
 describe('a run', () => {
 	it('is running while anything runs, then failed, then whether anything ran', () => {
 		expect(runState(run())).toBe('running');
-		const done = group([at('tyo', 'web'), at('gvx', 'web', { outcome: 'skipped' })]).runs[0];
+		const done = group([at(ID.tyo, 'web'), at(ID.gvx, 'web', { outcome: 'skipped' })]).runs[0];
 		expect(done && runState(done)).toBe('succeeded');
-		const skipped = group([at('gvx', 'web', { outcome: 'skipped' })]).runs[0];
+		const skipped = group([at(ID.gvx, 'web', { outcome: 'skipped' })]).runs[0];
 		expect(skipped && runState(skipped)).toBe('skipped');
 	});
 
 	it('is a matrix of apps against every node, in the nodes given', () => {
-		const rows = matrix(run(), ['tyo', 'nrt', 'bru'], new Set<Node>(['bru']));
+		const rows = matrix(run(), [ID.tyo, ID.nrt, ID.bru], new Set<Node>([ID.bru]));
 		expect(rows.map((row) => row.map((cell) => `${cell.app}@${cell.node}:${cell.mark}`))).toEqual([
-			['api@tyo:failed', 'api@nrt:absent', 'api@bru:unknown'],
-			['web@tyo:succeeded', 'web@nrt:running', 'web@bru:unknown'],
+			[`api@${ID.tyo}:failed`, `api@${ID.nrt}:absent`, `api@${ID.bru}:unknown`],
+			[`web@${ID.tyo}:succeeded`, `web@${ID.nrt}:running`, `web@${ID.bru}:unknown`],
 		]);
 		expect(rows[0]?.[0]?.placement?.detail).toBe('held');
 	});
@@ -148,11 +148,11 @@ describe('words', () => {
 
 describe('the timeline', () => {
 	it('draws a placement over its whole span in the stage it reached, and no skip', () => {
-		const drawn = tracks(run(), ['tyo', 'nrt', 'buf']);
+		const drawn = tracks(run(), [ID.tyo, ID.nrt, ID.buf]);
 		expect(drawn.map((track) => track.label)).toEqual([
-			'Tokyo (tyo) · api',
-			'Tokyo (tyo) · web',
-			'Tokyo (nrt) · web',
+			'Tokyo (d132) · api',
+			'Tokyo (d132) · web',
+			'Tokyo (055d) · web',
 		]);
 		const start = Date.parse('2026-10-05T10:00:00Z') / 1000;
 		expect(drawn[0]?.stages).toEqual([
@@ -171,9 +171,9 @@ describe('the timeline', () => {
 			segment({ ...run().placements[0]!, outcome: 'succeeded', stage: undefined })?.stage,
 		).toBe('starting');
 		const many = group(
-			Array.from({ length: FEW + 1 }, (_, index) => at(index % 2 ? 'tyo' : 'gvx', `app${index}`)),
+			Array.from({ length: FEW + 1 }, (_, index) => at(index % 2 ? ID.tyo : ID.gvx, `app${index}`)),
 		).runs[0] as Run;
-		expect(tracks(many, ['tyo', 'gvx']).map((track) => track.key)).toEqual(['tyo', 'gvx']);
+		expect(tracks(many, [ID.tyo, ID.gvx]).map((track) => track.key)).toEqual([ID.tyo, ID.gvx]);
 	});
 });
 
@@ -184,7 +184,7 @@ describe('runs per day', () => {
 		expect(categories).toEqual(['Oct 4', 'Oct 5', 'Oct 6']);
 		expect(series.find((one) => one.key === 'running')?.values).toEqual([0, 1, 0]);
 		// 02:00 UTC on the 5th is still the 4th in Honolulu.
-		const early = group([at('tyo', 'web', { started_at: '2026-10-05T02:00:00Z' })]).runs as Run[];
+		const early = group([at(ID.tyo, 'web', { started_at: '2026-10-05T02:00:00Z' })]).runs as Run[];
 		const west = daily(early, now, 3, { name: 'Pacific/Honolulu' });
 		expect(west.categories).toEqual(['Oct 4', 'Oct 5', 'Oct 6']);
 		expect(west.series.find((one) => one.key === 'succeeded')?.values).toEqual([1, 0, 0]);

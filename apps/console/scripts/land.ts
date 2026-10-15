@@ -1,8 +1,9 @@
 /**
  * Writes `src/lib/map/land.generated.ts` from `project.ts`, each node where infra's
- * `nodes/nodes.toml` places it, in its checkout beside this one. Run it with `pnpm map` after a
- * node is added there and to `src/lib/server/nodes.ts`; the map's test fails until it has been.
- * See RFC 17b3o.
+ * `nodes/nodes.toml` places it, in its checkout beside this one, by its id; and fails where a node
+ * in `src/lib/server/nodes.ts` is not bound to the binding named for its table there. Run it with
+ * `pnpm map` after a node is added there and to `src/lib/server/nodes.ts`; the map's test fails
+ * until it has been. See RFC 17b3o.
  */
 import { existsSync, readFileSync, writeFileSync } from 'node:fs';
 import { NODES } from '../src/lib/server/nodes.ts';
@@ -11,30 +12,45 @@ import { build, DOT, PITCH } from './project.ts';
 const NODES_TOML = new URL('../../../../infra/nodes/nodes.toml', import.meta.url);
 if (!existsSync(NODES_TOML)) throw new Error(`${NODES_TOML.pathname}: clone infra beside web`);
 
+interface Declared {
+	/** The table's name, the node's hostname, which its binding is named for in capitals. */
+	host: string;
+	coordinates?: [number, number];
+}
+
 /**
- * Each node's `coordinates`, read from nodes.toml's two shapes alone -- a `[code]` table, and
- * `coordinates = [latitude, longitude]` in it -- which is all of it the map reads.
+ * Each node's table and `coordinates` by its `id`, read from nodes.toml's three shapes alone -- a
+ * `[name]` table, and `id = "..."` and `coordinates = [latitude, longitude]` in it -- which is all
+ * of it the map reads.
  */
-function located(text: string): Record<string, [number, number]> {
-	const located: Record<string, [number, number]> = {};
-	let code: string | undefined;
+function declared(text: string): Record<string, Declared> {
+	const found: Record<string, Declared> = {};
+	let at: Declared | undefined;
 	for (const line of text.split('\n')) {
 		const table = /^\[([a-z]{3})\]$/.exec(line);
-		if (table) code = table[1];
-		const at = /^coordinates = \[(-?[\d.]+), (-?[\d.]+)\]$/.exec(line);
-		if (at && code) located[code] = [Number(at[1]), Number(at[2])];
+		if (table) at = { host: table[1] ?? '' };
+		const id = /^id = "([0-9a-f]{16})"$/.exec(line);
+		if (id?.[1] && at) found[id[1]] = at;
+		const coordinates = /^coordinates = \[(-?[\d.]+), (-?[\d.]+)\]$/.exec(line);
+		if (coordinates && at) at.coordinates = [Number(coordinates[1]), Number(coordinates[2])];
 	}
-	return located;
+	return found;
 }
 
 /** Every node this Worker reaches, in its fixed order, each where nodes.toml places it. */
 function locations(): Record<string, [number, number]> {
-	const toml = located(readFileSync(NODES_TOML, 'utf8'));
+	const toml = declared(readFileSync(NODES_TOML, 'utf8'));
 	return Object.fromEntries(
-		Object.keys(NODES).map((code) => {
-			const at = toml[code];
-			if (at === undefined) throw new Error(`${NODES_TOML.pathname}: ${code} has no coordinates`);
-			return [code, at];
+		Object.entries(NODES).map(([id, binding]) => {
+			const node = toml[id];
+			if (node === undefined) throw new Error(`${NODES_TOML.pathname}: no node has the id ${id}`);
+			if (node.host.toUpperCase() !== binding) {
+				throw new Error(`${id} is bound to ${binding}, and nodes.toml names it ${node.host}`);
+			}
+			if (node.coordinates === undefined) {
+				throw new Error(`${NODES_TOML.pathname}: ${node.host} has no coordinates`);
+			}
+			return [id, node.coordinates];
 		}),
 	);
 }

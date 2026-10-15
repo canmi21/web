@@ -1,7 +1,7 @@
 /**
- * The registry and the ledger as development's mock mode answers them: made up, shaped as their
- * answers are, and kept in the one process `vite dev` runs, so a write is read back as written and
- * its task is in the list. Never in the build -- only an `Edge` with `mock` set asks; ./mode.ts.
+ * Control and the ledger as development's mock mode answers them: made up, shaped as their answers
+ * are, and kept in the one process `vite dev` runs, so a write is read back as written. Never in
+ * the build -- only an `Edge` with `mock` set asks; ./mode.ts.
  */
 import { applied, same } from '../control/patch.ts';
 import type { Drift, Listed, Resource, Spec, Task, TaskEvent } from '../control/types.ts';
@@ -31,8 +31,11 @@ const CATALOG = {
 		{
 			name: 'node',
 			plural: 'nodes',
-			named: true,
+			named: false,
 			fields: [
+				field('city', 'string', { required: true }),
+				field('country', 'string', { required: true }),
+				field('continent', 'choice', { required: true, choices: ['AS', 'EU', 'NA'] }),
 				field('address', 'string', { required: true }),
 				field('tier', 'choice', { required: true, choices: ['datacenter', 'home', 'transient'] }),
 				field('system', 'choice', { required: true, choices: ['debian', 'alpine'] }),
@@ -44,14 +47,14 @@ const CATALOG = {
 				field('roles', 'list', { choices: ['compute', 'storage', 'core'] }),
 			],
 			actions: [],
-			columns: ['address', 'tier', 'account', 'system'],
+			columns: ['city', 'country', 'address', 'tier', 'account', 'system'],
 		},
 		{
 			name: 'app',
 			plural: 'apps',
 			named: true,
 			fields: [
-				field('placements', 'list', { required: true }),
+				field('placements', 'list', { required: true, kind: 'node' }),
 				field('release', 'object'),
 				field('display_name', 'string'),
 				field('repository', 'string'),
@@ -86,46 +89,55 @@ const CATALOG = {
 };
 
 const KINDS = Object.fromEntries(CATALOG.items.map((one) => [one.plural, one.name]));
-const CORES = new Set(['tyo', 'sin', 'rdu']);
+
+/** The made-up nodes the mock singles out, by their ids. */
+const TYO: Node = 'd132b0f553e3dcc3';
+const SIN: Node = '9d399312d1c3ddc4';
+const GVX: Node = 'a0a24bbaa0c0beba';
+const BUF: Node = 'e38f403f033d87f7';
+const RDU: Node = 'd62c82b23a858876';
+const SHA: Node = '0196b5a8439abb66';
+
+const CORES = new Set<Node>([TYO, SIN, RDU]);
 const APPS: Record<string, Node[]> = {
 	relay: Object.keys(NODES) as Node[],
-	registry: ['tyo', 'sin', 'rdu'],
-	ledger: ['tyo', 'sin', 'rdu'],
-	gateway: ['tyo', 'rdu'],
-	objects: ['tyo', 'sin', 'gvx'],
-	shot: ['sin', 'buf'],
+	secrets: [TYO, SIN, RDU],
+	ledger: [TYO, SIN, RDU],
+	gateway: [TYO, RDU],
+	objects: [TYO, SIN, GVX],
+	shot: [SIN, BUF],
 };
 
 /** Made-up display names, and where each made-up node stands: near enough its code's place. */
 const NAMED: Record<string, string> = {
 	relay: 'Relay',
-	registry: 'Node Registry',
+	secrets: 'Secret Service',
 	ledger: 'Task Ledger',
 	gateway: 'API Gateway',
 	objects: 'Object Storage',
 	shot: 'Screenshots',
 };
-const PLACE: Record<Node, string> = {
-	tyo: 'Tokyo, Japan',
-	sin: 'Singapore, Singapore',
-	gvx: 'Gävle, Sweden',
-	buf: 'Buffalo, United States',
-	nrt: 'Tokyo, Narita, Japan',
-	hnd: 'Tokyo, Haneda, Japan',
-	bru: 'Brussels, Belgium',
-	rdu: 'Raleigh, United States',
-	sha: 'Shanghai, China',
+const SHOWN: Record<Node, { city: string; country: string; continent: string }> = {
+	d132b0f553e3dcc3: { city: 'Tokyo', country: 'JP', continent: 'AS' },
+	'9d399312d1c3ddc4': { city: 'Singapore', country: 'SG', continent: 'AS' },
+	a0a24bbaa0c0beba: { city: 'Gävle', country: 'SE', continent: 'EU' },
+	e38f403f033d87f7: { city: 'Buffalo', country: 'US', continent: 'NA' },
+	'055d9b63bb419ba4': { city: 'Tokyo', country: 'JP', continent: 'AS' },
+	'26bf596280326e7a': { city: 'Tokyo', country: 'JP', continent: 'AS' },
+	abd3922110a78032: { city: 'Brussels', country: 'BE', continent: 'EU' },
+	d62c82b23a858876: { city: 'Raleigh', country: 'US', continent: 'NA' },
+	'0196b5a8439abb66': { city: 'Shanghai', country: 'CN', continent: 'AS' },
 };
 const AT: Record<Node, readonly [number, number]> = {
-	tyo: [35.68, 139.65],
-	sin: [1.36, 103.99],
-	gvx: [60.59, 16.95],
-	buf: [42.94, -78.73],
-	nrt: [35.77, 140.39],
-	hnd: [35.55, 139.78],
-	bru: [50.9, 4.48],
-	rdu: [35.88, -78.79],
-	sha: [31.23, 121.47],
+	d132b0f553e3dcc3: [35.68, 139.65],
+	'9d399312d1c3ddc4': [1.36, 103.99],
+	a0a24bbaa0c0beba: [60.59, 16.95],
+	e38f403f033d87f7: [42.94, -78.73],
+	'055d9b63bb419ba4': [35.77, 140.39],
+	'26bf596280326e7a': [35.55, 139.78],
+	abd3922110a78032: [50.9, 4.48],
+	d62c82b23a858876: [35.88, -78.79],
+	'0196b5a8439abb66': [31.23, 121.47],
 };
 
 const now = () => new Date().toISOString();
@@ -151,7 +163,7 @@ function made(
 /** The kinds made by a `POST` with no name, as the catalog marks them. */
 const UNNAMED = new Set(CATALOG.items.filter((one) => !one.named).map((one) => one.name));
 
-/** The made-up registry and ledger, made once a process. */
+/** The made-up control and ledger, made once a process. */
 function state(): Held {
 	if (held) return held;
 	let revision = 0;
@@ -176,7 +188,7 @@ function state(): Held {
 		idOf('account', 'cloudflare'),
 	);
 	const nodes = (Object.keys(NODES) as Node[]).map((node, index) => {
-		const home = node === 'sha' || node === 'buf';
+		const home = node === SHA || node === BUF;
 		const spec: Spec = {
 			address: `100.64.0.${index + 1}`,
 			tier: home ? 'home' : 'datacenter',
@@ -184,11 +196,11 @@ function state(): Held {
 			hosting: home ? 'selfhost' : 'datacenter',
 			roles: CORES.has(node) ? ['compute', 'core'] : ['compute'],
 			coordinates: [...AT[node]],
-			place: PLACE[node],
+			...SHOWN[node],
 			...(CORES.has(node) ? { core: true } : {}),
 			...(home ? {} : { account: account.id, expiry: 2036 }),
 		};
-		return made('node', node, ++revision, spec);
+		return made('node', null, ++revision, spec, node);
 	});
 	const apps = Object.entries(APPS).map(([name, placements], index) => {
 		const release = {
@@ -237,7 +249,7 @@ function record(
 		at,
 		stage,
 		level: stage === 'failed' ? ('error' as const) : ('info' as const),
-		message: stage === 'written' ? 'Written.' : `${stage[0]?.toUpperCase()}${stage.slice(1)}.`,
+		message: `${stage[0]?.toUpperCase()}${stage.slice(1)}.`,
 	}));
 	const whole: Task = {
 		caller: 'ours',
@@ -255,14 +267,20 @@ const success = (data: unknown, status = 200) =>
 const refused = (status: number, code: string, message: string) =>
 	Response.json({ status: 'error', code, message }, { status });
 
-/** Made-up answers of `api.canmi.app` for `path`: the registry's `/v1` and the ledger's tasks. */
-export async function controlMock(path: string, init: RequestInit = {}): Promise<Response> {
+/** The parts of `path`'s name, and its query. */
+function partsOf(path: string): [string[], URLSearchParams] {
 	const [pathname = '', query = ''] = path.split(/\?(.*)/s);
 	const parts = pathname.split('/').filter(Boolean).map(decodeURIComponent);
+	return [parts, new URLSearchParams(query)];
+}
+
+/** Made-up answers of control for `path` under its `registry` scope, `/v1/registry`. */
+export async function controlMock(path: string, init: RequestInit = {}): Promise<Response> {
+	const [parts] = partsOf(path);
 	const method = init.method ?? 'GET';
-	if (parts[0] === 'ledger') return ledger(parts.slice(1), new URLSearchParams(query));
-	if (parts[0] !== 'registry' || parts[1] !== 'v1')
+	if (parts[0] !== 'v1' || parts[1] !== 'registry') {
 		return refused(404, 'no_such_route', 'No such route.');
+	}
 	const [, , plural, ref] = parts;
 	if (plural === 'kinds' && method === 'GET') return success(CATALOG);
 	const kind = KINDS[plural ?? ''] as Resource['kind'] | undefined;
@@ -299,7 +317,7 @@ export async function controlMock(path: string, init: RequestInit = {}): Promise
 	);
 }
 
-/** A write to the made-up registry, refused as the registry refuses it. */
+/** A write to the made-up control, refused as control refuses it. */
 function written(
 	all: Held,
 	kind: Resource['kind'],
@@ -323,23 +341,11 @@ function written(
 	const name = found ? found.name : UNNAMED.has(kind) ? null : ref;
 	const resource = made(kind, name, revision, spec, found?.id ?? (name === null ? ref : undefined));
 	all.resources = [...all.resources.filter((one) => one !== found), resource];
-	const id = idOf('task', String(revision), String(Date.now()));
-	record(
-		all,
-		{
-			service: 'registry',
-			id,
-			kind: 'write',
-			state: 'done',
-			summary: { kind, id: resource.id, name: resource.name, revision },
-		},
-		['written'],
-	);
 	const drawn = method === 'POST' ? { id: resource.id } : {};
-	return success({ revision, task: id, ...drawn }, 202);
+	return success({ revision, ...drawn });
 }
 
-/** An identity as the registry compares two: an email by its letters whatever their case. */
+/** An identity as control compares two: an email by its letters whatever their case. */
 const sameIdentity = (a: Spec, b: Spec) =>
 	a.kind === b.kind &&
 	(a.kind === 'email'
@@ -347,8 +353,8 @@ const sameIdentity = (a: Spec, b: Spec) =>
 		: a.value === b.value);
 
 /**
- * Why the registry refuses `spec` for what it holds: an account sharing an identity with another at
- * the same provider, or a node naming an account it does not hold.
+ * Why control refuses `spec` for what it holds: an account sharing an identity with another at the
+ * same provider, or a node naming an account it does not hold.
  */
 function invalid(all: Held, kind: Resource['kind'], found: Resource | undefined, spec: Spec) {
 	if (kind === 'account') {
@@ -374,11 +380,15 @@ function invalid(all: Held, kind: Resource['kind'], found: Resource | undefined,
 	return undefined;
 }
 
-function ledger(parts: string[], query: URLSearchParams): Response {
+/** Made-up answers of the ledger for `path`, its tasks under `/ledger`. */
+export function ledgerMock(path: string): Response {
 	const all = state();
-	if (parts[0] !== 'tasks') return refused(404, 'no_such_route', 'No such route.');
-	if (parts.length === 3) {
-		const one = all.tasks.find(({ task }) => task.service === parts[1] && task.id === parts[2]);
+	const [parts, query] = partsOf(path);
+	if (parts[0] !== 'ledger' || parts[1] !== 'tasks') {
+		return refused(404, 'no_such_route', 'No such route.');
+	}
+	if (parts.length === 4) {
+		const one = all.tasks.find(({ task }) => task.service === parts[2] && task.id === parts[3]);
 		if (!one) return refused(404, 'no_such_task', 'No such task.');
 		return success({ ...one.task, events: one.events, children: [] });
 	}
@@ -401,9 +411,9 @@ function ledger(parts: string[], query: URLSearchParams): Response {
 /** A node's made-up drift: a core runs an app behind, and the house runs one not wanted. */
 export function driftMock(node: Node): Drift {
 	return {
-		...(node === 'sin' ? { wanted_not_running: ['shot'] } : {}),
-		...(node === 'sha' ? { running_not_wanted: ['objects'] } : {}),
-		...(node === 'tyo'
+		...(node === SIN ? { wanted_not_running: ['shot'] } : {}),
+		...(node === SHA ? { running_not_wanted: ['objects'] } : {}),
+		...(node === TYO
 			? {
 					release_behind: [
 						{
@@ -416,6 +426,6 @@ export function driftMock(node: Node): Drift {
 			: {}),
 		registry_revision: state().revision,
 		read_at: now(),
-		source: node === 'buf' ? 'cache' : 'registry',
+		source: node === BUF ? 'cache' : 'control',
 	};
 }

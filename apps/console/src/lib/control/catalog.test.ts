@@ -7,11 +7,11 @@ import { Catalog, type Field } from './catalog.gen.ts';
 import { describe as kindOf, holdsObjects, identifying, withoutSecrets } from './catalog.ts';
 
 /**
- * The examples the registry's own tests run, beside its schema in the platform's checkout, in
- * whichever group holds it: every reader accepts each valid one and refuses each invalid one, as
- * the producer does. RFC bq3vn.
+ * The examples control's own tests run, beside its schema in the platform's checkout, in whichever
+ * group holds it: every reader accepts each valid one and refuses each invalid one, as the
+ * producer does. RFC bq3vn.
  */
-const FOUND = beside('../platform/apps/*/registry/examples/catalog');
+const FOUND = beside('../platform/apps/*/control/examples/catalog');
 const EXAMPLES = `${FOUND}/`;
 const cloned = FOUND !== undefined && existsSync(FOUND);
 
@@ -22,7 +22,7 @@ const examples = (which: 'valid' | 'invalid') =>
 				.map((name) => [name, JSON.parse(readFileSync(`${EXAMPLES}${which}/${name}`, 'utf8'))])
 		: [];
 
-describe.skipIf(!cloned)("the registry's shared catalog examples", () => {
+describe.skipIf(!cloned)("control's shared catalog examples", () => {
 	it('are there, both kinds', () => {
 		expect(examples('valid').length).toBeGreaterThan(0);
 		expect(examples('invalid').length).toBeGreaterThan(0);
@@ -40,9 +40,9 @@ describe.skipIf(!cloned)("the registry's shared catalog examples", () => {
 
 if (!cloned) console.warn(`${EXAMPLES} is not cloned beside web; the shared examples are not run`);
 
-/** The mock's catalog, which draws development's pages and has to read as the registry's does. */
+/** The mock's catalog, which draws development's pages and has to read as control's does. */
 async function mocked(): Promise<Catalog> {
-	const body = (await (await controlMock('/registry/v1/kinds')).json()) as { data: unknown };
+	const body = (await (await controlMock('/v1/registry/kinds')).json()) as { data: unknown };
 	return v.parse(Catalog, body.data);
 }
 

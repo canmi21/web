@@ -1,24 +1,28 @@
 <script lang="ts">
 	/**
 	 * What a resource holds for one field, drawn as the catalog says: a secret by where it is kept, a
-	 * masked value hidden until shown, a list of objects an item at a time by its own fields, and
-	 * anything else as one line of text.
+	 * masked value hidden until shown, a list of objects an item at a time by its own fields, a
+	 * reference or a list of them by what each names is called, and anything else as one line of
+	 * text.
 	 */
 	import type { Field } from '../control/catalog.gen.ts';
 	import { holdsObjects } from '../control/catalog.ts';
 	import Masked from '../ui/masked.svelte';
 	import FieldValue from './field-value.svelte';
-	import { shown } from './form.ts';
+	import { type Options, said, shown } from './form.ts';
 
 	let {
 		field,
 		value,
 		label = field.name,
+		options = {},
 	}: {
 		field: Field;
 		value: unknown;
 		/** What the value is called where a control names it: `identities 1 value`. */
 		label?: string;
+		/** The resources references name, to write a name for an id. */
+		options?: Options;
 	} = $props();
 
 	const held = $derived(value !== undefined && value !== null && value !== '');
@@ -51,5 +55,5 @@
 {:else if field.masked && held}
 	<Masked value={shown(value)} {label} />
 {:else}
-	{shown(value)}
+	{said(field, value, options)}
 {/if}

@@ -3,12 +3,13 @@ import type { FleetEvent } from '../server/fleet.ts';
 import type { Run } from '../server/runs.ts';
 import { current, fromHistory, packed, type Step, type Trace, unpacked, what } from './moving.ts';
 import { marks } from './timeline.ts';
+import { ID } from '../server/nodes.fixture.ts';
 
 const step = (over: Partial<Step>): Step => ({
 	run: 1,
 	source: 'run',
 	action: 'deploy',
-	node: 'tyo',
+	node: ID.tyo,
 	app: 'web',
 	outcome: 'running',
 	started_at: '2026-10-06T10:00:00Z',
@@ -17,7 +18,7 @@ const step = (over: Partial<Step>): Step => ({
 
 const apartEvent = (over: Partial<FleetEvent>): FleetEvent => ({
 	id: 1,
-	node: 'tyo',
+	node: ID.tyo,
 	app: 'tunnel',
 	action: 'redeploy',
 	source: { kind: 'panel' },
@@ -46,15 +47,15 @@ describe('what is deploying now', () => {
 			{
 				run: 9,
 				placements: [
-					{ node: 'tyo', app: 'web', action: 'deploy', outcome: 'running', started_at: 'a' },
-					{ node: 'gvx', app: 'web', action: 'deploy', outcome: 'succeeded', started_at: 'a' },
+					{ node: ID.tyo, app: 'web', action: 'deploy', outcome: 'running', started_at: 'a' },
+					{ node: ID.gvx, app: 'web', action: 'deploy', outcome: 'succeeded', started_at: 'a' },
 				],
 			},
 			{
 				run: 8,
 				placements: [
 					{
-						node: 'buf',
+						node: ID.buf,
 						app: 'api',
 						action: 'deploy',
 						outcome: 'failed',
@@ -66,9 +67,9 @@ describe('what is deploying now', () => {
 		] as unknown as Run[];
 		const seed = fromHistory(runs);
 		expect(seed.map((one) => [one.run, one.node, one.outcome])).toEqual([
-			[9, 'tyo', 'running'],
-			[8, 'buf', 'failed'],
-			[9, 'gvx', 'succeeded'],
+			[9, ID.tyo, 'running'],
+			[8, ID.buf, 'failed'],
+			[9, ID.gvx, 'succeeded'],
 		]);
 		expect(seed[1]?.stage).toBe('loading');
 	});
@@ -79,12 +80,12 @@ describe('what is deploying now', () => {
 			[
 				apartEvent({ id: 1, outcome: 'failed' }),
 				apartEvent({ id: 2, outcome: 'running', stage: 'starting' }),
-				apartEvent({ id: 7, node: 'nrt', app: 'web', action: 'rollback', outcome: 'failed' }),
+				apartEvent({ id: 7, node: ID.nrt, app: 'web', action: 'rollback', outcome: 'failed' }),
 			],
 		);
 		expect(seed.map((one) => [one.run, one.source, one.node, one.app, one.outcome])).toEqual([
-			[undefined, 'panel', 'tyo', 'tunnel', 'running'],
-			[undefined, 'panel', 'nrt', 'web', 'failed'],
+			[undefined, 'panel', ID.tyo, 'tunnel', 'running'],
+			[undefined, 'panel', ID.nrt, 'web', 'failed'],
 		]);
 	});
 
@@ -94,27 +95,27 @@ describe('what is deploying now', () => {
 		const now = current(
 			[],
 			[
-				step({ run: 4, node: 'gvx', started_at: '2026-10-07T21:00:00Z', id: 1 }),
-				apart({ node: 'nrt', app: 'tunnel', started_at: '2026-10-07T22:00:00Z', id: 5 }),
+				step({ run: 4, node: ID.gvx, started_at: '2026-10-07T21:00:00Z', id: 1 }),
+				apart({ node: ID.nrt, app: 'tunnel', started_at: '2026-10-07T22:00:00Z', id: 5 }),
 				apart({
-					node: 'nrt',
+					node: ID.nrt,
 					app: 'caddy',
 					action: 'restart',
 					started_at: '2026-10-07T22:01:00Z',
 					id: 6,
 				}),
-				apart({ node: 'rdu', app: 'host', source: 'keeper', action: 'deploy', id: 9 }),
-				apart({ node: 'tyo', app: 'geo', outcome: 'failed', finished_at: '2026-10-07T23:00:00Z' }),
+				apart({ node: ID.rdu, app: 'host', source: 'keeper', action: 'deploy', id: 9 }),
+				apart({ node: ID.tyo, app: 'geo', outcome: 'failed', finished_at: '2026-10-07T23:00:00Z' }),
 			],
 		);
 		expect(now.running.map((group) => [group.key, group.run, group.node])).toEqual([
-			['node nrt', undefined, 'nrt'],
+			[`node ${ID.nrt}`, undefined, ID.nrt],
 			['run 4', 4, undefined],
-			['node rdu', undefined, 'rdu'],
+			[`node ${ID.rdu}`, undefined, ID.rdu],
 		]);
 		expect(now.running[0]?.steps.map((one) => one.app)).toEqual(['caddy', 'tunnel']);
 		expect(now.failed.map((one) => [one.node, one.app, one.source])).toEqual([
-			['tyo', 'geo', 'panel'],
+			[ID.tyo, 'geo', 'panel'],
 		]);
 	});
 
@@ -123,7 +124,9 @@ describe('what is deploying now', () => {
 			[step({ run: 3, id: 1 })],
 			[step({ run: undefined, source: 'panel', action: 'redeploy', id: 2 })],
 		);
-		expect(now.running.map((group) => group.key).toSorted()).toEqual(['node tyo', 'run 3']);
+		expect(now.running.map((group) => group.key).toSorted()).toEqual(
+			[`node ${ID.tyo}`, 'run 3'].toSorted(),
+		);
 	});
 
 	it("lists keeper's finished acts on host among the failures, never as deploying", () => {
@@ -136,15 +139,15 @@ describe('what is deploying now', () => {
 						"recreated from the image it runs, on the node's .env as it now is",
 						1,
 					),
-					node: 'rdu',
+					node: ID.rdu,
 				},
-				{ ...keeper('failed', 'the new host did not answer its health check', 1), node: 'nrt' },
+				{ ...keeper('failed', 'the new host did not answer its health check', 1), node: ID.nrt },
 			],
 		);
 		const now = current([], live);
 		expect(now.running).toEqual([]);
 		expect(now.failed.map((one) => [one.node, one.app, one.source, what(one)])).toEqual([
-			['nrt', 'host', 'keeper', 'Redeploy by keeper'],
+			[ID.nrt, 'host', 'keeper', 'Redeploy by keeper'],
 		]);
 	});
 
@@ -156,11 +159,11 @@ describe('what is deploying now', () => {
 	});
 
 	it('lets a later read overtake the seed, and the newer event win within a node', () => {
-		const seed = [step({ node: 'tyo' }), step({ node: 'gvx', stage: 'downloading' })];
+		const seed = [step({ node: ID.tyo }), step({ node: ID.gvx, stage: 'downloading' })];
 		const live = [
-			step({ node: 'tyo', outcome: 'succeeded', id: 4 }),
-			step({ node: 'gvx', stage: 'starting', id: 7 }),
-			step({ node: 'gvx', stage: 'loading', id: 6 }),
+			step({ node: ID.tyo, outcome: 'succeeded', id: 4 }),
+			step({ node: ID.gvx, stage: 'starting', id: 7 }),
+			step({ node: ID.gvx, stage: 'loading', id: 6 }),
 		];
 		const now = current(seed, live);
 		expect(now.running).toEqual([{ key: 'run 1', run: 1, steps: [live[1]] }]);
@@ -191,7 +194,7 @@ describe('traces packed for the page', () => {
 		{
 			run: 7,
 			source: 'run',
-			node: 'tyo',
+			node: ID.tyo,
 			app: 'web',
 			outcome: 'succeeded',
 			started_at: '2026-10-09T03:00:00.250Z',
@@ -199,7 +202,7 @@ describe('traces packed for the page', () => {
 		},
 		{
 			source: 'panel',
-			node: 'rdu',
+			node: ID.rdu,
 			app: 'caddy',
 			outcome: 'running',
 			started_at: '2026-10-09T02:00:00Z',
@@ -207,7 +210,7 @@ describe('traces packed for the page', () => {
 		{
 			run: 8,
 			source: 'run',
-			node: 'tyo',
+			node: ID.tyo,
 			app: 'api',
 			outcome: 'failed',
 			started_at: '2026-10-09T05:00:00Z',
@@ -219,9 +222,9 @@ describe('traces packed for the page', () => {
 	it('come back as the same steps, to the millisecond, in the order they started', () => {
 		const back = unpacked(packed(traces));
 		expect(back.map((one) => [one.node, one.app, one.run, one.outcome, one.detail])).toEqual([
-			['rdu', 'caddy', undefined, 'running', undefined],
-			['tyo', 'web', 7, 'succeeded', undefined],
-			['tyo', 'api', 8, 'failed', 'pull failed'],
+			[ID.rdu, 'caddy', undefined, 'running', undefined],
+			[ID.tyo, 'web', 7, 'succeeded', undefined],
+			[ID.tyo, 'api', 8, 'failed', 'pull failed'],
 		]);
 		expect(back[1]?.started_at).toBe('2026-10-09T03:00:00.250Z');
 		expect(back[0]?.finished_at).toBeUndefined();
@@ -243,7 +246,7 @@ describe('traces packed for the page', () => {
 
 	it('write each name once', () => {
 		const { names, steps } = packed(traces);
-		expect(names.node).toEqual(['rdu', 'tyo']);
+		expect(names.node).toEqual([ID.rdu, ID.tyo]);
 		expect(steps).toHaveLength(traces.length * 7);
 	});
 });

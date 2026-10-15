@@ -2,7 +2,9 @@ import * as v from 'valibot';
 import { describe, expect, it } from 'vitest';
 import { Catalog, type Description } from '../control/catalog.gen.ts';
 import type { Resource } from '../control/types.ts';
+import { learnPlaces } from '../map/places.ts';
 import { controlMock } from '../server/mock-control.ts';
+import { ID as NODE_ID, PLACED } from '../server/nodes.fixture.ts';
 import {
 	accountPatch,
 	candidatesFor,
@@ -14,17 +16,20 @@ import {
 	stepsOf,
 } from './account.ts';
 
-const body = (await (await controlMock('/registry/v1/kinds')).json()) as { data: unknown };
+const body = (await (await controlMock('/v1/registry/kinds')).json()) as { data: unknown };
 const catalog = v.parse(Catalog, body.data);
 const kindOf = (name: string) => catalog.items.find((one) => one.name === name) as Description;
 const ACCOUNT = kindOf('account');
 const NODE = kindOf('node');
 const KINDS = ['account_id', 'username', 'email'];
 
-const node = (name: string, account?: string): Resource => ({
+// Where control places each node, which a node is called by; see RFC 17b3o.
+learnPlaces(PLACED);
+
+const node = (id: string, account?: string): Resource => ({
 	kind: 'node',
-	id: `${name}0000000000000`.slice(0, 16),
-	name,
+	id,
+	name: null,
 	revision: 1,
 	spec: account === undefined ? {} : { account },
 });
@@ -71,11 +76,16 @@ describe("an account's nodes", () => {
 	const ID = 'aaaaaaaaaaaaaaaa';
 
 	it('offer every node not under it, those under none first, one under another as a move', () => {
-		const nodes = [node('tyo', 'bbbbbbbbbbbbbbbb'), node('sin'), node('rdu', ID), node('buf')];
-		expect(candidatesFor(nodes, ID).map((one) => [one.node.name, one.moves])).toEqual([
-			['buf', false],
-			['sin', false],
-			['tyo', true],
+		const nodes = [
+			node(NODE_ID.tyo, 'bbbbbbbbbbbbbbbb'),
+			node(NODE_ID.sin),
+			node(NODE_ID.rdu, ID),
+			node(NODE_ID.buf),
+		];
+		expect(candidatesFor(nodes, ID).map((one) => [one.node.id, one.moves])).toEqual([
+			[NODE_ID.buf, false],
+			[NODE_ID.sin, false],
+			[NODE_ID.tyo, true],
 		]);
 	});
 

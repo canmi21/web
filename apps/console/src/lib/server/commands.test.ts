@@ -1,10 +1,11 @@
 import { describe, expect, it } from 'vitest';
 import { URLS } from '@monoflake/sdk';
 import { COMMANDS, crossSite } from './commands.ts';
+import { ID } from './nodes.fixture.ts';
 
 describe("a command's body", () => {
 	it('is read where it is whole', () => {
-		const body = { kind: 'node', ref: 'tyo', revision: 4, patch: { retired: null } };
+		const body = { kind: 'node', ref: ID.tyo, revision: 4, patch: { retired: null } };
 		expect(COMMANDS.patch.body(body)).toEqual(body);
 		expect(COMMANDS.create.body({ kind: 'app', name: 'shot', spec: {} })).toBeDefined();
 		// A kind with no name, an account's, is made with none.

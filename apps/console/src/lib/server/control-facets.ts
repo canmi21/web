@@ -21,7 +21,7 @@ function picked<K extends string>(query: Readonly<Record<string, string>>, keys:
 const TASK_KEYS = ['service', 'state', 'kind', 'caller', 'parent', 'before', 'limit'] as const;
 
 export const CONTROL_FACETS = {
-	/** Every kind the registry holds, which every form and list of a kind is drawn from. */
+	/** Every kind control holds, which every form and list of a kind is drawn from. */
 	catalog: facet({
 		revision: 1,
 		params: () => ({}),
@@ -44,7 +44,7 @@ export const CONTROL_FACETS = {
 			resource(sources.edge, kind, ref, sources.catalog()),
 	}),
 
-	/** What a node's host finds the registry wants there and it does not run, or the reverse. */
+	/** What a node's host finds control wants there and it does not run, or the reverse. */
 	drift: facet({
 		revision: 1,
 		params: (query) => (query.node ? { node: query.node } : undefined),

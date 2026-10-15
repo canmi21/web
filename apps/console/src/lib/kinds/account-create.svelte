@@ -3,8 +3,8 @@
 	 * An account made in two steps: its provider, then one optional value for each kind of identity,
 	 * each typed into a masked input, at least one filled and an empty one not sent. Going back and
 	 * forth keeps what was typed. Sent by a
-	 * `POST`, since an account has no name, and once its task is settled its own page is opened by
-	 * the id the registry drew. spec/console/navigation.md, and platform's RFC 32hd9.
+	 * `POST`, since an account has no name, and once it is written its own page is opened by the id
+	 * control drew. spec/console/navigation.md, and platform's RFC 32hd9.
 	 */
 	import { untrack } from 'svelte';
 	import type { Description } from '../control/catalog.gen.ts';
@@ -29,7 +29,7 @@
 		start,
 	}: {
 		description: Description;
-		/** Once its task is settled, with the id the registry answered: its page opened. */
+		/** Once it is written, with the id control answered: its page opened. */
 		onmade?: (id: string) => void;
 		/** The step and the draft it opens on, which a test draws the second step from. */
 		start?: { step: 1 | 2; draft: Draft };

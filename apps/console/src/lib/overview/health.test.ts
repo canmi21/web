@@ -1,10 +1,10 @@
 import { describe, expect, it } from 'vitest';
 import type { Entry } from '../wire.ts';
 import { healthOf, worstOf } from './health.ts';
-import { PLACED } from '../server/nodes.fixture.ts';
+import { ID, PLACED } from '../server/nodes.fixture.ts';
 import { learnPlaces } from '../map/places.ts';
 
-// Where the registry places each node; see RFC 17b3o.
+// Where control places each node; see RFC 17b3o.
 learnPlaces(PLACED);
 
 const NOW = Date.parse('2026-10-09T12:00:00Z');
@@ -72,10 +72,10 @@ describe('health', () => {
 
 	it('gives a place the worst of its nodes, each named', () => {
 		const told = worstOf([
-			{ code: 'tyo', told: { health: 'well', said: 'Every app running' } },
-			{ code: 'nrt', told: { health: 'down', said: '1 app down: Relay' } },
+			{ code: ID.tyo, told: { health: 'well', said: 'Every app running' } },
+			{ code: ID.nrt, told: { health: 'down', said: '1 app down: Relay' } },
 		]);
 		expect(told.health).toBe('down');
-		expect(told.said).toContain('Narita: 1 app down: Relay');
+		expect(told.said).toContain('Tokyo (055d): 1 app down: Relay');
 	});
 });

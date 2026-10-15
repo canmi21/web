@@ -102,7 +102,7 @@
 		<Unread what="The cluster" failure={read.failure} />
 	{/if}
 
-	<!-- What the registry wants of an app is read whether or not a node runs it. -->
+	<!-- What control wants of an app is read whether or not a node runs it. -->
 	{#if read?.ok && held.length === 0 && tab !== 'spec'}
 		<p class="p-4 {stylex.attrs(surfaces.empty, type.soft).class}">
 			No node runs {displayOf(data.app)}.

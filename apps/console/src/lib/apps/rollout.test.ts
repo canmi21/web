@@ -1,8 +1,9 @@
 import { describe, expect, it } from 'vitest';
 import type { Read } from '../server/read.ts';
 import { rolloutLabel, rolloutOf, rolloutsOf } from './rollout.ts';
+import { ID } from '../server/nodes.fixture.ts';
 
-const ok = <T>(data: T): Read<T> => ({ ok: true, node: 'tyo', data });
+const ok = <T>(data: T): Read<T> => ({ ok: true, node: ID.tyo, data });
 
 describe('rollout', () => {
 	it('names each mode in a word, and one it does not know as host wrote it', () => {
@@ -23,14 +24,17 @@ describe('rollout', () => {
 	it('collects what the nodes that answered show, with the nodes showing each', () => {
 		expect(
 			rolloutsOf({
-				tyo: ok({ rollout: 'manual' }),
-				buf: ok({}),
-				rdu: ok({ rollout: 'manual' }),
-				gvx: { ok: false, failure: { status: 502, code: 'upstream_unavailable', message: '' } },
+				[ID.tyo]: ok({ rollout: 'manual' }),
+				[ID.buf]: ok({}),
+				[ID.rdu]: ok({ rollout: 'manual' }),
+				[ID.gvx]: {
+					ok: false,
+					failure: { status: 502, code: 'upstream_unavailable', message: '' },
+				},
 			}),
 		).toEqual([
-			{ rollout: 'manual', nodes: ['tyo', 'rdu'] },
-			{ rollout: 'replace', nodes: ['buf'] },
+			{ rollout: 'manual', nodes: [ID.tyo, ID.rdu] },
+			{ rollout: 'replace', nodes: [ID.buf] },
 		]);
 		expect(rolloutsOf(undefined)).toEqual([]);
 	});

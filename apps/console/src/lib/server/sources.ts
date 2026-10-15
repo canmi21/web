@@ -34,7 +34,7 @@ export class Sources {
 		return this.#once(`history ${span} ${slot}`, () => history(this.edge, span, slot));
 	}
 
-	/** Every kind the registry holds, read through its generated schema. */
+	/** Every kind control holds, read through its generated schema. */
 	catalog(): Promise<Read<Catalog>> {
 		return this.#once('catalog', () => catalog(this.edge));
 	}

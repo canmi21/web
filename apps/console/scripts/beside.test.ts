@@ -18,14 +18,14 @@ function workspace(...apps: string[]): string {
 	return join(root, 'web');
 }
 
-const SCHEMA = '../platform/apps/*/registry/catalog.schema.json';
+const SCHEMA = '../platform/apps/*/control/catalog.schema.json';
 
 describe('a path beside this checkout', () => {
 	it('finds the app whichever group holds it', () => {
 		for (const group of ['data', 'control']) {
-			const web = workspace(`${group}/registry`, 'system/relay');
+			const web = workspace(`${group}/control`, 'system/relay');
 			expect(beside(SCHEMA, web)).toBe(
-				join(web, `../platform/apps/${group}/registry/catalog.schema.json`),
+				join(web, `../platform/apps/${group}/control/catalog.schema.json`),
 			);
 		}
 	});
@@ -36,15 +36,15 @@ describe('a path beside this checkout', () => {
 
 	it('fails naming the app where no group holds it, or two do', () => {
 		expect(() => beside(SCHEMA, workspace('system/relay'))).toThrow(
-			'*/registry is to be there once',
+			'*/control is to be there once',
 		);
-		expect(() => beside(SCHEMA, workspace('data/registry', 'control/registry'))).toThrow(
-			/registry is to be there once, and is .*control\/registry, .*data\/registry/,
+		expect(() => beside(SCHEMA, workspace('data/control', 'control/control'))).toThrow(
+			/control is to be there once, and is .*control\/control, .*data\/control/,
 		);
 	});
 
 	it('holds one `*` and no more', () => {
-		expect(() => beside('../platform/apps/registry', workspace())).toThrow('one `/*/`');
-		expect(() => beside('../*/apps/*/registry', workspace())).toThrow('one `/*/`');
+		expect(() => beside('../platform/apps/control', workspace())).toThrow('one `/*/`');
+		expect(() => beside('../*/apps/*/control', workspace())).toThrow('one `/*/`');
 	});
 });

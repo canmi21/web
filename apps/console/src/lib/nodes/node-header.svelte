@@ -64,7 +64,7 @@
 		},
 		{
 			label: 'Held until',
-			// Unread where the registry has not said its tier, which every node declares.
+			// Unread where control has not said its tier, which every node declares.
 			value: row.facts.expiry
 				? String(row.facts.expiry)
 				: row.facts.tier === undefined

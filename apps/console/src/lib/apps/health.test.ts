@@ -1,13 +1,14 @@
 import { describe, expect, it } from 'vitest';
 import type { Read } from '../server/read.ts';
 import { age, healthOf, mismatched, primaries, said, stopped, toneOf } from './health.ts';
+import { ID } from '../server/nodes.fixture.ts';
 
 const CHECKED_AT = '2026-10-07T10:00:00Z';
 
 /** Host's check of an app that answered with `body`. */
 const answered = (body: unknown, code = 200): Read<unknown> => ({
 	ok: true,
-	node: 'tyo',
+	node: ID.tyo,
 	data: { app: 'database', answered: true, code, body, checked_at: CHECKED_AT },
 });
 const failed = (status: number, code: string): Read<unknown> => ({
@@ -19,6 +20,7 @@ const PRIMARY = {
 	role: 'primary',
 	configured: 'primary',
 	standbys: [
+		// A member is named for its node's hostname, as Patroni names it.
 		{ name: 'buf', state: 'streaming', lag_bytes: 0 },
 		{ name: 'rdu', state: 'catchup', lag_bytes: 4096, unheard: true },
 		{ state: 'streaming' },
@@ -96,7 +98,7 @@ describe('health', () => {
 	it('says an app that did not answer host did not', () => {
 		const read: Read<unknown> = {
 			ok: true,
-			node: 'tyo',
+			node: ID.tyo,
 			data: {
 				app: 'database',
 				answered: false,
@@ -122,7 +124,7 @@ describe('health', () => {
 			code: 'upstream_unavailable',
 		});
 		expect(healthOf(undefined).kind).toBe('unread');
-		expect(healthOf({ ok: true, node: 'tyo', data: null }).kind).toBe('unread');
+		expect(healthOf({ ok: true, node: ID.tyo, data: null }).kind).toBe('unread');
 	});
 
 	it('finds the primary among the nodes', () => {
@@ -130,11 +132,11 @@ describe('health', () => {
 		const standby = healthOf(answered({ status: 'success', data: { role: 'standby' } }));
 		expect(
 			primaries([
-				['tyo', primary],
-				['buf', standby],
-				['rdu', { kind: 'unavailable' }],
+				[ID.tyo, primary],
+				[ID.buf, standby],
+				[ID.rdu, { kind: 'unavailable' }],
 			]),
-		).toEqual(['tyo']);
+		).toEqual([ID.tyo]);
 		expect(mismatched({ role: 'primary' })).toBe(false);
 	});
 

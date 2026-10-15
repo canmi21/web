@@ -7,7 +7,7 @@ import { edgeOf } from '#lib/server/platform.js';
 import type { PageServerLoad } from './$types';
 
 /**
- * A kind the registry holds without a page of its own, drawn from the catalog alone; one with a
+ * A kind control holds without a page of its own, drawn from the catalog alone; one with a
  * page is sent there. The catalog is awaited to know which. See spec/console/navigation.md.
  */
 export const load: PageServerLoad = async (event) => {

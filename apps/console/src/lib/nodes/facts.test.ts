@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it } from 'vitest';
-import { PLACED } from '../server/nodes.fixture.ts';
+import { ID, PLACED } from '../server/nodes.fixture.ts';
 import { FACTS, PROVIDERS, learnFacts, providerName } from './facts.ts';
 
 describe('failure domains', () => {
@@ -39,24 +39,24 @@ describe('failure domains', () => {
 describe('learnFacts', () => {
 	afterEach(() => learnFacts({}));
 
-	it('knows each node by its domain alone before the registry has said anything', () => {
+	it('knows each node by its domain alone before control has said anything', () => {
 		learnFacts({});
-		expect(FACTS.tyo).toEqual({ domain: 'oci' });
-		expect(FACTS.tyo.tier).toBeUndefined();
-		expect(FACTS.tyo.system).toBeUndefined();
-		expect(FACTS.tyo.expiry).toBeUndefined();
+		expect(FACTS[ID.tyo]).toEqual({ domain: 'oci' });
+		expect(FACTS[ID.tyo].tier).toBeUndefined();
+		expect(FACTS[ID.tyo].system).toBeUndefined();
+		expect(FACTS[ID.tyo].expiry).toBeUndefined();
 	});
 
-	it('takes in the tier, system and expiry the registry says, keeping the domain', () => {
+	it('takes in the tier, system and expiry control says, keeping the domain', () => {
 		learnFacts(PLACED);
-		expect(FACTS.nrt).toEqual({
+		expect(FACTS[ID.nrt]).toEqual({
 			tier: 'datacenter',
 			domain: 'oci',
 			expiry: 2036,
 			system: 'alpine',
 		});
-		expect(FACTS.rdu).toEqual({ tier: 'home', domain: 'int', system: 'debian' });
-		learnFacts({ ...PLACED, nrt: { core: false } });
-		expect(FACTS.nrt).toEqual({ domain: 'oci' });
+		expect(FACTS[ID.rdu]).toEqual({ tier: 'home', domain: 'int', system: 'debian' });
+		learnFacts({ ...PLACED, [ID.nrt]: { core: false } });
+		expect(FACTS[ID.nrt]).toEqual({ domain: 'oci' });
 	});
 });

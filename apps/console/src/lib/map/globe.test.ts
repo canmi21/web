@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { LAND, place } from './globe.ts';
 import { DOTS, LOCATIONS, POINTS } from './land.generated.ts';
+import { ID } from '../server/nodes.fixture.ts';
 
 describe('the globe the flat map turns into', () => {
 	it('takes every dot the flat map strokes, at its middle', () => {
@@ -11,8 +12,8 @@ describe('the globe the flat map turns into', () => {
 	});
 
 	it('draws a node where the flat map does until it starts to turn', () => {
-		const at = place(LOCATIONS.tyo, POINTS.tyo, 0, -30);
-		expect(at).toEqual({ x: POINTS.tyo[0], y: POINTS.tyo[1], alpha: 1 });
+		const at = place(LOCATIONS[ID.tyo], POINTS[ID.tyo], 0, -30);
+		expect(at).toEqual({ x: POINTS[ID.tyo][0], y: POINTS[ID.tyo][1], alpha: 1 });
 	});
 
 	it('undoes the flat map: a dot turned to face the reader sits at the globe’s middle', () => {
@@ -26,9 +27,9 @@ describe('the globe the flat map turns into', () => {
 	});
 
 	it('carries a place turned away with the rest, fading it out on the way', () => {
-		const away = place(LOCATIONS.tyo, POINTS.tyo, 0.5, LOCATIONS.tyo[1] + 180);
+		const away = place(LOCATIONS[ID.tyo], POINTS[ID.tyo], 0.5, LOCATIONS[ID.tyo][1] + 180);
 		expect(away.alpha).toBeCloseTo(0.5, 5);
-		expect(away.x).not.toBeCloseTo(POINTS.tyo[0], 0);
-		expect(place(LOCATIONS.tyo, POINTS.tyo, 1, LOCATIONS.tyo[1] + 180).alpha).toBe(0);
+		expect(away.x).not.toBeCloseTo(POINTS[ID.tyo][0], 0);
+		expect(place(LOCATIONS[ID.tyo], POINTS[ID.tyo], 1, LOCATIONS[ID.tyo][1] + 180).alpha).toBe(0);
 	});
 });

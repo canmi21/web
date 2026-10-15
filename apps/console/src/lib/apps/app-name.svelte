@@ -2,7 +2,7 @@
 	/**
 	 * An app as the console names it: its display name, in the type around it, and its code name
 	 * small and muted beside it. See spec/architecture/console.md, "A node is shown by its city, and
-	 * its code is the key".
+	 * its id is the key".
 	 */
 	import * as stylex from '@stylexjs/stylex';
 	import { text } from '@canmi/kit/tokens/vocabulary.stylex';

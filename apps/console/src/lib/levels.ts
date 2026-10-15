@@ -23,7 +23,7 @@ import {
 	recordViewOf,
 	shortId,
 } from './kinds/view.ts';
-import { nameOf } from './map/places.ts';
+import { apartOf, nameOf, nodeLabel } from './map/places.ts';
 import { TABS as NODE_TABS, hrefOf as nodeQuery, viewOf as nodeViewOf } from './nodes/view.ts';
 import { type View, appHref, displayOf, nodeHref, within } from './scope/scope.ts';
 import { type Section, sectionOf, sectionsIn } from './sections.ts';
@@ -39,7 +39,7 @@ export interface Item {
 /** A step of the top bar's trail; the last is the page itself and links nowhere. */
 export interface Crumb {
 	readonly label: string;
-	/** The key beside a display name, as a node's city takes its code. */
+	/** The key beside a display name, as a node's city takes its short id where it is shared. */
 	readonly code?: string;
 	readonly href?: string;
 	/** Written in the mono face, as a run's number is. */
@@ -154,16 +154,17 @@ export function levelOf(where: Where): Level {
 			href: `${base}${nodeQuery({ ...query, tab: tab.key, before: undefined })}`,
 		}));
 		const name = nameOf(node).full;
+		const code = apartOf(node);
 		return {
 			depth: 1,
 			name,
-			code: node,
+			code,
 			items,
 			current: query.tab,
 			up: { label: 'Nodes', href: within(view, '/nodes') },
 			trail: [
 				{ label: 'Nodes', href: within(view, '/nodes') },
-				...opened(items, query.tab, base, { label: name, code: node }),
+				...opened(items, query.tab, base, { label: name, code }),
 			],
 			section: nodes,
 		};
@@ -234,5 +235,6 @@ export function titleOf(level: Level, where: Where): string {
 	if (run !== undefined) return `#${run}`;
 	if (kind !== undefined) return resource ?? pluralLabel(kind);
 	if (account !== undefined) return shortId(account);
-	return node ?? app ?? task?.id ?? level.section?.label ?? 'Console';
+	if (node !== undefined) return nodeLabel(node, 'lead');
+	return app ?? task?.id ?? level.section?.label ?? 'Console';
 }

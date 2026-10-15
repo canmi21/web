@@ -195,8 +195,8 @@
 			{@render rows(lone)}
 		{:else}
 			<!-- One table: the rows named once at the left, a little apart, and the place's nodes as
-		     close columns headed by their cities, the country in the corner over the names. The
-		     console's table rules and padding are for a page's tables, not a card's. -->
+		     close columns headed by what tells them apart, the country in the corner over the
+		     names. The console's table rules and padding are for a page's tables, not a card's. -->
 			<table class="w-auto">
 				<thead>
 					<tr>
@@ -215,7 +215,7 @@
 								<a
 									href={toNode(member.code)}
 									data-row={member.code}
-									aria-label="{partOf(member.code)}, {nameOf(member.code).full} ({member.code})"
+									aria-label={nodeLabel(member.code)}
 									class={stylex.attrs(styles.head).class}>{partOf(member.code)}</a
 								>
 							</th>

@@ -1,6 +1,6 @@
 /**
- * The browser's writes: each sent once to the console's own `/api/`, where the server adds the
- * registry's token and `by` from the request's Access identity, so neither is the browser's to
+ * The browser's writes: each sent once to the console's own `/api/`, where the server adds
+ * control's write token and `by` from the request's Access identity, so neither is the browser's to
  * hold. A spec is sent and never kept: a secret's value in it lives as long as the call, and the
  * form it came from clears its field after. See ../server/commands.ts and platform's RFC cpc2b.
  */
@@ -41,7 +41,7 @@ async function sent<N extends CommandName>(name: N, body: BodyOf<N>): Promise<Wr
 
 /**
  * A resource of `kind` made at revision 0, by its name where the kind has one and with none where
- * it does not; its task and, for one with no name, the id the registry drew -- or why not.
+ * it does not; the revision it made and, for one with no name, the id control drew -- or why not.
  */
 export function create(kind: Kind, name: string | undefined, spec: Spec): Promise<Written> {
 	return sent('create', name === undefined ? { kind, spec } : { kind, name, spec });

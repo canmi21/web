@@ -4,7 +4,7 @@ import Flag from './flag.svelte';
 import { PLACES, learnPlaces } from './places.ts';
 import { PLACED } from '../server/nodes.fixture.ts';
 
-// Where the registry places each node; see RFC 17b3o.
+// Where control places each node; see RFC 17b3o.
 learnPlaces(PLACED);
 
 describe('flag', () => {

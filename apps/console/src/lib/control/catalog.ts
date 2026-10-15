@@ -1,7 +1,7 @@
 /**
- * What a page reads off the registry's catalog to draw a kind it does not know by heart: the kind
+ * What a page reads off control's catalog to draw a kind it does not know by heart: the kind
  * itself, by its name or its route, and what each field asks of a form. Platform's
- * spec/architecture/registry.md, "Nodes and apps, as resources of a kind".
+ * spec/architecture/control.md, "It takes writes as the old registry did".
  */
 import type { Catalog, Description, Field } from './catalog.gen.ts';
 

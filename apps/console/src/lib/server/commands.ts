@@ -1,7 +1,7 @@
 /**
  * What the browser asks the console to write, each answered once by a `POST` at an address worked
  * out from its type as a facet's is: its body checked here, `by` the request's Access identity and
- * the registry's token added by ./control.ts, so neither is ever the browser's to send. See
+ * control's write token added by ./control.ts, so neither is ever the browser's to send. See
  * spec/architecture/console.md, "A component asks for its facet", and platform's RFC cpc2b.
  */
 import { failure } from '@canmi/response';

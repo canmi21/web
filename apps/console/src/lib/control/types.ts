@@ -1,6 +1,6 @@
 /**
  * What the console reads of the platform's control plane and writes to it: a resource of a kind
- * as the registry answers it, a node's drift as its host does, a task and its events as the ledger
+ * as control answers it, a node's drift as its host does, a task and its events as the ledger
  * does, and what a write comes back with. The catalog's types are generated, ./catalog.gen.ts; the
  * rest are written here until their producers commit a schema to generate them from, RFC bq3vn.
  * See platform's RFC cpc2b and spec/console/navigation.md.
@@ -24,9 +24,9 @@ export type Spec = { [key: string]: unknown };
 /** A resource of a kind, as `/v1/<plural>/<id>` answers it. */
 export interface Resource {
 	kind: Kind;
-	/** 16 lowercase hexadecimal digits, never changed; the name is a label. */
+	/** 16 lowercase hexadecimal digits, never changed; the name is a label. A node's is its key. */
 	id: string;
-	/** Null for a kind the catalog marks `named: false`, an account's: it is its id. */
+	/** Null for a kind the catalog marks `named: false`, a node's and an account's: it is its id. */
 	name: string | null;
 	/** The change that last wrote it, which a write of it carries back. */
 	revision: number;
@@ -37,7 +37,7 @@ export interface Resource {
 	drift?: unknown;
 }
 
-/** Every resource of a kind, and the newest change the registry holds. */
+/** Every resource of a kind, and the newest change control holds. */
 export interface List {
 	items: Resource[];
 	revision: number;
@@ -57,19 +57,20 @@ export interface Behind {
 }
 
 /**
- * A node's host's `/api/drift`: what the registry wants there and does not run, what runs and is
- * not wanted, and what runs another release; each absent when empty. Infra's
- * spec/architecture/host.md, "host compares what runs with what the registry wants".
+ * A node's host's `/api/drift`: what control wants there and does not run, what runs and is not
+ * wanted, and what runs another release; each absent when empty. Infra's
+ * spec/architecture/host.md, "host compares what runs with what control wants".
  */
 export interface Drift {
 	wanted_not_running?: string[];
 	running_not_wanted?: string[];
 	release_behind?: Behind[];
+	/** Control's revision, under the name host has always answered it by. */
 	registry_revision: number;
 	/** RFC 3339. */
 	read_at: string;
-	/** A registry this round, or the record host kept when none answered. */
-	source: 'registry' | 'cache';
+	/** Control this round, or the record host kept when it did not answer. */
+	source: 'control' | 'cache';
 }
 
 export type TaskState = 'queued' | 'running' | 'done' | 'failed';
@@ -133,9 +134,12 @@ export type TaskQuery = {
 	limit?: string;
 };
 
-/** A write's outcome: its task, nothing to change, or the registry's refusal. */
+/**
+ * A write's outcome: the revision it made, with the id control drew for one made with no name;
+ * nothing to change; or control's refusal.
+ */
 export type Written =
-	| { ok: true; task: string; revision: number; id?: string }
+	| { ok: true; revision: number; id?: string }
 	| { ok: true; unchanged: true }
 	| { ok: false; failure: Failure };
 
@@ -153,6 +157,3 @@ export interface Patch {
 	revision: number;
 	patch: Spec;
 }
-
-/** The service a registry write's task is the ledger's under. */
-export const REGISTRY_SERVICE = 'registry';

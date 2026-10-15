@@ -7,7 +7,7 @@
  */
 
 /** The contract this console reads; a relay speaking another is not read. */
-export const CONTRACT = 1;
+export const CONTRACT = 2;
 
 export interface Source {
 	/** `run`, `upload`, `panel`, or `keeper` for keeper's acts on host; host may add more. */

@@ -4,7 +4,7 @@
  * with and found by that name or its code. See spec/console/design.md, "The sidebar's head is the
  * way in to finding".
  */
-import { countryOf, nameOf, partOf } from '../map/places.ts';
+import { nameOf, nodeLabel } from '../map/places.ts';
 import { CODES } from '../nodes/facts.ts';
 import { type View, appHref, displayOf, nodeHref, shows, within } from '../scope/scope.ts';
 import { sectionsIn } from '../sections.ts';
@@ -17,7 +17,7 @@ export interface Found {
 	kind: Kind;
 	/** The name it is shown by. */
 	label: string;
-	/** Its code, where the name is not it: found by, and never shown. */
+	/** Its code, a node's id, where the name is not it: found by, and never shown. */
 	code?: string;
 	/** Another name it is found by and not shown: a node's place in full, `Tokyo, Japan`. */
 	also?: string;
@@ -37,8 +37,8 @@ export function findable(view: View, nodes: Readonly<Record<string, Entry>>): Fo
 			? CODES.map((code): Found => ({
 					key: `node ${code}`,
 					kind: 'node',
-					// By the part of its place that tells it from the others there, as the card heads it.
-					label: `${partOf(code)}, ${countryOf(code)}`,
+					// By its place, and its short id where another node shares the place.
+					label: nodeLabel(code),
 					code,
 					also: nameOf(code).full,
 					href: nodeHref(view, code),

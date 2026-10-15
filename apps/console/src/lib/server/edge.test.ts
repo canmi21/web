@@ -4,7 +4,7 @@ import { URLS } from '@monoflake/sdk';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { type Env, RELAY, TRIES, openLive, socketOf, streamOf } from './edge.ts';
 import { NODES, type Node, learnNodes, order } from './nodes.ts';
-import { PLACED } from './nodes.fixture.ts';
+import { ID, PLACED } from './nodes.fixture.ts';
 
 /** wrangler.jsonc as data: its comments and trailing commas taken off, strings left alone. */
 function wrangler(): {
@@ -30,7 +30,7 @@ function bound(answers: Partial<Record<Node, () => Response>>) {
 	const sent: { node: Node; url: string; headers: Headers }[] = [];
 	const env = Object.fromEntries(
 		Object.entries(answers).map(([node, answer]) => [
-			node.toUpperCase(),
+			NODES[node as Node],
 			{
 				fetch: async (url: string, init: RequestInit) => {
 					sent.push({ node: node as Node, url, headers: new Headers(init.headers) });
@@ -63,17 +63,13 @@ afterEach(() => {
 });
 
 describe('wrangler.jsonc', () => {
-	it('answers on the sdk name and binds every node it places', () => {
+	it('answers on the sdk name and binds every node it places, by its id', () => {
 		const config = wrangler();
 		expect(config.routes).toEqual([
 			{ pattern: new URL(URLS.internal.console).hostname, custom_domain: true },
 		]);
 		const bindings = config.vpc_services.map((service) => service.binding).toSorted();
-		expect(bindings).toEqual(
-			Object.keys(NODES)
-				.map((node) => node.toUpperCase())
-				.toSorted(),
-		);
+		expect(bindings).toEqual(Object.values(NODES).toSorted());
 	});
 });
 
@@ -88,11 +84,11 @@ describe('the API ahead of the pages', () => {
 describe('the live socket', () => {
 	it('goes on to the next node when the nearest throws', async () => {
 		vi.spyOn(console, 'error').mockImplementation(() => {});
-		const { sent, env } = bound({ tyo: down, hnd: () => OPENED, nrt: () => OPENED });
-		const nodes: Node[] = ['tyo', 'hnd', 'nrt'];
+		const { sent, env } = bound({ [ID.tyo]: down, [ID.hnd]: () => OPENED, [ID.nrt]: () => OPENED });
+		const nodes: Node[] = [ID.tyo, ID.hnd, ID.nrt];
 		const socket = await socketOf(asked('/live', UPGRADE), env, nodes);
 		expect(socket).toBe(OPENED.webSocket);
-		expect(sent.map(({ node }) => node)).toEqual(['tyo', 'hnd']);
+		expect(sent.map(({ node }) => node)).toEqual([ID.tyo, ID.hnd]);
 		expect(sent.every(({ url }) => url === `${RELAY}/live`)).toBe(true);
 		// The browser's page goes with it, since the relay admits by `Origin`.
 		expect(sent[1]?.headers.get('origin')).toBe(URLS.internal.app);
@@ -102,22 +98,22 @@ describe('the live socket', () => {
 	it('opens the socket with no deadline, which would cut it once open', async () => {
 		const signals: (AbortSignal | null | undefined)[] = [];
 		const env = {
-			TYO: {
+			[NODES[ID.tyo]]: {
 				fetch: async (_url: string, init: RequestInit = {}) => {
 					signals.push(init.signal);
 					return OPENED;
 				},
 			} as unknown as Fetcher,
 		} as Env;
-		await socketOf(asked('/live', UPGRADE), env, ['tyo']);
+		await socketOf(asked('/live', UPGRADE), env, [ID.tyo]);
 		expect(signals).toEqual([undefined]);
 	});
 
 	it('takes no answer but an opened socket', async () => {
 		vi.spyOn(console, 'error').mockImplementation(() => {});
 		const refused = () => new Response(null, { status: 403 });
-		const { sent, env } = bound({ tyo: refused, nrt: () => OPENED });
-		const socket = await socketOf(asked('/live', UPGRADE), env, ['tyo', 'nrt']);
+		const { sent, env } = bound({ [ID.tyo]: refused, [ID.nrt]: () => OPENED });
+		const socket = await socketOf(asked('/live', UPGRADE), env, [ID.tyo, ID.nrt]);
 		expect(socket).toBe(OPENED.webSocket);
 		expect(sent).toHaveLength(2);
 	});
@@ -133,7 +129,7 @@ describe('the live socket', () => {
 	});
 
 	it('refuses a request that asks for no socket', async () => {
-		const { sent, env } = bound({ tyo: () => OPENED });
+		const { sent, env } = bound({ [ID.tyo]: () => OPENED });
 		const response = await openLive(asked('/live'), env);
 		expect(response.status).toBe(426);
 		expect(sent).toHaveLength(0);
@@ -155,8 +151,8 @@ describe('the live event stream', () => {
 	}
 
 	it('hands the stream on as it arrives, the first event before the stream ends', async () => {
-		const { sent, env } = bound({ tyo: () => holding('data: {"type":"cluster"}\n\n') });
-		const answer = await streamOf(asked('/live?deltas=true', STREAM), env, ['tyo']);
+		const { sent, env } = bound({ [ID.tyo]: () => holding('data: {"type":"cluster"}\n\n') });
+		const answer = await streamOf(asked('/live?deltas=true', STREAM), env, [ID.tyo]);
 		expect(answer.headers.get('content-type')).toBe('text/event-stream');
 		const reader = answer.body!.getReader();
 		const read = await Promise.race([
@@ -174,12 +170,12 @@ describe('the live event stream', () => {
 	it('passes over a relay that answers no stream, and says so where none does', async () => {
 		vi.spyOn(console, 'error').mockImplementation(() => {});
 		const refused = () => new Response(null, { status: 426 });
-		const { sent, env } = bound({ tyo: refused, hnd: () => holding(': ping\n\n') });
+		const { sent, env } = bound({ [ID.tyo]: refused, [ID.hnd]: () => holding(': ping\n\n') });
 		const answer = await openLive(asked('/live', STREAM), env);
 		expect(answer.status).toBe(200);
 		await answer.body?.cancel();
-		expect(sent.map(({ node }) => node)).toEqual(['tyo', 'hnd']);
-		const none = bound({ tyo: refused, hnd: refused, nrt: refused });
+		expect(sent.map(({ node }) => node)).toEqual([ID.tyo, ID.hnd]);
+		const none = bound({ [ID.tyo]: refused, [ID.hnd]: refused, [ID.nrt]: refused });
 		expect((await openLive(asked('/live', STREAM), none.env)).status).toBe(502);
 	});
 });

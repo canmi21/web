@@ -2,11 +2,13 @@
 	/**
 	 * The nodes under an account, each detached by a write of its `account` where the node kind lets
 	 * it go without one, and any other attached the same way -- one under another account moved only
-	 * once the reader says so. Each write is held to the revision the node was read at, and its task
-	 * followed. spec/console/navigation.md.
+	 * once the reader says so. Each write is held to the revision the node was read at, and the list
+	 * read again once it is written. A node is shown by its city and found by its id.
+	 * spec/console/navigation.md.
 	 */
 	import { invalidateAll } from '$app/navigation';
 	import Card from '../card.svelte';
+	import { nodeLabel } from '../map/places.ts';
 	import type { Description } from '../control/catalog.gen.ts';
 	import type { Resource, Written as Outcome } from '../control/types.ts';
 	import { patch } from '../control/write.ts';
@@ -14,7 +16,7 @@
 	import type { Column } from '../table/table.ts';
 	import Button from '../ui/button.svelte';
 	import { accountPatch, candidatesFor, detachable } from './account.ts';
-	import { type Options, shown } from './form.ts';
+	import { type Options, said as sayOf } from './form.ts';
 	import { refOf } from './view.ts';
 	import Written from './written.svelte';
 
@@ -34,7 +36,7 @@
 		/** Every other node, which may be attached here. */
 		others: Resource[];
 		account: string;
-		href: (name: string) => string;
+		href: (id: string) => string;
 	} = $props();
 
 	let chosen = $state('');
@@ -44,7 +46,7 @@
 	let written: Outcome | undefined = $state();
 
 	const candidates = $derived(candidatesFor(others, account));
-	const nameOf = (node: Resource) => node.name ?? node.id;
+	const nameOf = (node: Resource) => nodeLabel(node.id);
 
 	/** What the account a node is under is called, as the node kind's picker names it. */
 	const under = (node: Resource) =>
@@ -52,12 +54,12 @@
 		String(node.spec.account);
 
 	/** A node's column as written: a reference by what it names is called. */
-	function said(node: Resource, key: string): string {
-		const field = kind.fields.find((one) => one.name === key);
-		const value = node.spec[key];
-		const named = field?.kind && options[field.kind]?.find((one) => one.value === value)?.label;
-		return named ?? shown(value);
-	}
+	const said = (node: Resource, key: string): string =>
+		sayOf(
+			kind.fields.find((one) => one.name === key),
+			node.spec[key],
+			options,
+		);
 
 	async function write(node: Resource, id: string | null) {
 		busy = true;
@@ -97,7 +99,7 @@
 </script>
 
 {#snippet named(row: Resource)}
-	<a href={href(nameOf(row))}>{nameOf(row)}</a>
+	<a href={href(row.id)}>{nameOf(row)}</a>
 {/snippet}
 
 {#snippet detach(row: Resource)}

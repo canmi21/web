@@ -5,7 +5,7 @@ import { Catalog, type Description } from '../control/catalog.gen.ts';
 import { controlMock } from '../server/mock-control.ts';
 import AccountCreate from './account-create.svelte';
 
-const body = (await (await controlMock('/registry/v1/kinds')).json()) as { data: unknown };
+const body = (await (await controlMock('/v1/registry/kinds')).json()) as { data: unknown };
 const ACCOUNT = v
 	.parse(Catalog, body.data)
 	.items.find((one) => one.name === 'account') as Description;

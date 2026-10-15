@@ -1,4 +1,5 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
+import { URLS } from '@monoflake/sdk';
 import type { Env } from './edge.ts';
 import { memoryStore } from './cache.ts';
 import {
@@ -20,75 +21,93 @@ import {
 } from './control.ts';
 import { controlMock } from './mock-control.ts';
 import { displayOf } from '../scope/scope.ts';
-import { learnedCores } from './nodes.ts';
+import { NODES, type Node, learnedCores } from './nodes.ts';
+import { ID } from './nodes.fixture.ts';
 import type { Edge } from './read.ts';
 
-const TOKEN = 'registry-token';
+const READ = 'control-read-token';
+const WRITE = 'control-write-token';
 
 const envelope = (data: unknown, status = 200) =>
 	Response.json({ status: 'success', data }, { status });
 const refusal = (status: number, code: string) =>
 	Response.json({ status: 'error', code, message: code }, { status });
-const KINDS = ((await (await controlMock('/registry/v1/kinds')).json()) as { data: unknown }).data;
+const KINDS = ((await (await controlMock('/v1/registry/kinds')).json()) as { data: unknown }).data;
 
 interface Sent {
-	node: string;
+	/** `control`, reached over HTTPS, or the node whose binding was asked. */
+	where: string;
 	url: string;
 	method: string;
 	headers: Headers;
 	body?: string;
 }
 
-/** Bindings that record what each node was sent and answer as `answer` says. */
-function bound(answer: (node: string, url: URL) => Response | Promise<Response>, token = TOKEN) {
+/**
+ * Control over HTTPS and the cores' bindings, each recording what it was sent and answering as
+ * `answer` says; a token left empty is not set.
+ */
+function bound(
+	answer: (where: string, url: URL) => Response | Promise<Response>,
+	tokens = { read: READ, write: WRITE },
+) {
 	const sent: Sent[] = [];
-	const binding = (node: string) =>
-		({
-			fetch: async (url: string, init: RequestInit = {}) => {
-				const headers = new Headers(init.headers);
-				sent.push({ node, url, method: init.method ?? 'GET', headers, body: init.body as string });
-				return answer(node, new URL(url));
-			},
-		}) as unknown as Fetcher;
+	const asked =
+		(where: string) =>
+		async (url: string, init: RequestInit = {}): Promise<Response> => {
+			const headers = new Headers(init.headers);
+			const method = init.method ?? 'GET';
+			sent.push({ where, url: String(url), method, headers, body: init.body as string });
+			return answer(where, new URL(url));
+		};
+	vi.stubGlobal('fetch', asked('control'));
+	const cores: Node[] = [ID.tyo, ID.sin, ID.rdu, ID.gvx];
 	const env = Object.fromEntries(
-		['tyo', 'sin', 'rdu', 'gvx'].map((node) => [node.toUpperCase(), binding(node)]),
+		cores.map((node) => [NODES[node], { fetch: asked(node) } as unknown as Fetcher]),
 	);
-	const edge: Edge = { env: { ...env, REGISTRY_TOKEN: token || undefined } as Env };
+	const secrets = {
+		CONTROL_READ_TOKEN: tokens.read || undefined,
+		CONTROL_WRITE_TOKEN: tokens.write || undefined,
+	};
+	const edge: Edge = { env: { ...env, ...secrets } as Env };
 	return { sent, edge };
 }
 
-/** A registry on every core answering its catalog, and `rest` for anything else. */
-const registry = (rest: (node: string, url: URL) => Response) => (node: string, url: URL) =>
-	url.pathname === '/registry/v1/kinds' ? envelope(KINDS) : rest(node, url);
+/** Control answering its catalog, and `rest` for anything else. */
+const control = (rest: (where: string, url: URL) => Response) => (where: string, url: URL) =>
+	url.pathname === '/v1/registry/kinds' ? envelope(KINDS) : rest(where, url);
 
-afterEach(() => vi.restoreAllMocks());
+afterEach(() => {
+	vi.restoreAllMocks();
+	vi.unstubAllGlobals();
+});
 
-describe('the registry, as the console reaches it', () => {
-	it('is the nearest core, at its private scope of the API host', async () => {
-		const { sent, edge } = bound(registry(() => refusal(404, 'no_such_route')));
+describe('control, as the console reaches it', () => {
+	it('is asked over HTTPS with its read token, and no node', async () => {
+		const { sent, edge } = bound(control(() => refusal(404, 'no_such_route')));
 		const read = await catalog(edge);
 		expect(read.ok && read.data.items.map((one) => one.plural)).toContain('nodes');
-		expect(sent[0]).toMatchObject({ node: 'tyo', url: `${API}/registry/v1/kinds`, method: 'GET' });
-		expect(sent[0]?.headers.has('authorization')).toBe(false);
+		expect(sent).toHaveLength(1);
+		expect(sent[0]).toMatchObject({ where: 'control', url: `${URLS.control}/v1/registry/kinds` });
+		expect(sent[0]?.headers.get('authorization')).toBe(`Bearer ${READ}`);
 	});
 
-	it('passes to the next core where one is down or its Caddy answers outside the envelope', async () => {
+	it('is asked once, its failure the answer, since it is one place', async () => {
 		vi.spyOn(console, 'error').mockImplementation(() => {});
-		const { sent, edge } = bound((node) => {
-			if (node === 'tyo') throw new Error('unreachable');
-			if (node === 'sin') return new Response('Bad Gateway', { status: 502 });
-			return envelope(KINDS);
+		const { sent, edge } = bound(() => {
+			throw new Error('unreachable');
 		});
 		const read = await catalog(edge);
-		expect(read.ok && read.node).toBe('rdu');
-		expect(sent.map((one) => one.node)).toEqual(['tyo', 'sin', 'rdu']);
+		expect(!read.ok && read.failure).toMatchObject({ status: 502, code: 'upstream_unavailable' });
+		expect(sent.map((one) => one.where)).toEqual(['control']);
 	});
 
-	it("takes a refusal in the envelope as the registry's answer, asking no other core", async () => {
-		const { sent, edge } = bound(registry(() => refusal(404, 'no_such_node')));
-		const read = await resource(edge, 'node', 'nowhere');
-		expect(!read.ok && read.failure.code).toBe('no_such_node');
-		expect(sent.filter((one) => one.url.endsWith('/nowhere')).length).toBe(1);
+	it("takes a refusal in the envelope as control's answer", async () => {
+		vi.spyOn(console, 'error').mockImplementation(() => {});
+		const { sent, edge } = bound(control(() => refusal(404, 'no_such_resource')));
+		const read = await resource(edge, 'node', 'ffffffffffffffff');
+		expect(!read.ok && read.failure.code).toBe('no_such_resource');
+		expect(sent.filter((one) => one.url.endsWith('/ffffffffffffffff')).length).toBe(1);
 	});
 
 	it('refuses a catalog its generated schema does not read, naming where', async () => {
@@ -103,30 +122,39 @@ describe('the registry, as the console reaches it', () => {
 	});
 
 	it('reads a kind at the route the catalog names, and refuses one it does not hold', async () => {
-		const { sent, edge } = bound(registry(() => envelope({ items: [], revision: 7 })));
+		const { sent, edge } = bound(control(() => envelope({ items: [], revision: 7 })));
 		const read = await resources(edge, 'account');
 		expect(read.ok && read.data.revision).toBe(7);
-		expect(sent.at(-1)?.url).toBe(`${API}/registry/v1/accounts`);
+		expect(sent.at(-1)?.url).toBe(`${URLS.control}/v1/registry/accounts`);
 		const none = await resources(edge, 'planet');
 		expect(!none.ok && none.failure.status).toBe(404);
+	});
+
+	it('is not asked at all by a Worker that holds no read token', async () => {
+		const { sent, edge } = bound(
+			control(() => envelope({})),
+			{ read: '', write: WRITE },
+		);
+		const read = await catalog(edge);
+		expect(!read.ok && read.failure.code).toBe('service_unavailable');
+		expect(sent.length).toBe(0);
 	});
 });
 
 describe('a write, as the console sends it', () => {
-	const change = { kind: 'node' as const, ref: 'tyo', revision: 12, patch: { retired: true } };
+	const change = { kind: 'node' as const, ref: ID.tyo, revision: 12, patch: { retired: true } };
 
-	it("carries the Worker's token and the identity it was given, held to the revision read", async () => {
-		const { sent, edge } = bound(
-			registry(() => envelope({ revision: 13, task: 'abcdef0123456789' }, 202)),
-		);
-		expect(await patch(edge, 'author@example.com', change)).toEqual({
-			ok: true,
-			task: 'abcdef0123456789',
-			revision: 13,
-		});
+	it("carries the Worker's write token and the identity it was given, held to the revision read", async () => {
+		// Control names the write's task too, which nothing follows: the write is done when answered.
+		const answer = { revision: 13, task: 'abcdef0123456789' };
+		const { sent, edge } = bound(control(() => envelope(answer, 202)));
+		expect(await patch(edge, 'author@example.com', change)).toEqual({ ok: true, revision: 13 });
 		const write = sent.at(-1);
-		expect(write).toMatchObject({ method: 'PATCH', url: `${API}/registry/v1/nodes/tyo` });
-		expect(write?.headers.get('authorization')).toBe(`Bearer ${TOKEN}`);
+		expect(write).toMatchObject({
+			method: 'PATCH',
+			url: `${URLS.control}/v1/registry/nodes/${ID.tyo}`,
+		});
+		expect(write?.headers.get('authorization')).toBe(`Bearer ${WRITE}`);
 		expect(write?.headers.get('content-type')).toBe('application/json');
 		expect(JSON.parse(write?.body ?? '')).toEqual({
 			by: 'author@example.com',
@@ -136,20 +164,24 @@ describe('a write, as the console sends it', () => {
 	});
 
 	it('creates a named kind by its name at revision 0', async () => {
-		const { sent, edge } = bound(
-			registry(() => envelope({ revision: 1, task: '0123456789abcdef' }, 202)),
-		);
+		const { sent, edge } = bound(control(() => envelope({ revision: 1 })));
 		await create(edge, 'author@example.com', { kind: 'app', name: 'shot', spec: {} });
-		expect(sent.at(-1)).toMatchObject({ method: 'PUT', url: `${API}/registry/v1/apps/shot` });
+		expect(sent.at(-1)).toMatchObject({
+			method: 'PUT',
+			url: `${URLS.control}/v1/registry/apps/shot`,
+		});
 		expect(JSON.parse(sent.at(-1)?.body ?? '')).toMatchObject({ revision: 0 });
 	});
 
 	it('creates a kind with no name by a POST to its collection, answering the id drawn', async () => {
-		const answer = { revision: 2, task: '0123456789abcdef', id: 'fedcba9876543210' };
-		const { sent, edge } = bound(registry(() => envelope(answer, 202)));
+		const answer = { revision: 2, id: 'fedcba9876543210', task: '0123456789abcdef' };
+		const { sent, edge } = bound(control(() => envelope(answer, 202)));
 		const made = await create(edge, 'author@example.com', { kind: 'account', spec: {} });
-		expect(made).toEqual({ ok: true, ...answer });
-		expect(sent.at(-1)).toMatchObject({ method: 'POST', url: `${API}/registry/v1/accounts` });
+		expect(made).toEqual({ ok: true, revision: 2, id: 'fedcba9876543210' });
+		expect(sent.at(-1)).toMatchObject({
+			method: 'POST',
+			url: `${URLS.control}/v1/registry/accounts`,
+		});
 		expect(JSON.parse(sent.at(-1)?.body ?? '')).toEqual({
 			by: 'author@example.com',
 			revision: 0,
@@ -158,7 +190,7 @@ describe('a write, as the console sends it', () => {
 	});
 
 	it('refuses a name for a kind with none, and none for a named kind, sending nothing', async () => {
-		const { sent, edge } = bound(registry(() => envelope({})));
+		const { sent, edge } = bound(control(() => envelope({})));
 		const named = await create(edge, 'a', { kind: 'account', name: 'oci-2', spec: {} });
 		expect(!named.ok && named.failure.code).toBe('invalid_name');
 		const unnamed = await create(edge, 'a', { kind: 'app', spec: {} });
@@ -166,41 +198,44 @@ describe('a write, as the console sends it', () => {
 		expect(sent.filter((one) => one.method !== 'GET').length).toBe(0);
 	});
 
-	it('says unchanged where nothing changed, and passes a refusal on with its code', async () => {
-		const same = bound(registry(() => envelope({})));
+	it('says unchanged where no revision came back, and passes a refusal on with its code', async () => {
+		vi.spyOn(console, 'error').mockImplementation(() => {});
+		const same = bound(control(() => envelope({})));
 		expect(await patch(same.edge, 'a', change)).toEqual({ ok: true, unchanged: true });
-		const stale = bound(registry(() => refusal(409, 'invalid_revision')));
+		const stale = bound(control(() => refusal(409, 'invalid_revision')));
 		const refused = await patch(stale.edge, 'a', change);
 		expect(!refused.ok && refused.failure).toMatchObject({ status: 409, code: 'invalid_revision' });
 		expect(stale.sent.filter((one) => one.method === 'PATCH').length).toBe(1);
 	});
 
-	it('is not sent at all by a Worker that holds no token', async () => {
+	it('is not sent at all by a Worker that holds no write token', async () => {
 		const { sent, edge } = bound(
-			registry(() => envelope({})),
-			'',
+			control(() => envelope({})),
+			{ read: READ, write: '' },
 		);
 		const refused = await patch(edge, 'a', change);
 		expect(!refused.ok && refused.failure.code).toBe('service_unavailable');
 		expect(sent.length).toBe(0);
 	});
 
-	it('is never sent again to another core after one took too long, since it may have been taken', async () => {
+	it('is never sent again after it took too long, since it may have been taken', async () => {
 		const errors = vi.spyOn(console, 'error').mockImplementation(() => {});
 		const { sent, edge } = bound(
-			registry(() => {
+			control(() => {
 				throw new DOMException('The operation timed out.', 'TimeoutError');
 			}),
 		);
 		const secret = {
 			kind: 'account' as const,
-			ref: 'oci-2',
+			ref: 'fedcba9876543210',
 			revision: 3,
 			patch: { identities: [{ kind: 'email', value: 'hush-123' }] },
 		};
 		const refused = await patch(edge, 'a', secret);
 		expect(!refused.ok && refused.failure.status).toBe(504);
-		expect(sent.filter((one) => one.method === 'PATCH').map((one) => one.node)).toEqual(['tyo']);
+		expect(sent.filter((one) => one.method === 'PATCH').map((one) => one.where)).toEqual([
+			'control',
+		]);
 		// The spec may carry a secret's value, which no log line may hold.
 		expect(JSON.stringify(errors.mock.calls)).not.toContain('hush-123');
 	});
@@ -215,18 +250,30 @@ describe('the ledger, as the console reaches it', () => {
 
 	it("is the nearest core's scope, narrowed by the query, with the next page's cursor when full", async () => {
 		const { sent, edge } = bound(() => envelope(listed(2)));
-		const page = await tasks(edge, { service: 'registry', limit: '2', kind: '' });
-		expect(sent.map((one) => one.node)).toEqual(['tyo']);
-		expect(sent[0]?.url).toBe(`${API}/ledger/tasks?service=registry&limit=2`);
+		const page = await tasks(edge, { service: 'shot', limit: '2', kind: '' });
+		expect(sent.map((one) => one.where)).toEqual([ID.tyo]);
+		expect(sent[0]?.url).toBe(`${API}/ledger/tasks?service=shot&limit=2`);
 		expect(page.ok && page.data.next).toBe('99:t1');
 		const last = await tasks(bound(() => envelope(listed(1))).edge, { limit: '2' });
 		expect(last.ok && 'next' in last.data).toBe(false);
 	});
 
+	it('passes to the next core where one is down or its Caddy answers outside the envelope', async () => {
+		vi.spyOn(console, 'error').mockImplementation(() => {});
+		const { sent, edge } = bound((where) => {
+			if (where === ID.tyo) throw new Error('unreachable');
+			if (where === ID.sin) return new Response('Bad Gateway', { status: 502 });
+			return envelope(listed(1));
+		});
+		const read = await tasks(edge);
+		expect(read.ok).toBe(true);
+		expect(sent.map((one) => one.where)).toEqual([ID.tyo, ID.sin, ID.rdu]);
+	});
+
 	it('reads one task by its service and id', async () => {
 		const { sent, edge } = bound(() => envelope({ id: 'x', events: [], children: [] }));
-		await task(edge, 'registry', 'abc/def');
-		expect(sent[0]?.url).toBe(`${API}/ledger/tasks/registry/abc%2Fdef`);
+		await task(edge, 'shot', 'abc/def');
+		expect(sent[0]?.url).toBe(`${API}/ledger/tasks/shot/abc%2Fdef`);
 	});
 });
 
@@ -234,8 +281,8 @@ describe('mock mode', () => {
 	const untouched = new Proxy({} as Env, { get: () => ({ fetch: () => expect.unreachable() }) });
 	const edge: Edge = { env: untouched, mock: true };
 
-	it('writes to made-up data and reads it back, its task done in the made-up ledger', async () => {
-		const read = await resource(edge, 'node', 'gvx');
+	it('writes to made-up data and reads it back', async () => {
+		const read = await resource(edge, 'node', ID.gvx);
 		if (!read.ok) throw new Error(read.failure.message);
 		const written = await patch(edge, 'developer', {
 			kind: 'node',
@@ -243,23 +290,20 @@ describe('mock mode', () => {
 			revision: read.data.revision,
 			patch: { retired: true },
 		});
-		if (!written.ok || !('task' in written)) throw new Error('not written');
-		const after = await resource(edge, 'node', 'gvx');
+		if (!written.ok || !('revision' in written)) throw new Error('not written');
+		const after = await resource(edge, 'node', ID.gvx);
 		expect(after.ok && after.data.spec.retired).toBe(true);
 		expect(after.ok && after.data.revision).toBe(written.revision);
-		const done = await task(edge, 'registry', written.task);
-		expect(done.ok && done.data.state).toBe('done');
-		expect(done.ok && done.data.events.map((one) => one.stage)).toEqual(['written']);
 		const again = await patch(edge, 'developer', {
 			kind: 'node',
-			ref: 'gvx',
+			ref: ID.gvx,
 			revision: read.data.revision,
 			patch: {},
 		});
 		expect(!again.ok && again.failure.code).toBe('invalid_revision');
 	});
 
-	it("keeps an identity's masked value as written and answers it, as the registry does", async () => {
+	it("keeps an identity's masked value as written and answers it, as control does", async () => {
 		const listed = await resources(edge, 'account');
 		const account = listed.ok ? listed.data.items[0] : undefined;
 		if (!account) throw new Error('no account made up');
@@ -285,7 +329,7 @@ describe('mock mode', () => {
 			revision: account.revision,
 			patch: { provider: 'azure' },
 		});
-		expect(changed.ok && 'task' in changed).toBe(true);
+		expect(changed.ok && 'revision' in changed).toBe(true);
 	});
 
 	it('refuses an identity another account at the same provider holds, an email in any case', async () => {
@@ -332,34 +376,34 @@ describe('mock mode', () => {
 	it("attaches a node to an account and detaches it, each a write of the node's account", async () => {
 		const listed = await resources(edge, 'account');
 		const account = listed.ok ? listed.data.items.at(-1) : undefined;
-		const before = await resource(edge, 'node', 'sha');
+		const before = await resource(edge, 'node', ID.sha);
 		if (!account || !before.ok) throw new Error('nothing made up');
 		const attached = await patch(edge, 'developer', {
 			kind: 'node',
-			ref: 'sha',
+			ref: ID.sha,
 			revision: before.data.revision,
 			patch: { account: account.id },
 		});
-		expect(attached.ok && 'task' in attached).toBe(true);
-		const under = await resource(edge, 'node', 'sha');
+		expect(attached.ok && 'revision' in attached).toBe(true);
+		const under = await resource(edge, 'node', ID.sha);
 		expect(under.ok && under.data.spec.account).toBe(account.id);
 		if (!under.ok) return;
 		await patch(edge, 'developer', {
 			kind: 'node',
-			ref: 'sha',
+			ref: ID.sha,
 			revision: under.data.revision,
 			patch: { account: null },
 		});
-		const detached = await resource(edge, 'node', 'sha');
+		const detached = await resource(edge, 'node', ID.sha);
 		expect(detached.ok && 'account' in detached.data.spec).toBe(false);
 	});
 
-	it('refuses a node attached to an account the registry does not hold', async () => {
-		const before = await resource(edge, 'node', 'buf');
+	it('refuses a node attached to an account control does not hold', async () => {
+		const before = await resource(edge, 'node', ID.buf);
 		if (!before.ok) throw new Error('nothing made up');
 		const refused = await patch(edge, 'developer', {
 			kind: 'node',
-			ref: 'buf',
+			ref: ID.buf,
 			revision: before.data.revision,
 			patch: { account: 'ffffffffffffffff' },
 		});
@@ -383,39 +427,43 @@ const app = (name: string, spec: Record<string, unknown>) => ({
 	revision: 1,
 	spec,
 });
-const node = (name: string, spec: Record<string, unknown>) => ({
-	...app(name, spec),
+const node = (id: string, spec: Record<string, unknown>) => ({
 	kind: 'node',
+	id,
+	name: null,
+	revision: 1,
+	spec,
 });
 
-/** A registry holding two apps and three nodes, sin a core it names beside the bootstrap's. */
-const holding = (node_: string, url: URL) => {
-	if (url.pathname === '/registry/v1/apps') {
+/** Control holding two apps and three nodes, Singapore a core it names beside the bootstrap's. */
+const holding = (where: string, url: URL) => {
+	if (where === 'control' && url.pathname === '/v1/registry/apps') {
 		const apps = [
-			app('host', { placements: ['tyo'], display_name: 'Host', repository: 'monoflake/infra' }),
+			app('host', { placements: [ID.tyo], display_name: 'Host', repository: 'monoflake/infra' }),
 			app('console', { placements: [], display_name: 'Console', repository: 'canmi21/web' }),
 		];
 		return envelope({ items: apps, revision: 9 });
 	}
-	if (url.pathname === '/registry/v1/nodes') {
+	if (where === 'control' && url.pathname === '/v1/registry/nodes') {
 		const nodes = [
-			node('tyo', {
+			node(ID.tyo, {
 				roles: ['compute', 'core'],
 				coordinates: [35.6762, 139.6503],
-				place: 'Tokyo, Japan',
+				city: 'Tokyo',
+				country: 'JP',
 			}),
-			node('sin', { roles: ['compute', 'core'], coordinates: [1.3644, 103.9915] }),
-			node('gvx', { roles: ['compute'], hosting: 'selfhost', coordinates: ['north', 17] }),
+			node(ID.sin, { roles: ['compute', 'core'], coordinates: [1.3644, 103.9915] }),
+			node(ID.gvx, { roles: ['compute'], hosting: 'selfhost', coordinates: ['north', 17] }),
 		];
 		return envelope({ items: nodes, revision: 9 });
 	}
 	return refusal(404, 'no_such_route');
 };
 
-describe('the facts the console shows, as the registry holds them', () => {
+describe('the facts the console shows, as control holds them', () => {
 	afterEach(() => forget());
 
-	it("reads each app's name and repository and each node's place, and keeps them", async () => {
+	it("reads each app's name and repository and each node's city by its id, and keeps them", async () => {
 		const { edge } = bound(holding);
 		const store = memoryStore();
 		const facts = await readFacts({ ...edge, store }, 1_000);
@@ -424,9 +472,15 @@ describe('the facts the console shows, as the registry holds them', () => {
 			console: { display: 'Console', repository: 'canmi21/web' },
 		});
 		expect(facts.nodes).toEqual({
-			tyo: { coordinates: [35.6762, 139.6503], place: 'Tokyo, Japan', core: true, home: false },
-			sin: { coordinates: [1.3644, 103.9915], place: undefined, core: true, home: false },
-			gvx: { coordinates: undefined, place: undefined, core: false, home: true },
+			[ID.tyo]: {
+				coordinates: [35.6762, 139.6503],
+				city: 'Tokyo',
+				country: 'JP',
+				core: true,
+				home: false,
+			},
+			[ID.sin]: { coordinates: [1.3644, 103.9915], core: true, home: false },
+			[ID.gvx]: { core: false, home: true },
 		});
 		expect(await keptFacts({ ...edge, store }, 1_000 + FACTS_FRESH_MS)).toEqual({
 			facts: JSON.parse(JSON.stringify(facts)),
@@ -435,18 +489,18 @@ describe('the facts the console shows, as the registry holds them', () => {
 		expect((await keptFacts({ ...edge, store }, 2_000 + FACTS_FRESH_MS)).stale).toBe(true);
 	});
 
-	it('asks the cores the registry names once it has named them, the bootstrap before', async () => {
+	it('asks the ledger on the cores control names once it has named them, the bootstrap before', async () => {
 		const { sent, edge } = bound(holding);
 		await readFacts(edge);
-		expect(learnedCores()).toEqual(['tyo', 'sin']);
+		expect(learnedCores()).toEqual([ID.tyo, ID.sin]);
 		expect(displayOf('host')).toBe('Host');
 		sent.length = 0;
 		vi.spyOn(console, 'error').mockImplementation(() => {});
-		await catalog(edge);
-		expect(sent.map((one) => one.node)).toEqual(['tyo', 'sin']);
+		await tasks(edge);
+		expect(sent.map((one) => one.where)).toEqual([ID.tyo, ID.sin]);
 		forget();
 		expect(learnedCores()).toBeUndefined();
-		expect(CORES).toEqual(['tyo', 'sin', 'rdu']);
+		expect(CORES).toEqual([ID.tyo, ID.sin, ID.rdu]);
 	});
 
 	it('asks first only where nothing is kept, then reads again behind a request a minute on', async () => {
@@ -466,7 +520,7 @@ describe('the facts the console shows, as the registry holds them', () => {
 		expect(sent.length).toBeGreaterThan(0);
 	});
 
-	it('draws from the last answer while the registry is down, and from nothing before any', async () => {
+	it('draws from the last answer while control is down, and from nothing before any', async () => {
 		vi.spyOn(console, 'error').mockImplementation(() => {});
 		const store = memoryStore();
 		const up = bound(holding);

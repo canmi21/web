@@ -1,10 +1,10 @@
 import { describe, expect, it } from 'vitest';
 import { levelOf, titleOf } from './levels.ts';
 import { learnApps } from './scope/scope.ts';
-import { PLACED } from './server/nodes.fixture.ts';
+import { ID, PLACED } from './server/nodes.fixture.ts';
 import { learnPlaces } from './map/places.ts';
 
-// What the registry says of the nodes and the one app named below; see RFC 17b3o.
+// What control says of the nodes and the one app named below; see RFC 17b3o.
 learnPlaces(PLACED);
 learnApps({ relay: { display: 'Relay', repository: 'monoflake/platform' } });
 
@@ -40,9 +40,9 @@ describe('levelOf', () => {
 
 	it('enters a node: its pages, the way back to Nodes, and its tab in the trail', () => {
 		const level = levelOf({
-			url: at('/infra/nodes/tyo?tab=disk&range=6h'),
+			url: at(`/infra/nodes/${ID.tyo}?tab=disk&range=6h`),
 			view: 'infra',
-			node: 'tyo',
+			node: ID.tyo,
 		});
 		expect(level.items.map((one) => one.key)).toEqual([
 			'overview',
@@ -54,8 +54,10 @@ describe('levelOf', () => {
 		]);
 		expect(level.current).toBe('disk');
 		expect(level.up).toEqual({ label: 'Nodes', href: '/infra/nodes' });
-		expect(level.items[1]?.href).toBe('/infra/nodes/tyo?tab=apps&range=6h');
+		expect(level.items[1]?.href).toBe(`/infra/nodes/${ID.tyo}?tab=apps&range=6h`);
 		expect(level.trail.map((one) => one.label)).toEqual(['Nodes', 'Tokyo, Japan', 'Disk']);
+		// Tokyo holds three nodes, so its short id tells this one apart.
+		expect(level.code).toBe('d132');
 		expect(level.trail.at(-1)?.href).toBeUndefined();
 	});
 
@@ -91,7 +93,7 @@ describe('levelOf', () => {
 	});
 
 	it('opens a node’s Drift, with the trail naming it', () => {
-		const level = levelOf({ url: at('/nodes/tyo?tab=drift'), view: 'all', node: 'tyo' });
+		const level = levelOf({ url: at('/nodes/tyo?tab=drift'), view: 'all', node: ID.tyo });
 		expect(level.current).toBe('drift');
 		expect(level.trail.at(-1)).toEqual({ label: 'Drift' });
 	});

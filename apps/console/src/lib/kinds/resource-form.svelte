@@ -2,9 +2,9 @@
 	/**
 	 * A resource's form from its kind's fields: creating one by its name, or changing one by the
 	 * least patch, held to the revision it was read at. The browser sends it to the console's own
-	 * `/api/`, src/lib/control/write.ts; what came back is said under it and its task followed to
-	 * done, the page read again once it is -- or, for a kind with no name, the new one's own page
-	 * opened by the id the registry drew, RFC 32hd9. A secret's field is cleared once sent.
+	 * `/api/`, src/lib/control/write.ts; what came back is said under it, and once written the page
+	 * is read again -- or, for a kind with no name, the new one's own page opened by the id control
+	 * drew, RFC 32hd9. A secret's field is cleared once sent.
 	 */
 	import { goto, invalidateAll } from '$app/navigation';
 	import type { Description } from '../control/catalog.gen.ts';
@@ -26,11 +26,11 @@
 		/** The resource as read; absent, the form creates one. */
 		resource?: Resource;
 		options: Options;
-		/** Where a resource made with no name is read, by the id the registry answered. */
+		/** Where a resource made with no name is read, by the id control answered. */
 		created?: (id: string) => string;
 	} = $props();
 
-	/** The new resource's page once its task is settled, or this page read again. */
+	/** The new resource's page once it is written, or this page read again. */
 	function settled() {
 		const id = written?.ok && 'id' in written ? written.id : undefined;
 		if (id !== undefined && created) void goto(created(id));

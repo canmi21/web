@@ -15,12 +15,12 @@
 	// spec/architecture/gateway.md, "The gateway declares its hosts in its `wrangler.jsonc`".
 	"routes": [{ "pattern": "console.canmi.app", "custom_domain": true }],
 
-	// Each node's Caddy, made by infra's `mise run tunnel` and bound by the node's name in capitals:
-	// the list `hook` binds. src/lib/server/nodes.ts places each, and src/lib/server/edge.test.ts
-	// holds the two together. `remote` is for `vite dev`, which reaches the real nodes through these
-	// same services: https://developers.cloudflare.com/workers-vpc/configuration/vpc-services/. The
-	// read token it sends comes from a gitignored `.dev.vars`, which `pnpm run vars` writes once from
-	// infra's secrets.json; deployed, it is the Worker's secret.
+	// Each node's Caddy, made by infra's `mise run tunnel`, bound by its hostname in capitals: the
+	// list `hook` binds. src/lib/server/nodes.ts gives each node's id its binding, and
+	// src/lib/server/edge.test.ts holds the two together. `remote` is for `vite dev`, which reaches
+	// the real nodes through these same services. Its read tokens, host's and control's, come from
+	// a gitignored `.dev.vars`, which `pnpm run vars` writes once from infra's secrets.json.
+	// https://developers.cloudflare.com/workers-vpc/configuration/vpc-services/
 	"vpc_services": [
 		{ "binding": "RDU", "service_id": "01a0e5b1-1072-72d3-81cf-5b1c69ad7a6e", "remote": true },
 		{ "binding": "TYO", "service_id": "01a10f21-8a27-7721-8223-54365d93b27b", "remote": true },
@@ -34,8 +34,9 @@
 	],
 
 	// Access's application for console.canmi.app: its team's domain and audience tag, both public,
-	// which a write's identity is verified against. The registry's write token is a secret, never
-	// here. See src/lib/server/access.ts.
+	// which a write's identity is verified against. Control's read and write tokens,
+	// `CONTROL_READ_TOKEN` and `CONTROL_WRITE_TOKEN`, are secrets, never here: platform's
+	// spec/architecture/control.md. See src/lib/server/access.ts and src/lib/server/control.ts.
 	"vars": {
 		"ACCESS_TEAM": "canmi.cloudflareaccess.com",
 		"ACCESS_AUD": "7ebd7ca98d9e53879d7ad2f26ec30c42e7c2967649d1f99613e2ea9fa2de7284",

@@ -10,8 +10,9 @@ import {
 	viewOf,
 	within,
 } from './scope.ts';
+import { ID } from '../server/nodes.fixture.ts';
 
-/** What the registry says of a few apps, as its import writes them from their declarations. */
+/** What control says of a few apps, as its import writes them from their declarations. */
 const HELD = {
 	host: { display: 'Host', repository: 'monoflake/infra' },
 	relay: { display: 'Relay', repository: 'monoflake/platform' },
@@ -26,7 +27,7 @@ describe('scopeOf', () => {
 		expect(['host', 'relay', 'console'].map(scopeOf)).toEqual(['infra', 'platform', 'services']);
 	});
 
-	it('puts every app in Services while the registry has said nothing', () => {
+	it('puts every app in Services while control has said nothing', () => {
 		learnApps({});
 		expect(['host', 'relay'].map(scopeOf)).toEqual(['services', 'services']);
 	});
@@ -38,7 +39,7 @@ describe('displayOf', () => {
 		expect([appLabel('relay'), appLabel('my-app')]).toEqual(['Relay (relay)', 'my-app']);
 	});
 
-	it('writes every app as its code name while the registry has said nothing', () => {
+	it('writes every app as its code name while control has said nothing', () => {
 		learnApps({});
 		expect([displayOf('relay'), appLabel('relay')]).toEqual(['relay', 'relay']);
 	});
@@ -46,18 +47,18 @@ describe('displayOf', () => {
 
 describe('within', () => {
 	it('puts a scope first, and All nowhere', () => {
-		expect(within('infra', '/nodes/tyo')).toBe('/infra/nodes/tyo');
+		expect(within('infra', `/nodes/${ID.tyo}`)).toBe(`/infra/nodes/${ID.tyo}`);
 		expect([within('all'), within('all', '/apps/web')]).toEqual(['/', '/apps/web']);
 		expect(within('services')).toBe('/services');
 		expect(within('services', '/events?app=web')).toBe('/services/events?app=web');
 	});
 
 	it("stays in All from All, and leads to Infra's nodes and an app's own scope from a scope", () => {
-		expect([nodeHref('all', 'tyo'), appHref('all', 'relay')]).toEqual([
-			'/nodes/tyo',
+		expect([nodeHref('all', ID.tyo), appHref('all', 'relay')]).toEqual([
+			`/nodes/${ID.tyo}`,
 			'/apps/relay',
 		]);
-		expect(nodeHref('services', 'tyo')).toBe('/infra/nodes/tyo');
+		expect(nodeHref('services', ID.tyo)).toBe(`/infra/nodes/${ID.tyo}`);
 		expect(['host', 'relay', 'my site'].map((app) => appHref('services', app))).toEqual([
 			'/infra/apps/host',
 			'/platform/apps/relay',

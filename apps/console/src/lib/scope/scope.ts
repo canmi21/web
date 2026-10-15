@@ -25,19 +25,19 @@ export const viewOf = (param: string | undefined): View =>
 
 export const labelOf = (view: View): string => VIEWS.find(({ key }) => key === view)?.label ?? view;
 
-/** What the registry says of an app that the console reads: its display name and its repository. */
+/** What control says of an app that the console reads: its display name and its repository. */
 export interface AppFact {
 	readonly display?: string;
 	readonly repository?: string;
 }
 
 /**
- * Every app the registry holds, as it last said, each from its own `service.toml`; empty until it
+ * Every app control holds, as it last said, each from its own `service.toml`; empty until it
  * has said anything, when every app is its code name and in Services. See RFC 17b3o.
  */
 let apps: Readonly<Record<string, AppFact>> = {};
 
-/** What the registry said of the apps, taken in, on the server and in the browser alike. */
+/** What control said of the apps, taken in, on the server and in the browser alike. */
 export function learnApps(facts: Readonly<Record<string, AppFact>>): void {
 	apps = facts;
 }
@@ -48,7 +48,7 @@ const REPOSITORIES: Readonly<Record<string, Scope>> = {
 	'monoflake/platform': 'platform',
 };
 
-/** An app's display name; one the registry has not named is written as its code name. */
+/** An app's display name; one control has not named is written as its code name. */
 export const displayOf = (app: string): string => apps[app]?.display ?? app;
 
 /**
@@ -62,7 +62,7 @@ export function appLabel(app: string): string {
 }
 
 /**
- * The layer whose repository declares `app`, as the registry says; an app it does not hold, or
+ * The layer whose repository declares `app`, as control says; an app it does not hold, or
  * holds with no repository, is a service.
  */
 export function scopeOf(app: string): Scope {
@@ -72,7 +72,7 @@ export function scopeOf(app: string): Scope {
 /** Whether `view` shows `app`: All shows every one. */
 export const shows = (view: View, app: string): boolean => view === 'all' || scopeOf(app) === view;
 
-/** `path` read in `view`: `/nodes/tyo` in Infra is `/infra/nodes/tyo`, in All itself. */
+/** `path` read in `view`: `/nodes/<id>` in Infra is `/infra/nodes/<id>`, in All itself. */
 export function within(view: View, path = '/'): string {
 	if (view === 'all') return path;
 	return path === '/' ? `/${view}` : `/${view}${path}`;

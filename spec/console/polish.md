@@ -29,6 +29,6 @@ waiting. A check holds each mark to an RFC that exists and is not landed, and re
 surface's own inside one. Polishing a surface is styling it, taking the mark off and landing its RFC.
 
 **What a surface stands on is finished whatever its look**: how the console reads the platform,
-writes to it and follows what it started -- the facets, the registry's catalog and resources, a
-write and its task -- is built, tested and documented as polished code, since the look changes over
+writes to it and follows what it started -- the facets, control's catalog and resources, a
+write and its revision -- is built, tested and documented as polished code, since the look changes over
 it and it does not.

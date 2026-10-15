@@ -38,7 +38,7 @@ they had, a place never read last, and no order taken while the pointer is on a 
 move it out from under the pointer. The lines slide to their new places by GSAP, over 450 ms, or at
 once for a reader who asked for less motion and for a tab nobody is looking at; a page come to is
 drawn in order from the readings already held, never shuffled into it. Decided with the author on
-2026-10-09. Everything else about a place -- its apps, each of its nodes by code -- is the map's
+2026-10-09. Everything else about a place -- its apps, each of its nodes by city -- is the map's
 card, which pointing at a line opens; a node's line links to the node, and a shared place's to the
 nodes. A switch of figures above the list, and a shared place that folded open to a line a node,
 were each tried on 2026-10-09 and taken out as more machinery than a glance needs. The figures --
@@ -108,11 +108,9 @@ heard says so in red in its place. No state and no last-heard clock: the dot in 
 mark's color already say whether a node is heard. The card's title is the place's name and nothing
 beside it -- no city for a node named by its country, no flag, which is the list's. **A shared place is one table, read across**: the rows' names once at the left, a little apart,
 and the place's nodes as close columns, each headed by what tells it from the others there --
-`Tokyo`, `Narita`, `Haneda` -- with the country in the corner over the names, `Japan`, and no title
-above. One under another made the card as tall as the map, side by side with the names repeated
-made it as wide; the names once at the left keep it to both. A node's code is never its head --
-the code is the key and not a name, said only to assistive technology -- and each head links to
-its node.
+`Tokyo (055d)`, `Tokyo (26bf)`, `Tokyo (d132)`, the city and the shortest prefix of its id -- with
+the country in the corner over the names, `Japan`, and no title above. One under another made the card as tall as the map, side by side with the names repeated
+made it as wide; the names once at the left keep it to both. Each head links to its node by its id.
 
 **The last row is latency, each node's round trip to its nearest node**, the least of the round
 trips its relay times to every other over the tailnet -- platform's `spec/architecture/relay.md`,
@@ -120,8 +118,8 @@ trips its relay times to every other over the tailnet -- platform's `spec/archit
 other one's traffic goes, and the primary is no longer what a node is measured against. It is
 carried in seconds, as every duration is, and written by the page in milliseconds, a tenth under ten
 and whole above, `0.4ms`, `151ms`: the wire keeps the one rule and the page wraps it for a reader,
-as it wraps a node's code in its city. Which node is nearest is said in the row's title, by its city
-and its code, since one city may hold several. A node whose relay has timed no other lately says
+as it wraps a node's id in its city. Which node is nearest is said in the row's title, by its city
+and, where one city holds several, the prefix of its id. A node whose relay has timed no other lately says
 `–`, which is not the same as slow. The round trips move live, in the snapshots.
 
 **A country's flag stands before each place's name in the list**, drawn by Twemoji -- flat, as the
@@ -164,8 +162,8 @@ title" -- and the legend stands on the head's right, a bar of each color as a sl
 reader's words -- `Done`, `In progress`, `Partly failed`, `Failed`, never host's `succeeded` or
 `running` -- its words giving way to the bars alone where the head is narrow, each naming itself on
 its hover. Each line is headed by the node's flag, its dot saying how the node is -- "A flag's dot
-is how its node is" -- and the part of its place that tells it from the others there, `Tokyo`,
-`Narita`, `Haneda`. A run is one mark a node however many of its apps it placed there, in the slot
+is how its node is" -- and the part of its place that tells it from the others there, `Tokyo (055d)`,
+`Tokyo (26bf)`, `Tokyo (d132)`. A run is one mark a node however many of its apps it placed there, in the slot
 it started in, and a slot takes the worst of its runs; one run's slots stand one above another, so a
 rollout reads down the card. A skip draws nothing. **A slot is as dark as its runs rank among the
 slots of its color**, in ten shades: the share of them holding as many runs or fewer, taken in

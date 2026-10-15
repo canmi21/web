@@ -34,7 +34,7 @@ keeps it, and every page shows what belongs to the scope it is read in; the node
 shown under `Infra` and `All`. An app's scope is the layer of the repository the registry says declares it -- `monoflake/infra` Infra, `monoflake/platform` Platform, any other Services. Rules come in two levels: the
 shell's own a step fainter (`--border-subtle`), the page's cards and tables at `--border-default`. A page says what it is in its
 title and the facts beside it -- never a sentence about the page, under it or under a card. Its
-`<title>` is the one name the page is about and nothing around it -- `Nodes`, `tyo`, `#123`, an
+`<title>` is the one name the page is about and nothing around it -- `Nodes`, `Tokyo`, `#123`, an
 app's name -- with no product name and no separator: the console is behind Access and indexed by
 nobody, so a title is for a reader picking out a tab, and the shortest name does that best. Its
 icons are the `console` scope's marks, the API's own; its `app.html` names them at `/favicon.svg` and
@@ -58,11 +58,12 @@ it holds the state: **every read the console's server makes is answered at once,
 backend already holds in memory** -- never fanned out across the nodes, never computed while the
 console waits. A read the console needs and the backend cannot yet answer that way is the backend's
 to hold, not the console's to gather. **What the platform's control plane holds is read from the
-service that holds it**, decided on 2026-10-13: the registry's catalog and resources and the
-ledger's tasks are each one service's, asked over the VPC binding of the nearest node it runs on --
-`api.canmi.app/registry/...`, `/ledger/...` -- one hop and never fanned out, and a write goes the
-same way with the registry's token, which the console's server holds and the browser never does, as
-the reader's Access identity. **So the document's own response is drawn filled**: a page's load
+service that holds it**, decided on 2026-10-13: control's catalog and resources are asked of
+control, `{URLS.control}/v1/registry/...` over HTTPS with `CONTROL_READ_TOKEN`, a write with
+`CONTROL_WRITE_TOKEN` -- platform's `spec/architecture/control.md`, RFC o7eir -- and the ledger's
+tasks over the VPC binding of the nearest node it runs on, `/ledger/...`; one hop each and never
+fanned out. Both tokens are the console's server's, never the browser's, and a write is made as the
+reader's Access identity. **So the document's own response is drawn filled**: a page's load
 awaits its reads when the request is the browser's first, not a move -- `event.isDataRequest` false
 -- and the browser takes over from the data in the page with no read of its own; on a move between
 pages a read is streamed as above, since the browser holds most of it already. **A relay counts as
@@ -93,7 +94,7 @@ them -- a restart, a purge -- costs a read and changes nothing drawn. Decided wi
 - **Measured on 2026-10-10 in development**: the overview's first byte in 0.14-0.19 s with the
   reads kept, against 0.21-0.39 s past them; a kept facet answers in 1-10 ms.
 
-**A node is shown by its city, and its code is the key.** What the console writes for a node is a
+**A node is shown by its city, and its id is the key.** What the console writes for a node is a
 display name, its city and its country, written whole -- `Tokyo, Japan`, `Raleigh, United States`,
 and the country alone where the two are one name, `Singapore`. A node in the European Union is its
 country and the union instead -- `Sweden, European Union`, `Belgium, European Union` -- since its
@@ -101,22 +102,22 @@ countries are too small for a city to say more. **Each name has a short form bes
 `Raleigh, US`, `Sweden, EU`, the United States, the United Kingdom and the union written `US`, `UK`
 and `EU` -- kept for a place too narrow for the whole, and used only where the author has said one
 is; none has yet, as of 2026-10-09, when the short form stopped being what the console writes.
-The city and the country are the node's `place` as the registry holds it -- RFC 17b3o; its role is
-home where it is self-hosted, else core where it is a core, else relay. Several nodes may share one; the
-three-letter code is the one unique name, written small beside the city where two must be told
-apart, in a link, and in the address. A service is shown by its display name the same way, its
+The city and the country are the node's `city` and `country` as control holds them -- RFC o7eir; its
+role is home where it is self-hosted, else core where it is a core, else relay. Several nodes may
+share a city; the node's 16-hex id is its one unique name, in a link and in the address, and the
+shortest prefix of it, four digits or more, that tells it apart is written small beside the city
+only where another node shares the name -- `Tokyo (d132)`. A service is shown by its display name the same way, its
 code name small beside it, in a link and in the address; the display name is `display_name` in the
 service's `service.toml`, infra's `spec/architecture/host.md`, "One name inside, and a domain label
 outside".
 
-**The console copies no fact another repository keeps** -- RFC 17b3o. Each app's display name and repository, and each node's coordinates, place, tier, system and expiry and which nodes are cores, are read from the registry, its `/apps` and `/nodes`, which the import fills from the declarations. The server takes
+**The console copies no fact another repository keeps** -- RFC 17b3o. Each app's display name and repository, and each node's coordinates, place, tier, system and expiry and which nodes are cores, are read from control, its `/v1/registry/apps` and `/v1/registry/nodes`. The server takes
 them in before any page or facet runs: its isolate's copy for a minute, else the last answer kept in
 the edge's cache for thirty days, read again behind the request once a minute old; only where
-nothing is kept is the registry asked first. The browser takes them from the root layout's data.
-Where the registry has never answered and nothing is kept, every app is its code name and in
-Services, every node its code and a relay with its tier, system and expiry unread, the nodes are tried in continent order, and the page says so in one line. Each node's failure domain is still a copy, `DOMAINS` in `src/lib/nodes/facts.ts`, named as such until RFC 32hd9 settles where it is kept. **The registry is found first at `CORES`**, `tyo`, `sin` and `rdu` in
-`src/lib/server/control.ts`, a bootstrap as host's `REGISTRY` is; once it has answered, the cores it
-names are where the registry and the ledger are asked. The world map is built by `pnpm map` from
+nothing is kept is control asked first. The browser takes them from the root layout's data.
+Where control has never answered and nothing is kept, every app is its code name and in
+Services, every node its short id and a relay with its tier, system and expiry unread, the nodes are tried in continent order, and the page says so in one line. Each node's failure domain is still a copy, `DOMAINS` in `src/lib/nodes/facts.ts`, named as such until RFC 32hd9 settles where it is kept. **The ledger is found first at `CORES`**, the cores' ids in `src/lib/server/control.ts`, a bootstrap;
+once control has answered, the cores it names are where the ledger is asked. The world map is built by `pnpm map` from
 infra's `nodes/nodes.toml` in the checkout beside this one; no test reads another repository.
 
 **A figure is drawn before it is written.** A share of something -- memory, storage, CPU, a disk --
@@ -159,8 +160,8 @@ one place -- Tokyo's three -- are one mark, its depth from the apps they run tog
 from the busiest of them, red if any is gone, and its card listing each node.
 
 **Developing it reads the real nodes.** Each node's binding is declared `remote`, so `vite dev`
-reaches the same VPC services the deployed Worker does, with the read token in a `.dev.vars` written
-from infra's sops file and never printed -- `mise run //repos/web:dev-console` writes it when
+reaches the same VPC services the deployed Worker does, with host's and control's read tokens in a `.dev.vars`
+written from the sops files and never printed -- `mise run //repos/web:dev-console` writes it when
 missing. Vite keeps every WebSocket upgrade for its own reload, so in development alone a plugin
 takes the `live` stream at `/api/live`, its name, as development asks every facet, admits only
 the dev server's own `localhost` origin, and joins the browser to the

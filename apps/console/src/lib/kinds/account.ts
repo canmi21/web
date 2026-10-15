@@ -7,6 +7,7 @@
  */
 import type { Description, Field } from '../control/catalog.gen.ts';
 import type { Resource, Spec } from '../control/types.ts';
+import { nodeLabel } from '../map/places.ts';
 
 /** The fields an account is made in two steps of: its provider, then its identities. */
 export const PROVIDER = 'provider';
@@ -68,7 +69,7 @@ export interface Candidate {
 	moves: boolean;
 }
 
-/** The nodes not under account `id`, those under no account first, each by name. */
+/** The nodes not under account `id`, those under no account first, each by what it is called. */
 export function candidatesFor(nodes: readonly Resource[], id: string): Candidate[] {
 	const under = (node: Resource) => node.spec.account;
 	return nodes
@@ -76,7 +77,8 @@ export function candidatesFor(nodes: readonly Resource[], id: string): Candidate
 		.map((node) => ({ node, moves: typeof under(node) === 'string' && under(node) !== '' }))
 		.toSorted(
 			(a, b) =>
-				Number(a.moves) - Number(b.moves) || (a.node.name ?? '').localeCompare(b.node.name ?? ''),
+				Number(a.moves) - Number(b.moves) ||
+				nodeLabel(a.node.id).localeCompare(nodeLabel(b.node.id)),
 		);
 }
 

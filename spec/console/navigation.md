@@ -22,12 +22,12 @@ All, Infra, Platform, Services   Overview, Nodes (Infra and All), Deployments, A
   an account                     Overview, Nodes
 ```
 
-**What the registry holds has pages, and what is written there is a task**, added with the author
-on 2026-10-13 -- platform's RFC cpc2b. A node's and an app's `Spec` is the registry's resource, read
+**What control holds has pages, and a write there lands at a revision**, added with the author on
+2026-10-13 -- platform's RFC cpc2b and o7eir. A node's and an app's `Spec` is control's resource, read
 and edited from the catalog; a node's `Drift` is what its host reports as wanted and not running,
 running and not wanted, or behind; `Accounts` lists that kind, each a level, an account shown by its provider and its id's first eight digits, since it has no name -- platform's RFC 32hd9; a node's failure domain is its account and is not a page. **An account is made in two steps, its provider and then its identities**, both edited later as any field is; its `Nodes` page attaches a node to it and detaches one, each a write of that node's `account`, since a resource is under one account and keeps the reference -- decided with the author on 2026-10-13. Tasks
 lists the ledger's tasks, and a task opened from it is a record with one page, as a run is. A kind
-the registry comes to hold without a page of its own is reached under `/kinds/<plural>`, drawn from
+control comes to hold without a page of its own is reached under `/kinds/<plural>`, drawn from
 the catalog alone, so nothing it holds is out of reach while its page waits.
 
 **Entering a level replaces the sidebar with it.** The sidebar lists the pages of the level being
@@ -41,7 +41,7 @@ deeper, the level left slides off to the left as the new one arrives from the ri
 back up the two go the other way, so the reader feels which way they went -- the motion is
 [design.md](design.md), "Motion is GSAP". A move between two levels of one depth, or between views,
 has no slide. A level is never unfolded under its parent's entry, since a tree three deep has no
-room to indent. The top bar's trail is the same path written out, `Nodes / Tokyo, Japan tyo /
+room to indent. The top bar's trail is the same path written out, `Nodes / Tokyo, Japan d132 /
 Disk`, each step but the last a link, and the level's first page is left out of it, as an
 address's root is.
 

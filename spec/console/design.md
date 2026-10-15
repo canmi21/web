@@ -77,7 +77,7 @@ site's search, its behavior taken into the author's library -- `@canmi/kit`'s sh
 it from anywhere on `⌘K` or `Ctrl K` and closes it on the same keys from its own field, and its list
 cursor, which the arrows, Home, End and Enter drive as a combobox -- and drawn here in the console's
 look. It finds the view's pages, its nodes where the view shows them, each by the part of its place
-that tells it from the others there, `Narita, Japan`, and found by the whole place too, and the apps
+that tells it from the others there, `Tokyo, Japan (055d)`, and found by the whole place and by its id too, and the apps
 the view holds, by name or code; a name that starts with what is typed comes first, then a word in
 it, then a code, then anything holding it, under the headings Pages, Nodes and Apps. Enter opens the
 one the cursor is on. **It finds within the view being read**: with Platform chosen at the top bar's

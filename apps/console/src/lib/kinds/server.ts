@@ -1,5 +1,5 @@
 /**
- * What the pages over the registry read on the server: a kind's description from the catalog, its
+ * What the pages over control read on the server: a kind's description from the catalog, its
  * resources or one of them, and the resources its references may name, the catalog read once a
  * load. Writes are the browser's, src/lib/control/write.ts. Platform's RFC cpc2b.
  */

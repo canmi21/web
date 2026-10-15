@@ -14,6 +14,7 @@ import {
 	slots,
 	slotsIn,
 } from './timeline.ts';
+import { ID } from '../server/nodes.fixture.ts';
 
 const NOW = Date.parse('2026-10-09T12:00:00Z');
 const at = (hoursAgo: number) => new Date(NOW - hoursAgo * 3_600_000).toISOString();
@@ -21,7 +22,7 @@ const step = (over: Partial<Step>): Step => ({
 	source: 'run',
 	run: 7,
 	action: 'deploy',
-	node: 'tyo',
+	node: ID.tyo,
 	app: 'relay',
 	outcome: 'succeeded',
 	started_at: at(6),
@@ -32,7 +33,7 @@ const step = (over: Partial<Step>): Step => ({
 /** A slot of `runs` runs of one outcome. */
 const slot = (runs: number, outcome: Cell['outcome'] = 'succeeded'): Cell => ({
 	key: `${runs} ${outcome}`,
-	node: 'tyo',
+	node: ID.tyo,
 	index: runs,
 	of: 168,
 	outcome,
@@ -57,12 +58,12 @@ describe('timeline', () => {
 					started_at: at(5.9),
 					finished_at: at(5.8),
 				}),
-				step({ node: 'nrt' }),
+				step({ node: ID.nrt }),
 			],
 			NOW,
 		);
 		expect(drawn).toHaveLength(2);
-		expect(drawn.find((one) => one.node === 'tyo')).toMatchObject({
+		expect(drawn.find((one) => one.node === ID.tyo)).toMatchObject({
 			apps: ['relay', 'geo'],
 			outcome: 'mixed',
 			detail: 'gone',
@@ -73,7 +74,7 @@ describe('timeline', () => {
 		const drawn = marks(
 			[
 				step({ outcome: 'running', finished_at: undefined }),
-				step({ outcome: 'skipped', node: 'gvx' }),
+				step({ outcome: 'skipped', node: ID.gvx }),
 			],
 			NOW,
 		);

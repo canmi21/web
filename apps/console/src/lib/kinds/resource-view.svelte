@@ -1,15 +1,24 @@
 <script lang="ts">
 	/**
-	 * A resource as the registry holds it: what is wanted, by its kind's fields in the catalog's
+	 * A resource as control holds it: what is wanted, by its kind's fields in the catalog's
 	 * order, a masked value hidden until shown, then what is and what differs, as the platform wrote
 	 * them. Drift is drawn here, never worked out -- platform's RFC cpc2b.
 	 */
 	import type { Description } from '../control/catalog.gen.ts';
 	import type { Resource } from '../control/types.ts';
 	import FieldValue from './field-value.svelte';
-	import { shown } from './form.ts';
+	import { type Options, shown } from './form.ts';
 
-	let { description, resource }: { description: Description; resource: Resource } = $props();
+	let {
+		description,
+		resource,
+		options = {},
+	}: {
+		description: Description;
+		resource: Resource;
+		/** The resources references name, to write a name for an id. */
+		options?: Options;
+	} = $props();
 
 	const facts = (record: Record<string, unknown> | undefined) => Object.entries(record ?? {});
 	/** Keys the spec holds that the catalog does not describe, shown after the ones it does. */
@@ -27,7 +36,7 @@
 		<dd>{resource.revision}</dd>
 		{#each description.fields as field (field.name)}
 			<dt>{field.name}</dt>
-			<dd><FieldValue {field} value={resource.spec[field.name]} /></dd>
+			<dd><FieldValue {field} value={resource.spec[field.name]} {options} /></dd>
 		{/each}
 		{#each rest as [key, value] (key)}
 			<dt>{key}</dt>
