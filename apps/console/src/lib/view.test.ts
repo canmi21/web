@@ -76,7 +76,7 @@ describe('merge', () => {
 		expect(runsOf(view.nodes)).toBe('');
 	});
 
-	it('moves a node heard by its beat, and keeps a watched second across a newer entry', () => {
+	it("moves a node heard by its beat, and keeps a round's second across a newer entry", () => {
 		let view = merge(EMPTY, { type: 'node', node: ID.tyo, state: held(200) });
 		view = merge(view, { type: 'beat', node: ID.tyo, heard_at: '2026-10-06T12:00:09Z' });
 		expect(view.nodes[ID.tyo]?.heard_at).toBe('2026-10-06T12:00:09Z');
@@ -84,8 +84,9 @@ describe('merge', () => {
 		const late = merge(view, { type: 'beat', node: ID.tyo, heard_at: '2026-10-06T12:00:03Z' });
 		expect(late).toBe(view);
 		const sample = { at: 1, values: { 'cpu.usage': 40 } };
-		view = merge(view, { type: 'readings', node: ID.tyo, sample });
-		expect(view.nodes[ID.tyo]?.sample).toEqual(sample);
+		// A round's seconds, one a node; a node not held takes none.
+		view = merge(view, { type: 'seconds', seconds: { [ID.tyo]: sample, [ID.rdu]: sample } });
+		expect([view.nodes[ID.tyo]?.sample, view.nodes[ID.rdu]]).toEqual([sample, undefined]);
 		// The same version again keeps the later beat; a newer one keeps the second too.
 		const again = merge(view, { type: 'node', node: ID.tyo, state: { ...held(200), runs: 3 } });
 		expect([again.nodes[ID.tyo]?.heard_at, again.nodes[ID.tyo]?.runs]).toEqual([

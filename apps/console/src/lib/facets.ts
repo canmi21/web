@@ -33,7 +33,6 @@ export const NAMES = [
 	'live',
 	'create',
 	'patch',
-	'watch',
 ] as const satisfies readonly RouteName[];
 
 /** Where facets are asked, on the console's own origin. */

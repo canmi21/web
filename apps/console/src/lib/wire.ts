@@ -105,7 +105,7 @@ interface Beside {
 	readings?: Minutely;
 	/** Its relay's round trip to each neighbor, in seconds, over its newest minute. */
 	round_trip?: Record<string, number>;
-	/** The console's own, never a relay's: a watched node's latest second, from `readings`. */
+	/** The console's own, never a relay's: a watched node's latest second, from `seconds`. */
 	sample?: Second;
 }
 
@@ -169,8 +169,9 @@ export interface EntryDelta {
 
 /**
  * A relay's message: the whole cluster, a node's entry, what changed of one, that a node was heard,
- * every node heard in a round at once, or a watched node's second. A type this console does not
- * know is passed over, so a relay ahead of it never breaks it.
+ * every node heard in a round at once, or a round's second of each node lent while the page
+ * watches. A type this console does not know is passed over, so a relay ahead of it never breaks
+ * it.
  */
 export type Live =
 	| ({ type: 'cluster' } & Cluster)
@@ -178,7 +179,7 @@ export type Live =
 	| EntryDelta
 	| { type: 'beat'; node: string; heard_at: string }
 	| { type: 'beats'; beats: Record<string, string> }
-	| { type: 'readings'; node: string; sample: Second };
+	| { type: 'seconds'; seconds: Record<string, Second> };
 
 /**
  * One slot of one node's history, as `/history` answers it: absent where it holds nothing.

@@ -125,30 +125,3 @@ export async function openLive(request: Request, env: Env): Promise<Response> {
 	if (socket === undefined) return failure(502, 'upstream_unavailable');
 	return new Response(null, { status: 101, webSocket: socket });
 }
-
-/** A lease asked for: the node whose fine readings, and the relay a page's stream is on. */
-export interface Watched {
-	node: Node;
-	via?: Node;
-}
-
-/**
- * A lease on `node`'s fine readings, asked of `via`'s relay, where the page's stream is, else of
- * the nearest: whether one took it. A relay before the lease answers no such route, and the page
- * draws the minutes instead. Platform's spec/architecture/relay.md, RFC grmtb.
- */
-export async function watch(
-	edge: { env: Env; where?: Whereabouts; mock?: boolean },
-	{ node, via }: Watched,
-): Promise<{ watched: boolean }> {
-	if (edge.mock) return { watched: true };
-	const nodes = via ? [via] : order(edge.where);
-	const ask = (one: Node) =>
-		reach(edge.env, one, `/watch?node=${node}`, {
-			method: 'POST',
-			signal: AbortSignal.timeout(TIMEOUT),
-		});
-	const taken = await first(nodes, ask, (answer) => answer.ok);
-	await taken?.answer.body?.cancel();
-	return { watched: taken !== undefined };
-}

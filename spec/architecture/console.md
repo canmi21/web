@@ -307,9 +307,11 @@ while a version moved in the last ten. No snapshot carries events since platform
 an entry from a relay before it, still carrying them, is read for nothing else.
 
 **A node's readings reach a page coarse or fine.** Every entry carries its newest minute's
-`readings` and `round_trip`, which the list and the map draw. A node's page holds a lease on that
-node's second, the `watch` command renewing it every thirty seconds while shown, sent to the relay
-its stream is on, `via`. A node's charts read its own host, and where it does not answer, the
+`readings` and `round_trip`. While the page is shown its stream asks for every node's second,
+`watch=all`, and the list, the map, the table and a node's page draw each node's second as a
+round's `seconds` brings it; once hidden the stream closes and the lease with it. **A second gives
+way to a minute that ends after it**, the minute's `at` plus sixty seconds, so a second left from a
+stream that stopped is never drawn over newer means. A node's charts read its own host, and where it does not answer, the
 nearest relay's minutes of it, `/history?readings=true&node=` -- platform's RFC grmtb. A message
 of a type the page does not know is passed over, so a relay may add one before the console reads
 it. A round's `beats` moves each node it names to its `heard_at`, only forward, as a single

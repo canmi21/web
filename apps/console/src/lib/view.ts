@@ -5,7 +5,7 @@
  * with anything beside the snapshot moved is taken too -- its `state`, which time alone changes,
  * its `runs`, its newest minute, a later `heard_at` -- and a peer the relay has not heard gives its
  * state alone -- the same file, "A node says it is leaving before it goes". A beat moves a node's
- * `heard_at`, a round's beats each one's, a watched node's second its `sample`, and a message of
+ * `heard_at`, a round's beats each one's, a round's seconds each one's `sample`, and a message of
  * a type this console does not know is passed over.
  */
 import {
@@ -44,8 +44,11 @@ export function merge(view: View, message: Live): View {
 				(held, [node, at]) => heard(held, node, at),
 				view,
 			);
-		case 'readings':
-			return sampled(view, message.node, message.sample);
+		case 'seconds':
+			return Object.entries(message.seconds).reduce(
+				(held, [node, sample]) => sampled(held, node, sample),
+				view,
+			);
 		case 'delta':
 			return fits(view, message) ? changed(view, message) : view;
 		default:

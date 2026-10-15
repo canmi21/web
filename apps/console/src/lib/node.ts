@@ -52,10 +52,14 @@ export interface Readings {
 	booted?: number;
 }
 
+/** A minute's length in seconds, from the `at` it begins at. */
+const MINUTE = 60;
+
 /**
  * The meter's `{ info, sample }` as an entry carries it: the info its snapshot holds, and the
- * freshest second there is -- a watched node's, else its newest minute's means, else the one a
- * relay before platform's RFC grmtb put in the snapshot. Nothing where it carries neither.
+ * freshest second there is -- a watched node's while it is newer than its newest minute's end, else
+ * that minute's means, else the one a relay before platform's RFC grmtb put in the snapshot.
+ * Nothing where it carries neither.
  */
 export function machineIn(
 	entry: Entry | undefined,
@@ -70,7 +74,10 @@ export function machineIn(
 		),
 	};
 	const old = isRecord(carried.sample) ? (carried.sample as unknown as Second) : undefined;
-	const sample = entry?.sample ?? minute ?? old;
+	const second = entry?.sample;
+	// A second left from a stream that stopped yields to the first minute that ends after it.
+	const stale = second?.at !== undefined && minute !== undefined && second.at < minute.at + MINUTE;
+	const sample = (stale ? undefined : second) ?? minute ?? old;
 	if (carried.info === undefined && sample === undefined) return undefined;
 	return { info: carried.info, sample };
 }

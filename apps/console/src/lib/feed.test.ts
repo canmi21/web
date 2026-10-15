@@ -130,3 +130,33 @@ describe('the live stream, while the page is hidden', () => {
 		stop();
 	});
 });
+
+describe('the live stream, while the page is shown', () => {
+	it('watches every node, by event stream and by socket alike', async () => {
+		const dialed: string[] = [];
+		vi.stubGlobal(
+			'WebSocket',
+			class {
+				constructor(url: URL) {
+					dialed.push(url.toString());
+				}
+				close() {}
+			},
+		);
+		const stop = listening();
+		await vi.advanceTimersByTimeAsync(0);
+		// No relay answering with events: the socket, asked the same.
+		vi.mocked(fetch).mockResolvedValueOnce(new Response(null, { status: 426 }));
+		page.turn('hidden');
+		await vi.advanceTimersByTimeAsync(HIDDEN_MS);
+		page.turn('visible');
+		await vi.advanceTimersByTimeAsync(0);
+		const asked = vi.mocked(fetch).mock.calls.map(([url]) => String(url));
+		for (const url of [...asked, ...dialed]) {
+			const query = new URL(url).searchParams;
+			expect([query.get('deltas'), query.get('watch')]).toEqual(['true', 'all']);
+		}
+		expect([asked.length, dialed.length]).toEqual([2, 1]);
+		stop();
+	});
+});

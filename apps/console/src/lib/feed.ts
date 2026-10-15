@@ -43,6 +43,9 @@ export function listen(listener: Listener): () => void {
 	// Each node's changes rather than its entry whole, after the cluster; platform's RFC grmtb.
 	socketUrl.searchParams.set('deltas', 'true');
 	address.searchParams.set('deltas', 'true');
+	// Every node's second each round, for as long as the stream is open: closed while hidden, it
+	// costs nothing. Platform's spec/architecture/relay.md, RFC grmtb.
+	for (const url of [socketUrl, address]) url.searchParams.set('watch', 'all');
 
 	let socket: WebSocket | undefined;
 	/** The event stream being read, which aborting ends. */

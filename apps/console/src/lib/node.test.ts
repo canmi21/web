@@ -84,8 +84,13 @@ describe("an entry's machine", () => {
 			info,
 			sample: { at: Date.parse(HEARD) / 1000, values: { 'cpu.usage': 12 } },
 		});
-		const sample = { at: 9, values: { 'cpu.usage': 55 } };
+		// A second past the minute's end is over it; one from before it ends, a stream gone, is not.
+		const end = Date.parse(HEARD) / 1000 + 60;
+		const sample = { at: end, values: { 'cpu.usage': 55 } };
 		expect(machineIn(entry({ readings, sample }))?.sample).toEqual(sample);
+		const stale = { at: end - 1, values: { 'cpu.usage': 55 } };
+		expect(machineIn(entry({ readings, sample: stale }))?.sample).toEqual(minute?.sample);
+		expect(machineIn(entry({ sample: stale }))?.sample).toEqual(stale);
 	});
 
 	it("is a relay's second where one before the change put it in the snapshot, and none where none", () => {
